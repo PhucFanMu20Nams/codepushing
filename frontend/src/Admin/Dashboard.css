@@ -1,0 +1,38 @@
+.dashboard-root {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  margin-left: 20vw;
+  padding: 40px;
+  width: 80vw;
+  min-height: 100vh;
+  background: #f7f7f7;
+}
+
+.dashboard-content h1 {
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.admin-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-section h2 {
+  color: #555;
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.admin-section p {
+  color: #666;
+  margin: 0;
+}

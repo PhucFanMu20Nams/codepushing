@@ -1,0 +1,240 @@
+/* Import Google Fonts - matching the image design */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.popular-items {
+  width: 100%;
+  min-height: 100vh;
+  padding: 80px 0;
+  background-color: #ffffff;
+  margin: 0 auto;
+}
+
+.popular-items .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.section-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  text-align: center;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  color: #000000;
+  letter-spacing: 2px;
+}
+
+.section-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  text-align: center;
+  color: #666666;
+  margin: 0 0 60px 0;
+  line-height: 1.4;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px 30px;
+  margin: 0 auto 60px;
+  max-width: 100%;
+}
+
+.product-card {
+  background-color: #ffffff;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease;
+  border: none;
+  padding: 0;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Product image styling - exactly matching the image */
+.product-image {
+  width: 100%;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border-radius: 0;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-info {
+  padding: 0;
+}
+
+.product-name {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  color: #000000;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-brand {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #666666;
+  margin: 0 0 12px 0;
+}
+
+.product-price {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0;
+  color: #000000;
+}
+
+/* Shop now button container - exactly centered like in image */
+.shop-now-container {
+  text-align: center;
+  width: 100%;
+  margin: 40px auto 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Shop now button styling - matching the image exactly */
+.shop-now-btn {
+  background-color: #000000;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 15px 35px;
+  border: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1.5px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.shop-now-btn:hover {
+  background-color: #333333;
+  transform: translateY(-1px);
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 60px 0;
+  font-family: 'Inter', sans-serif;
+  color: #666666;
+}
+
+/* Responsive adjustments - maintaining the design integrity */
+@media (max-width: 992px) {
+  .popular-items .container {
+    padding: 0 30px;
+  }
+  
+  .products-grid {
+    gap: 30px 20px;
+  }
+  
+  .product-image {
+    height: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .popular-items {
+    padding: 60px 0;
+  }
+  
+  .popular-items .container {
+    padding: 0 20px;
+  }
+  
+  .section-title {
+    font-size: 28px;
+    letter-spacing: 1.5px;
+  }
+  
+  .section-subtitle {
+    font-size: 15px;
+    margin-bottom: 40px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px 15px;
+  }
+  
+  .product-image {
+    height: 200px;
+  }
+  
+  .product-name {
+    font-size: 15px;
+  }
+  
+  .product-price {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .popular-items {
+    padding: 40px 0;
+  }
+  
+  .popular-items .container {
+    padding: 0 15px;
+  }
+  
+  .section-title {
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+  
+  .products-grid {
+    gap: 20px 10px;
+  }
+  
+  .product-image {
+    height: 180px;
+  }
+  
+  .shop-now-btn {
+    padding: 12px 30px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+}

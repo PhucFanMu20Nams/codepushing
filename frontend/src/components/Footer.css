@@ -1,0 +1,151 @@
+/* filepath: c:\Users\phucp\Desktop\texturaa\textura-reacts\src\components\Footer.css */
+.modern-footer {
+  background-color: #f8f8f8;
+  padding: 60px 0;
+  position: relative;
+  overflow: hidden;
+  background-image: url('../assets/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  margin-top: auto; /* This helps push it to the bottom */
+}
+
+/* Add a semi-transparent overlay to ensure content remains readable */
+.modern-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Ensure content appears above the overlay */
+.footer-container {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  height: 5vh;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.brand-section {
+  text-align: center;
+  margin: 0 40px;
+}
+
+.brand-name {
+  font-family: 'Farro', sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin: 0;
+  color: #000;
+  letter-spacing: 1px;
+}
+
+.tagline {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  margin: 5px 0 0;
+  color: #333;
+}
+
+.social-icon {
+  margin: 0 20px;
+}
+
+.social-icon a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.social-icon svg {
+  width: 30px;
+  height: 30px;
+  fill: #000;
+  transition: all 0.3s ease;
+}
+
+/* Hover effects with brand colors */
+.social-icon.facebook a:hover svg {
+  fill: #1877F2; /* Facebook blue */
+}
+
+.social-icon.instagram a:hover svg {
+  fill: #E4405F; /* Instagram gradient approximation */
+}
+
+.social-icon.tiktok a:hover svg {
+  fill: #000000; /* TikTok black */
+}
+
+.social-icon.email a:hover svg {
+  fill: #DB4437; /* Email/Gmail red */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+  }
+  
+  .brand-section {
+    order: -1;
+    margin: 0 0 30px;
+  }
+  
+  .social-icon {
+    margin: 15px;
+  }
+  
+  .social-icons-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .modern-footer {
+    height: 20vh !important;
+    min-height: 120px;
+    padding: 0;
+  }
+  .footer-container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+    padding: 16px;
+  }
+  .brand-section,
+  .tagline {
+    text-align: left;
+    align-items: flex-start;
+    margin: 0;
+    width: auto;
+  }
+  .brand-section {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .social-icons-container {
+    margin: 0;
+    justify-content: flex-end;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+    gap: 10px;
+  }
+}

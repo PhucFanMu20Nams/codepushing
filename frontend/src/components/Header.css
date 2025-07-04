@@ -1,0 +1,551 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Farro:wght@400;500;700&display=swap');
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  min-block-size: 50px;
+  line-height: 50px;
+  background-image: url('/assets/images/banner-45.jpg'); /* Add background image */
+  background-size: cover;
+  background-position: center top;
+}
+
+/* Add an overlay to ensure the menu items remain readable */
+.header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-color: rgba(255, 255, 255, 0.85); /* Add white translucent overlay */
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  padding: 0 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.logo {
+  flex: 1;
+  font-family: 'Farro', sans-serif;
+  font-weight: 500;
+  font-size: 75px;
+  margin-left: 0;
+}
+
+.main-nav {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0; /* We'll use padding instead of gap */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Equal horizontal padding for each nav item */
+.nav-item {
+  padding: 0 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.logo,
+.logo a {
+  font-family: 'Farro', sans-serif;
+  font-weight: 500;
+  font-size: 75px;
+  margin-right: 36px;
+  margin-left: 0;
+  padding: 0;
+  line-height: 1;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  height: 70px;
+  color: #000;
+  text-decoration: none;
+}
+
+.nav-item a {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #000;
+  text-decoration: none;
+  padding: 8px 0;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-item a:hover {
+  font-weight: 600;
+  color: #000;
+}
+
+.nav-item a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #000;
+  transition: width 0.3s ease;
+}
+
+.nav-item a:hover::after {
+  width: 100%;
+}
+
+.montserrat-font a {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.farro-font a {
+  font-family: 'Farro', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+
+/* Fix Category positioning so it doesn't overlap with TEXTURA */
+.nav-item:nth-child(2) { 
+  display: flex; /* Show Category menu item */
+  margin-right: 20px;
+  position: relative; /* Ensure it respects normal flow */
+  margin-left: 0; /* Remove any left margin if present */
+}
+
+/* Position Service with proper spacing - adjust right margin */
+.nav-item:nth-child(4) { 
+  margin-left: auto; /* Push to the right end of nav-list */
+  margin-right: 80px;
+}
+
+/* Enhance search bar styling */
+.header-icons {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.search-input {
+  color: black;
+  height: 36px;
+  width: 180px;
+  background-color: #fafafd;
+  border: none;
+  border-radius: 20px;
+  padding: 0 35px 0 15px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  outline: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Position the search icon inside the input */
+.icon-link.search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #222;
+}
+
+/* User icon styling */
+.icon-link.user-icon {
+  margin-right: 5px;
+  transform: scale(1.2);
+}
+
+.header,
+.header-container,
+.main-nav .nav-list,
+.nav-item,
+.header-icons,
+.search-input {
+  font-size: 0.9rem; /* or any smaller value you prefer */
+}
+
+/* Optionally, target specific font classes */
+.montserrat-font,
+.farro-font {
+  font-size: 0.95rem;
+}
+
+/* Remove these if present */
+.nav-item.logo,
+.nav-item:nth-child(2),
+.nav-item:nth-child(4) {
+  margin: 0 !important;
+}
+.nav-item.logo {
+  margin-right: 0;
+}
+.nav-item:nth-child(4) {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.nav-item.logo {
+  margin-right: 10vw; /* 20% space after TEXTURA */
+}
+
+/* Search dropdown styles - Fixed size and positioning */
+.header-search-results {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  width: 350px; /* Increased from 320px */
+  max-width: 90vw;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+  z-index: 1000;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e5e5e5;
+  animation: searchDropdownFadeIn 0.2s ease-out;
+}
+
+/* Search results title */
+.search-results-title {
+  font-size: 13px; /* Increased from 12px */
+  font-weight: 600;
+  color: #666;
+  padding: 12px 16px 8px 16px;
+  margin: 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Product results list */
+.header-product-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual product result item */
+.header-product-result-item {
+  display: flex;
+  align-items: flex-start; /* Changed from center to flex-start */
+  padding: 12px 16px; /* Increased padding */
+  border-bottom: 1px solid #f8f8f8;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.header-product-result-item:hover {
+  background-color: #f8f8f8;
+}
+
+.header-product-result-item:last-child {
+  border-bottom: none;
+}
+
+/* Product image in results */
+.header-product-result-image {
+  width: 50px; /* Increased from 40px */
+  height: 50px; /* Increased from 40px */
+  margin-right: 14px; /* Increased margin */
+  flex-shrink: 0;
+}
+
+.header-product-result-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px; /* Slightly more rounded */
+}
+
+/* Product details */
+.header-product-result-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-product-result-category {
+  font-size: 11px; /* Increased from 10px */
+  color: #999;
+  margin-bottom: 3px; /* Increased margin */
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.header-product-result-name {
+  font-size: 14px; /* Increased from 13px */
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px; /* Increased margin */
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.3; /* Allow text wrapping */
+  word-wrap: break-word; /* Break long words */
+  overflow-wrap: break-word; /* Modern property */
+  white-space: normal; /* Allow wrapping instead of nowrap */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.header-product-result-price {
+  font-size: 13px; /* Increased from 12px */
+  font-weight: 600;
+  color: #000;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.2;
+}
+
+/* View more button container */
+.header-view-more-container {
+  padding: 10px 16px; /* Increased padding */
+  border-top: 1px solid #f0f0f0;
+}
+
+.header-view-more-btn {
+  width: 100%;
+  padding: 10px 16px; /* Increased padding */
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 13px; /* Increased from 12px */
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.header-view-more-btn:hover {
+  background-color: #333;
+  color: white;
+}
+
+/* Loading and no results states */
+.search-loading,
+.no-search-results {
+  padding: 20px 16px;
+  text-align: center;
+  color: #666;
+  font-size: 14px; /* Increased from 13px */
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Custom scrollbar for search results */
+.header-search-results::-webkit-scrollbar {
+  width: 3px; /* Very thin scrollbar */
+}
+
+.header-search-results::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.header-search-results::-webkit-scrollbar-thumb {
+  background: rgba(200, 200, 200, 0.3);
+  border-radius: 2px;
+}
+
+.header-search-results::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 200, 200, 0.5);
+}
+
+/* Responsive adjustments for search dropdown */
+@media (max-width: 768px) {
+  .header-search-results {
+    position: fixed;
+    top: 70px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-height: 60vh;
+  }
+  
+  .header-product-result-image {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-search-results {
+    left: 5px;
+    right: 5px;
+    max-height: 50vh;
+  }
+  
+  .header-product-result-image {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .header-product-result-name {
+    font-size: 13px;
+  }
+}
+
+/* Dropdown parent positioning */
+.dropdown-parent {
+  position: relative;
+}
+
+/* Active nav item styling */
+.nav-item a.active {
+  color: #000;
+  font-weight: 600;
+}
+
+/* Dropdown menu styling - Flipped to left direction */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0; /* Changed from right: 0 to left: 0 */
+  transform: none;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  z-index: 1000;
+  min-width: 320px;
+  max-width: 650px;
+  border: 1px solid #e5e5e5;
+  margin-top: 8px;
+  animation: dropdownFadeInRight 0.2s ease-out; /* Updated animation name */
+}
+
+/* Updated animation for dropdown from left */
+@keyframes dropdownFadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-10px); /* Slide from left */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Mega Menu Panel - Also flipped to left direction */
+.mega-menu-panel {
+  position: absolute;
+  top: 100%;
+  left: 0; /* Changed from right: 0 to left: 0 */
+  transform: none;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  z-index: 1000;
+  width: 750px;
+  max-width: 90vw;
+  border: 1px solid #e5e5e5;
+  margin-top: 10px;
+  animation: megaMenuFadeInRight 0.3s ease-out; /* Updated animation name */
+}
+
+/* Updated animation for mega menu from left */
+@keyframes megaMenuFadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-15px); /* Slide from left */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Remove or update the old animations */
+@keyframes dropdownFadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes megaMenuFadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Alternative dropdown positioning options */
+.dropdown-menu-center {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%); /* Center aligned */
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  z-index: 1000;
+  min-width: 320px;
+  max-width: 650px;
+  border: 1px solid #e5e5e5;
+  margin-top: 8px;
+  animation: dropdownFadeInCenter 0.2s ease-out;
+}
+
+@keyframes dropdownFadeInCenter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dropdown-menu,
+  .mega-menu-panel {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    transform: none;
+    border-radius: 0;
+    max-width: none;
+    margin-top: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+}

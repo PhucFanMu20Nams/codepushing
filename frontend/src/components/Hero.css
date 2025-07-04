@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Farro:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap');
+
+.hero {
+  position: relative;
+  height: 100vh;
+  width: 100%;     /* Ensures it stretches across the screen */
+  left: 0;
+  right: 0;
+  overflow: hidden; /* Prevent any possible overflow */
+  /* background-video: url('../assets/images/background.mp4'); */
+  margin-bottom: 20px;
+}
+
+.hero-bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-title {
+  font-family: 'Farro', sans-serif;
+  font-weight: 700;
+  font-size: 72px;
+  line-height: 100%;
+  color: #000000;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.hero-subtitle {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 100%;
+  color: #303030;
+  margin-bottom: 32px;
+}
+
+.shop-now-btn {
+  width: 200px;
+  height: 50px;
+  background-color: #000000;
+  color: #FFFFFF;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 50px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  border-radius: 0px; 
+  box-shadow: 0 6px 6px -6px rgba(0,0,0,0.3); /* Bottom shadow */
+}
+
+.shop-now-btn:hover {
+  background-color: #303030;
+}
+
+/* Responsive adjustments remain the same */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 50px;
+  }
+  
+  .hero-subtitle {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 48px;
+  }
+  
+  .hero-subtitle {
+    font-size: 18px;
+  }
+}

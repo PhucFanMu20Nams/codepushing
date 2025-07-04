@@ -1,0 +1,513 @@
+/* Product Page - Redesigned Structure */
+.product-page {
+  background-color: #f8f8f8;
+  min-height: 100vh;
+  width: 100%;
+  padding-top: 70px; /* Reduced from 90px to match header height */
+  padding-bottom: 20px;
+  padding-left: 0;
+  padding-right: 0;
+  margin-top: 20px;
+}
+
+.product-page-layout {
+  display: flex;
+  min-height: calc(100vh - 70px); /* Subtract header height */
+  max-width: 1440px; /* Same as header */
+  margin: 0 auto; /* Same as header */
+  padding: 0 32px; /* Same as header */
+  align-items: flex-start; /* Important for sticky positioning */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Left Sidebar - Filters */
+.product-page-sidebar {
+  width: 250px;
+  background-color: white;
+  border-right: 1px solid #e0e0e0;
+  position: sticky; /* Sticky positioning */
+  top: 90px; /* Position below header + some margin */
+  height: calc(100vh - 110px); /* Adjust height for better sticky behavior */
+  overflow-y: auto;
+  z-index: 50; /* Lower than header */
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  border-radius: 8px; /* Add some rounding */
+  margin-right: 20px; /* Add margin to separate from main content */
+}
+
+/* Custom scrollbar styling for sidebar */
+.product-page-sidebar::-webkit-scrollbar {
+  width: 2px; /* Very thin scrollbar */
+}
+
+.product-page-sidebar::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track */
+  border-radius: 1px;
+}
+
+.product-page-sidebar::-webkit-scrollbar-thumb {
+  background: transparent; /* Transparent by default */
+  border-radius: 1px;
+  transition: background 0.2s ease;
+}
+
+.product-page-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 200, 200, 0.3); /* Very subtle gray on hover */
+}
+
+/* Firefox scrollbar styling for sidebar */
+.product-page-sidebar {
+  scrollbar-width: thin; /* Make scrollbar thin in Firefox */
+  scrollbar-color: transparent transparent; /* Transparent thumb and track */
+}
+
+/* Show subtle scrollbar only on hover of sidebar */
+.product-page-sidebar:hover::-webkit-scrollbar-thumb {
+  background: rgba(200, 200, 200, 0.2); /* Very light gray when hovering sidebar */
+}
+
+.product-page-sidebar:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 200, 200, 0.4); /* Slightly more visible when hovering scrollbar directly */
+}
+
+.sidebar-content {
+  padding: 20px;
+  padding-bottom: 40px; /* Reduce bottom padding */
+}
+
+.category-breadcrumb {
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.category-breadcrumb span {
+  font-size: 14px;
+  color: #666;
+  font-weight: 400;
+}
+
+/* Filter Groups */
+.filter-group {
+  margin-bottom: 30px;
+}
+
+.filter-heading {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Search Box */
+.search-box {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 16px 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-box input:focus {
+  border-color: #333;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  pointer-events: none;
+}
+
+/* Filter Options */
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 150px; /* Limit height to show scroll */
+  overflow-y: auto; /* Add vertical scroll */
+  border: 1px solid #eee; /* Optional: add border */
+  border-radius: 6px; /* Optional: rounded corners */
+  padding: 8px; /* Add some padding */
+}
+
+/* Custom scrollbar styling - Made smaller and more subtle */
+.filter-options::-webkit-scrollbar {
+  width: 1px; /* Very thin scrollbar - smaller than before */
+}
+
+.filter-options::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track */
+  border-radius: 1px;
+}
+
+.filter-options::-webkit-scrollbar-thumb {
+  background: #c4c4c4; /* Light gray like property tables */
+  border-radius: 1px;
+  opacity: 0.5; /* More subtle */
+}
+
+.filter-options::-webkit-scrollbar-thumb:hover {
+  background: #999; /* Darker gray on hover */
+  opacity: 0.7;
+}
+
+/* Firefox scrollbar styling */
+.filter-options {
+  scrollbar-width: thin; /* Make scrollbar thin in Firefox */
+  scrollbar-color: #c4c4c4 transparent; /* Light gray thumb, transparent track */
+}
+
+/* Hide scrollbar when not hovering (optional) */
+.filter-options::-webkit-scrollbar-thumb {
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.filter-options:hover::-webkit-scrollbar-thumb {
+  background: #c4c4c4;
+  opacity: 0.5;
+}
+
+.filter-options:hover::-webkit-scrollbar-thumb:hover {
+  background: #999;
+  opacity: 0.7;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 8px; /* Slightly more padding */
+  border-radius: 4px; /* Rounded corners for options */
+  transition: background-color 0.2s ease; /* Smooth transition */
+}
+
+.filter-option:hover {
+  background-color: #f0f0f0; /* Hover effect */
+}
+
+.filter-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #333;
+  flex-shrink: 0; /* Prevent checkbox from shrinking */
+}
+
+.filter-option span {
+  font-size: 14px;
+  color: #333;
+  user-select: none;
+  flex: 1; /* Take remaining space */
+}
+
+/* Price Range */
+.price-range {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Reduced gap */
+  width: 100%; /* Ensure full width */
+}
+
+.price-range input {
+  flex: 1;
+  min-width: 0; /* Allow inputs to shrink below their content size */
+  padding: 8px 6px; /* Reduced padding */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px; /* Smaller font size */
+  text-align: center;
+  outline: none;
+  box-sizing: border-box;
+  width: calc(50% - 15px); /* Explicit width calculation */
+}
+
+.price-range input:focus {
+  border-color: #333;
+}
+
+.price-range span {
+  color: #666;
+  font-weight: 500;
+  font-size: 14px;
+  flex-shrink: 0; /* Prevent the dash from shrinking */
+  width: 10px; /* Fixed width for the dash */
+  text-align: center;
+}
+
+/* Main Content */
+.product-page-main {
+  flex: 1;
+  margin-left: 0; /* Remove left margin since sidebar is not fixed */
+  background-color: white;
+  min-height: calc(100vh - 70px);
+  margin-bottom: 0; /* Remove any bottom margin */
+  border-radius: 8px; /* Match sidebar rounding */
+}
+
+/* Page Header */
+.page-header {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: white;
+  width: 100%;
+}
+
+.page-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 40px;
+  letter-spacing: 2px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.instagram-promo {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  padding: 25px 30px;
+  gap: 30px;
+  max-width: 500px;
+}
+
+.promo-text {
+  text-align: left;
+}
+
+.promo-text p {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.promo-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.promo-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Products Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 40px;
+  background-color: #f8f8f8;
+  margin-bottom: 0; /* Ensure no bottom margin */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.product-card {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.product-image {
+  width: 100%;
+  height: 280px;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-info {
+  padding: 20px;
+}
+
+.product-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.3;
+}
+
+.product-brand {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.product-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Pagination */
+.pagination {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f8f8f8;
+  width: 100%;
+}
+
+.next-btn {
+  background-color: #000;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.next-btn:hover {
+  background-color: #333;
+}
+
+.next-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Loading and Empty States */
+.loading,
+.no-products {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Responsive Design - Same breakpoints as Header */
+@media (max-width: 1200px) {
+  .product-page-layout {
+    padding: 0 20px; /* Reduce padding on smaller screens */
+  }
+  
+  .product-page-sidebar {
+    margin-right: 15px; /* Reduce margin on smaller screens */
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 30px;
+  }
+  
+  .page-title {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-page-layout {
+    flex-direction: column;
+    padding: 0 15px; /* Match typical mobile padding */
+  }
+  
+  .product-page-sidebar {
+    position: static; /* Reset to static on mobile */
+    width: 100%;
+    height: auto;
+    top: auto;
+    box-shadow: none;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+  
+  .product-page-main {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .products-grid {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    width: 100%;
+  }
+  
+  .page-title {
+    font-size: 32px;
+  }
+  
+  .instagram-promo {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .sidebar-content {
+    padding-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-page-layout {
+    padding: 0 10px; /* Even tighter padding on very small screens */
+  }
+  
+  .page-header {
+    padding: 20px 15px;
+  }
+  
+  .page-title {
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+  
+  .products-grid {
+    padding: 15px;
+    gap: 15px;
+  }
+  
+  .product-info {
+    padding: 15px;
+  }
+}

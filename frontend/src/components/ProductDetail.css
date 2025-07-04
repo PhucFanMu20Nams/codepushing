@@ -1,0 +1,317 @@
+body, html {
+  min-height: 100vh;
+}
+
+.product-detail-container {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 120px; /* Consistent page margins on desktop */
+  margin-bottom: 30px;
+  padding-top: 90px;
+  height: fit-content;
+}
+
+/* Breadcrumb styling with modern separators */
+.breadcrumb {
+  background: white; /* Subtle background bar */
+  padding: 12px 0;
+  margin: -20px -120px 30px -120px; /* Full width bar */
+  color: #666;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-left: 120px; /* Align with content */
+}
+
+.product-content {
+  display: grid; /* Use grid for better alignment */
+  grid-template-columns: 1fr 1fr; /* Equal columns */
+  gap: 60px; /* Consistent gutter */
+  align-items: start;
+  justify-items: stretch; /* Ensure items stretch to full width */
+}
+
+/* Image container with card styling */
+.product-images {
+  position: relative;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  padding: 40px; /* Add padding to center image in frame */
+}
+
+.main-image {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s cubic-bezier(.4,0,.2,1);
+  display: block;
+  margin: 0 auto; /* Ensure image is centered horizontally */
+}
+
+/* Modern arrow buttons */
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent; /* Make background transparent */
+  border: none;
+  z-index: 2;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  transition: background 0.2s;
+  /* border-radius: 8px; Optional: rounded corners for better look */
+}
+
+.arrow:hover {
+  transform: translateY(-50%) scale(1.05);
+}
+
+.arrow.left {
+  left: 10px;
+}
+
+.arrow.right {
+  right: 10px;
+}
+
+/* .arrow:focus {
+  outline: 2px solid #181818;
+} */
+
+.product-info {
+  padding-top: 20px;
+  text-align: left; /* Ensure consistent left alignment */
+  padding-left: 0; /* Remove any unwanted left padding */
+}
+
+/* Brand styling - subtle and uppercase */
+.brand {
+  font-family: 'farro', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #1E1E1E;
+  margin-bottom: 8px;
+  margin-left: 0; /* Remove any default margin */
+  padding-left: 0; /* Remove any default padding */
+  text-align: left;
+}
+
+/* Product name with better hierarchy */
+.product-name {
+  font-size: 32px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 12px;
+  margin-left: 0; /* Ensure no left margin */
+  padding-left: 0; /* Ensure no left padding */
+  line-height: 1.2;
+  color: #333;
+  text-align: left;
+  position: relative; /* Add position context */
+  left: 0; /* Explicitly set left position */
+}
+
+/* Price with accent color */
+.price {
+  font-size: 24px;
+  margin-bottom: 10px;
+  margin-left: 0; /* Remove any default margin */
+  padding-left: 0; /* Remove any default padding */
+  font-weight: 200;
+  color: #1E1E1E;
+  text-align: left;
+}
+
+/* Additional reset for any inherited spacing */
+.product-info * {
+  box-sizing: border-box;
+}
+
+/* Enhanced CTA button */
+.inbox-btn {
+  width: 200px;
+  padding: 18px;
+  background: #000;
+  color: white;
+  border: none;
+  border-radius: 6px; /* Subtle corner radius */
+  margin: 25px 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* Pressable shadow */
+  transition: all 0.2s ease;
+}
+
+.inbox-btn:hover {
+  background: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+.inbox-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.details {
+  margin-top: 10px;
+}
+
+.details h3 {
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #333;
+}
+
+.details ul {
+  list-style-type: disc;
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.details li {
+  font-size: 12px;
+  margin-bottom: 12px;
+  line-height: 1.6; /* Better legibility */
+  color: #555;
+}
+
+/* Size options styling */
+.size-selection p{
+  padding: 10px 0px;
+}
+.size-options {
+  max-width: 400px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px; /* 10px space between each size option */
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.size-option {
+  padding: 5px 5px;
+  border: 1px solid #ccc;
+  border-radius: 0; /* No corner radius for a more modern look */
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+.size-option.selected,
+.size-option:active {
+  border-color: #000;
+  background: #f2f2f2;
+  padding: 20px 20px;
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+  .product-detail-container {
+    padding: 0 20px;
+    padding-top: 90px;
+  }
+  
+  .breadcrumb {
+    margin: -20px -20px 30px -20px;
+    padding-left: 20px;
+  }
+  
+  .product-content {
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: 30px;
+  }
+  
+  .inbox-btn {
+    width: 250px;
+  }
+  
+  .size-options {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-name {
+    font-size: 28px;
+  }
+  
+  .price {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .arrow {
+    display: none !important;
+  }
+
+  .main-image {
+    width: 100%;
+    height: 60vh;
+    max-height: 80vh;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+  }
+}
+
+.slide-right {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.slide-left {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.slide-left-in {
+  transform: translateX(-100%);
+  opacity: 0;
+  animation: slideInFromLeft 0.3s forwards;
+}
+
+.slide-right-in {
+  transform: translateX(100%);
+  opacity: 0;
+  animation: slideInFromRight 0.3s forwards;
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
