@@ -1,7 +1,131 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import './ProductPage.css';
 import apiService from '../utils/apiService.js';
+
+// Component to show available products when no products found in current category
+function NoProductsFoundWithAlternatives({ currentCategory }) {
+  const [availableProducts, setAvailableProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAvailableProducts = async () => {
+      try {
+        setLoading(true);
+        // Fetch all products without category filter to show available options
+        const data = await apiService.getProducts({ limit: 20 });
+        setAvailableProducts(data.products || []);
+      } catch (error) {
+        console.error('Error fetching available products:', error);
+        setAvailableProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailableProducts();
+  }, []);
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return '/placeholder-image.jpg';
+    if (imagePath.startsWith('http')) return imagePath;
+    return `http://localhost:5000${imagePath.startsWith('/') ? imagePath : `/${imagePath}`}`;
+  };
+
+  if (loading) {
+    return <div className="loading">Loading available products...</div>;
+  }
+
+  // Filter products by category to show relevant products
+  const categoryProducts = availableProducts.filter(product => 
+    product.category && product.category.toLowerCase() === currentCategory.toLowerCase()
+  );
+
+  // Get other category products for "Other Items You Might Like"
+  const otherProducts = availableProducts.filter(product => 
+    product.category && product.category.toLowerCase() !== currentCategory.toLowerCase()
+  );
+
+  return (
+    <div className="no-products-section">
+      {/* Show category products if any exist */}
+      {categoryProducts.length > 0 && (
+        <>
+          <div className="no-products-header">
+            <h2>Available {currentCategory} Products</h2>
+            <p>Here are all our {currentCategory.toLowerCase()} items</p>
+          </div>
+          
+          <div className="available-products-grid">
+            {categoryProducts.map(product => (
+              <Link to={`/product/${product.id}`} key={product.id} className="available-product-card">
+                <div className="available-product-image">
+                  <img 
+                    src={getImageUrl(product.image)} 
+                    alt={product.name}
+                    onError={(e) => {
+                      e.target.src = '/placeholder-image.jpg';
+                    }}
+                  />
+                </div>
+                <div className="available-product-info">
+                  <h3 className="available-product-name">{product.name}</h3>
+                  <p className="available-product-brand">{product.brand}</p>
+                  <p className="available-product-price">
+                    {typeof product.price === 'number' 
+                      ? product.price.toLocaleString('vi-VN') + ' VND' 
+                      : product.price}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+      
+      {/* Show other products section */}
+      {otherProducts.length > 0 && (
+        <>
+          <div className="no-products-header" style={{ marginTop: categoryProducts.length > 0 ? '60px' : '0' }}>
+            <h2>{categoryProducts.length > 0 ? 'Other Items You Might Like' : `No ${currentCategory} Products Found`}</h2>
+            <p>{categoryProducts.length > 0 ? 'Explore these featured products from other categories' : 'But here are our featured products you might like'}</p>
+          </div>
+          
+          <div className="available-products-grid">
+            {otherProducts.slice(0, 6).map(product => (
+              <Link to={`/product/${product.id}`} key={product.id} className="available-product-card">
+                <div className="available-product-image">
+                  <img 
+                    src={getImageUrl(product.image)} 
+                    alt={product.name}
+                    onError={(e) => {
+                      e.target.src = '/placeholder-image.jpg';
+                    }}
+                  />
+                </div>
+                <div className="available-product-info">
+                  <h3 className="available-product-name">{product.name}</h3>
+                  <p className="available-product-brand">{product.brand}</p>
+                  <p className="available-product-price">
+                    {typeof product.price === 'number' 
+                      ? product.price.toLocaleString('vi-VN') + ' VND' 
+                      : product.price}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+      
+      <div className="browse-all-container">
+        <Link to="/" className="browse-all-btn">
+          BROWSE ALL PRODUCTS
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 function ProductPage() {
   const [products, setProducts] = useState([]);
@@ -93,12 +217,8 @@ function ProductPage() {
     setFilterOptions(getFilterConfig());
   }, [currentCategory]);
 
-  // Fetch products on component mount and when filters change
-  useEffect(() => {
-    fetchProducts();
-  }, [filters, currentPage, location.pathname]);
-
-  const fetchProducts = async () => {
+  // Fetch products function with useCallback to prevent infinite re-renders
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const params = {
@@ -127,7 +247,75 @@ function ProductPage() {
         params.maxPrice = filters.priceMax;
       }
 
-      const data = await apiService.getProducts(params);
+      // First try with all filters
+      let data = await apiService.getProducts(params);
+      
+      // If no products found, try frontend filtering as fallback
+      if (!data.products || data.products.length === 0) {
+        // Fetch all products and filter on frontend
+        const allProductsData = await apiService.getProducts({ page: 1, limit: 100 });
+        
+        if (allProductsData.products) {
+          let filteredProducts = allProductsData.products;
+          
+          // Apply category filter
+          filteredProducts = filteredProducts.filter(product => 
+            product.category && product.category.toLowerCase() === currentCategory.toLowerCase()
+          );
+          
+          // Apply brand filter
+          if (filters.brand.length > 0) {
+            filteredProducts = filteredProducts.filter(product => 
+              product.brand && filters.brand.some(brand => 
+                product.brand.toLowerCase().includes(brand.toLowerCase())
+              )
+            );
+          }
+          
+          // Apply type filter
+          if (filters.type.length > 0) {
+            filteredProducts = filteredProducts.filter(product => 
+              product.type && filters.type.some(type => 
+                product.type.toLowerCase().includes(type.toLowerCase())
+              )
+            );
+          }
+          
+          // Apply color filter
+          if (filters.color.length > 0) {
+            filteredProducts = filteredProducts.filter(product => 
+              product.color && filters.color.some(color => 
+                product.color.toLowerCase().includes(color.toLowerCase())
+              )
+            );
+          }
+          
+          // Apply price range filter
+          if (filters.priceMin) {
+            const minPrice = parseInt(filters.priceMin);
+            filteredProducts = filteredProducts.filter(product => 
+              product.price >= minPrice
+            );
+          }
+          
+          if (filters.priceMax) {
+            const maxPrice = parseInt(filters.priceMax);
+            filteredProducts = filteredProducts.filter(product => 
+              product.price <= maxPrice
+            );
+          }
+          
+          // Apply pagination manually
+          const startIndex = (currentPage - 1) * 6;
+          const endIndex = startIndex + 6;
+          const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+          
+          data = {
+            products: paginatedProducts,
+            total: filteredProducts.length
+          };
+        }
+      }
       
       setProducts(data.products || []);
       setTotalPages(Math.ceil((data.total || 0) / 6));
@@ -137,7 +325,12 @@ function ProductPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentCategory, currentPage, filters]);
+
+  // Fetch products on component mount and when dependencies change
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleFilterChange = (filterType, value, isChecked) => {
     setFilters(prev => {
@@ -370,7 +563,7 @@ function ProductPage() {
             {loading ? (
               <div className="loading">Loading products...</div>
             ) : products.length === 0 ? (
-              <div className="no-products">No products found</div>
+              <NoProductsFoundWithAlternatives currentCategory={currentCategory} />
             ) : (
               products.map((product) => (
                 <div 

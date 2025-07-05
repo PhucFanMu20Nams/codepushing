@@ -56,12 +56,12 @@ CREATE TABLE IF NOT EXISTS admins (
 
 -- Insert product data
 INSERT INTO products (id, name, brand, price, category, subcategory, type, image) VALUES 
-('nike-dunk-low', 'Nike Dunk Low', 'Nike', 1800000, 'Men', 'Giay', 'Sneaker', '/images/products/nike-dunk-low.jpg'),
-('nike-dunk-low-panda', 'Nike Dunk Low Retro Panda', 'Nike', 2300000, 'Men', 'Giay', 'Sneaker', '/images/products/nike_dunk_retro_panda_1.jpg'),
-('adidas-samba-og', 'Adidas Samba OG', 'Adidas', 1900000, 'Men', 'Giay', 'Sneaker', '/images/products/adidas-samba-og.jpg'),
-('nike-sportswear-club-button-up', 'Nike Sportswear Club Woven Short-Sleeve Button-Up', 'Nike', 890000, 'Men', 'Ao', 'Shirt', '/images/products/nike-button-up.jpg'),
-('nike-sportswear-club-tshirt-ss25', 'Nike Sportswear Club T-Shirt SS25', 'Nike', 550000, 'Men', 'Ao', 'T-Shirt', '/images/products/nike-tshirt-ss25.jpg'),
-('nike-killshot-2-leather', 'Nike Killshot 2 Leather', 'Nike', 1700000, 'Men', 'Giay', 'Sneaker', '/images/products/nike-killshot-2.jpg');
+('nike-dunk-low', 'Nike Dunk Low', 'Nike', 1800000, 'Footwear', 'Men', 'Sneaker', '/images/products/nike-dunk-low.jpg'),
+('nike-dunk-low-panda', 'Nike Dunk Low Retro Panda', 'Nike', 2300000, 'Footwear', 'Men', 'Sneaker', '/images/products/nike_dunk_retro_panda_1.jpg'),
+('adidas-samba-og', 'Adidas Samba OG', 'Adidas', 1900000, 'Footwear', 'Men', 'Sneaker', '/images/products/adidas-samba-og.jpg'),
+('nike-sportswear-club-button-up', 'Nike Sportswear Club Woven Short-Sleeve Button-Up', 'Nike', 890000, 'Clothes', 'Men', 'Shirt', '/images/products/nike-button-up.jpg'),
+('nike-sportswear-club-tshirt-ss25', 'Nike Sportswear Club T-Shirt SS25', 'Nike', 550000, 'Clothes', 'Men', 'T-Shirt', '/images/products/nike-tshirt-ss25.jpg'),
+('nike-killshot-2-leather', 'Nike Killshot 2 Leather', 'Nike', 1700000, 'Footwear', 'Men', 'Sneaker', '/images/products/nike-killshot-2.jpg');
 
 -- Insert product details
 INSERT INTO product_details ("productId", detail) VALUES
