@@ -6,9 +6,11 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "migrate": "node migrations/execute-sql-file.js",
+    "migrate:full": "node migrations/execute-sql-file.js",
     "create-admin": "node scripts/create-admin.js",
     "check-db": "node scripts/check-db.js",
-    "test-auth": "node scripts/test-auth.js"
+    "test-auth": "node scripts/test-auth.js",
+    "setup": "npm run migrate && npm run dev"
   },
   "keywords": [],
   "author": "",

@@ -1,7 +1,56 @@
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 const { Sequelize } = require('sequelize');
 const config = require('../config/db.config');
+
+// Admin user details - automatically created
+const ADMIN_USERNAME = 'Teekayyj';
+const ADMIN_PASSWORD = 'AdminTuanKiet';
+
+async function createAdminUser(sequelize) {
+  try {
+    console.log('Checking/Creating admin user...');
+    
+    // Check if admin already exists
+    const [results] = await sequelize.query(
+      'SELECT * FROM admins WHERE username = :username',
+      {
+        replacements: { username: ADMIN_USERNAME },
+        type: Sequelize.QueryTypes.SELECT
+      }
+    );
+
+    if (results) {
+      console.log('Admin user already exists');
+      return true;
+    }
+
+    // Hash password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, saltRounds);
+
+    // Create admin user
+    await sequelize.query(
+      `INSERT INTO admins (username, password, "isActive", "createdAt", "updatedAt") 
+       VALUES (:username, :password, true, NOW(), NOW())`,
+      {
+        replacements: {
+          username: ADMIN_USERNAME,
+          password: hashedPassword
+        }
+      }
+    );
+
+    console.log('✅ Admin user created successfully');
+    console.log(`   Username: ${ADMIN_USERNAME}`);
+    console.log(`   Password: ${ADMIN_PASSWORD}`);
+    return true;
+  } catch (error) {
+    console.error('Error creating admin user:', error);
+    return false;
+  }
+}
 
 async function executeSqlFile() {
   // Create a new Sequelize instance
@@ -53,6 +102,13 @@ async function executeSqlFile() {
     });
 
     console.log('SQL file executed successfully');
+    
+    // Automatically create admin user after migration
+    const adminCreated = await createAdminUser(sequelize);
+    if (!adminCreated) {
+      console.warn('Warning: Admin user creation failed, but migration succeeded');
+    }
+    
     return true;
   } catch (error) {
     console.error('Error executing SQL file:', error);
