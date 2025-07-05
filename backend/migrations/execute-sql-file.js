@@ -43,8 +43,6 @@ async function createAdminUser(sequelize) {
     );
 
     console.log('✅ Admin user created successfully');
-    console.log(`   Username: ${ADMIN_USERNAME}`);
-    console.log(`   Password: ${ADMIN_PASSWORD}`);
     return true;
   } catch (error) {
     console.error('Error creating admin user:', error);

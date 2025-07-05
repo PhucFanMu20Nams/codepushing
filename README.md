@@ -92,12 +92,31 @@ A modern, responsive e-commerce platform for fashion and lifestyle products buil
 
 ### 🎯 Running the Application
 
-1. **Start Backend Server**
+1. **Start Backend Server** (Simplified - 2 commands only!)
    ```bash
    cd backend
-   npm run migrate
-   npm run dev / node server.js
+   npm run migrate    # Automatically creates admin user
+   npm run dev        # Start development server
    # Server runs on http://localhost:5000
+   ```
+
+2. **Start Frontend Server** (in a new terminal)
+   ```bash
+   cd frontend
+   npm run dev
+   # Frontend runs on http://localhost:5173
+   ```
+
+3. **Access Admin Panel**
+   - URL: http://localhost:5173/admin/login
+   - Username: `Teekayyj`
+   - Password: `AdminTuanKiet`
+
+### ⚡ Quick Start (Alternative)
+```bash
+cd backend
+npm run setup      # Runs migrate + dev in one command
+```
    ```
 
 2. **Start Frontend Development Server**
