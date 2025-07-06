@@ -79,11 +79,12 @@ function AppContent() {
           <Route path="/footwear" element={<ProductPage />} />
           <Route path="/accessories" element={<ProductPage />} />
           <Route path="/service" element={<ProductPage />} />
+          <Route path="/search" element={<SearchResults />} />
           <Route path="/admin/login" element={<Login />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/products" element={<Products />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
-          <Route path="/search" element={<SearchResults />} />
+          <Route path="/PD*" element={<ProductDetail />} />
         </Routes>
       </main>
       {!hideHeaderFooter && <Footer />}

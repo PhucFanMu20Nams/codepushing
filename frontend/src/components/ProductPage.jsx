@@ -167,38 +167,38 @@ function ProductPage() {
     switch (currentCategory) {
       case 'Clothes':
         return {
-          brands: ['Nike', 'Adidas', 'Lacoste', 'Ralph Lauren', 'Zara', 'H&M', 'Uniqlo'],
-          types: ['T-Shirt', 'Shirt', 'Polo', 'Blazer', 'Hoodie', 'Sweater', 'Jacket'],
-          colors: ['Black', 'White', 'Gray', 'Navy', 'Brown', 'Red', 'Blue', 'Green'],
-          styles: ['Business', 'Casual', 'Streetwear', 'Sport', 'Formal', 'Smart Casual']
+          brands: ['Nike', 'Adidas'],
+          types: ['T-Shirt', 'Shirt'],
+          colors: ['Black', 'White'],
+          styles: ['Basic', 'Casual']
         };
       case 'Footwear':
         return {
-          brands: ['Nike', 'Adidas', 'Converse', 'Vans', 'New Balance', 'Puma', 'Jordan'],
-          types: ['Sneaker', 'Running', 'Basketball', 'Casual', 'Formal', 'Boots', 'Sandals'],
-          colors: ['Black', 'White', 'Gray', 'Brown', 'Navy', 'Red', 'Blue', 'Multi'],
-          styles: ['Sport', 'Casual', 'Retro', 'Modern', 'Classic', 'Street']
+          brands: ['Nike', 'Adidas'],
+          types: ['Sneaker'],
+          colors: ['White/Black', 'Black/White', 'White/Green'],
+          styles: ['Classic', 'Retro', 'Vintage', 'Tennis']
         };
       case 'Accessories':
         return {
-          brands: ['Nike', 'Adidas', 'Supreme', 'Champion', 'Calvin Klein', 'Tommy Hilfiger'],
-          types: ['Hat', 'Cap', 'Bag', 'Backpack', 'Watch', 'Sunglasses', 'Belt', 'Wallet'],
-          colors: ['Black', 'White', 'Brown', 'Navy', 'Gray', 'Red', 'Green', 'Multi'],
-          styles: ['Casual', 'Sport', 'Luxury', 'Streetwear', 'Vintage', 'Modern']
+          brands: ['Nike', 'Adidas'],
+          types: ['Hat', 'Cap', 'Bag', 'Watch'],
+          colors: ['Black', 'White', 'Brown'],
+          styles: ['Casual', 'Sport', 'Modern']
         };
       case 'Service':
         return {
-          brands: ['Premium', 'Standard', 'Express', 'Custom'],
-          types: ['Cleaning', 'Repair', 'Alteration', 'Styling', 'Consultation', 'Maintenance'],
-          colors: [], // Services might not have colors
-          styles: ['Professional', 'Casual', 'Express', 'Premium', 'Standard']
+          brands: ['Premium', 'Standard'],
+          types: ['Cleaning', 'Repair'],
+          colors: [],
+          styles: ['Professional', 'Standard']
         };
       default:
         return {
-          brands: [],
-          types: [],
-          colors: [],
-          styles: []
+          brands: ['Nike', 'Adidas'],
+          types: ['Sneaker', 'T-Shirt', 'Shirt'],
+          colors: ['Black', 'White', 'White/Black', 'Black/White', 'White/Green'],
+          styles: ['Classic', 'Retro', 'Vintage', 'Tennis', 'Basic', 'Casual']
         };
     }
   };
@@ -290,6 +290,15 @@ function ProductPage() {
             );
           }
           
+          // Apply style filter
+          if (filters.style.length > 0) {
+            filteredProducts = filteredProducts.filter(product => 
+              product.style && filters.style.some(style => 
+                product.style.toLowerCase().includes(style.toLowerCase())
+              )
+            );
+          }
+          
           // Apply price range filter
           if (filters.priceMin) {
             const minPrice = parseInt(filters.priceMin);
@@ -333,6 +342,9 @@ function ProductPage() {
   }, [fetchProducts]);
 
   const handleFilterChange = (filterType, value, isChecked) => {
+    // Clear cache when filters change to ensure fresh results
+    apiService.invalidateProductCaches();
+    
     setFilters(prev => {
       if (filterType === 'priceMin' || filterType === 'priceMax') {
         // Only allow numbers for price inputs

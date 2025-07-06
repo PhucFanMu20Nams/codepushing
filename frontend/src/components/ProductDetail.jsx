@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useModal } from '../context/ModalContext';
 import './ProductDetail.css';
 import apiService from '../utils/apiService.js';
 
 function ProductDetail() {
   const { productId } = useParams();
+  const location = useLocation();
   const { openModal } = useModal();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,15 +18,26 @@ function ProductDetail() {
   const touchStartX = useRef(null);
 
   useEffect(() => {
-    // Remove the colon from product ID if present
-    const cleanId = productId.replace(/:/g, '');
+    // Determine the actual product ID based on URL format
+    let actualProductId;
+    
+    if (productId) {
+      // Coming from /product/:productId route
+      actualProductId = productId.replace(/:/g, '');
+    } else {
+      // Coming from direct route like /PD0001, extract from pathname
+      actualProductId = location.pathname.replace('/', '');
+    }
     
     // Fetch product data using cached API service
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const data = await apiService.getProductById(cleanId);
-        console.log('Product data:', data);
+        // Clear cache for this specific product to ensure fresh data
+        apiService.invalidateProductCaches(actualProductId);
+        const data = await apiService.getProductById(actualProductId);
+        console.log('Product data received:', data);
+        console.log('Color:', data.color, 'Style:', data.style);
         setProduct(data);
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -35,8 +47,10 @@ function ProductDetail() {
       }
     };
 
-    fetchProduct();
-  }, [productId]);
+    if (actualProductId) {
+      fetchProduct();
+    }
+  }, [productId, location.pathname]);
 
   if (loading) return <div className="loading">Loading...</div>;
   if (!product) return <div className="not-found">Product not found</div>;
@@ -113,7 +127,7 @@ function ProductDetail() {
   return (
     <div className="product-detail-container">
       <div className="breadcrumb">
-        Category / {product.category} / {product.subcategory} / {product.type}
+        {product.category} / {product.brand} / {product.type} / {product.color || 'N/A'} / {product.style || 'N/A'}
       </div>
       
       <div className="product-content">

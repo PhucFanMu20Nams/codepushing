@@ -65,9 +65,40 @@ exports.getAllProducts = async (req, res) => {
       whereClause.category = req.query.category;
     }
     
-    // Brand filter
+    // Brand filter - support multiple brands
     if (req.query.brand) {
-      whereClause.brand = req.query.brand;
+      const brands = req.query.brand.split(',').map(b => b.trim());
+      whereClause.brand = {
+        [Op.in]: brands
+      };
+    }
+    
+    // Type filter - support multiple types
+    if (req.query.type) {
+      const types = req.query.type.split(',').map(t => t.trim());
+      whereClause.type = {
+        [Op.in]: types
+      };
+    }
+    
+    // Color filter - support multiple colors
+    if (req.query.color) {
+      const colors = req.query.color.split(',').map(c => c.trim());
+      whereClause.color = {
+        [Op.or]: colors.map(color => ({
+          [Op.iLike]: `%${color}%`
+        }))
+      };
+    }
+    
+    // Style filter - support multiple styles
+    if (req.query.style) {
+      const styles = req.query.style.split(',').map(s => s.trim());
+      whereClause.style = {
+        [Op.or]: styles.map(style => ({
+          [Op.iLike]: `%${style}%`
+        }))
+      };
     }
     
     // Price range filter
