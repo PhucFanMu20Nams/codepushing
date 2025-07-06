@@ -1,23 +1,44 @@
 # Textura - Modern E-commerce Fashion Platform
 
-A modern, responsive e-commerce platform for fashion and lifestyle products built with React, Express.js, and PostgreSQL. Features a sophisticated product catalog, advanced search functionality, and a sleek user interface.
+A modern, responsive e-commerce platform for fashion and lifestyle products built with React, Express.js, and PostgreSQL. Features a sophisticated product catalog, advanced filtering system, and a sleek user interface with enhanced product categorization.
 
-## 🌟 Features
+## 🌟 Latest Updates (v2.0)
+
+### 🆕 New Product ID System
+- **Structured Product IDs**: Products now use standardized PD#### format (PD0001, PD0002, etc.)
+- **SEO-Friendly URLs**: Direct access via `localhost:5173/PD0001` format
+- **Enhanced Breadcrumbs**: New format - `Category / Brand / Type / Color / Style`
+
+### 🎨 Enhanced Product Information
+- **Color Fields**: Detailed color information (e.g., "White/Black", "Black/White")
+- **Style Categories**: Product styles (Classic, Retro, Vintage, Tennis, Basic, Casual)
+- **Comprehensive Filtering**: Filter by brand, type, color, style, and price range
+
+### 🔍 Advanced Filtering System
+- **Multi-Select Filters**: Choose multiple brands, colors, styles simultaneously
+- **Real-Time Results**: Instant filtering with backend database queries
+- **Cache Management**: Smart cache invalidation for fresh filter results
+- **Category-Specific Filters**: Different filter options per category
+
+## 🌟 Core Features
 
 ### Frontend Features
 - **Modern UI/UX**: Clean, responsive design with Inter font typography
 - **Advanced Search**: Real-time product search with autocomplete dropdown
+- **Smart Filtering**: Multi-criteria filtering with checkboxes and price ranges
 - **Product Catalog**: Grid-based product display with hover effects
-- **Mega Menu Navigation**: Dynamic multi-level navigation system
-- **Product Details**: Comprehensive product pages with image galleries
+- **Enhanced Navigation**: Dynamic routing with product ID support
+- **Product Details**: Comprehensive product pages with new breadcrumb system
 - **Popular Items Section**: Curated product showcase with centered layout
 - **Mobile Responsive**: Optimized for all device sizes
 
 ### Backend Features
-- **RESTful API**: Well-structured API endpoints for all operations
+- **RESTful API**: Well-structured API endpoints with advanced filtering
+- **Database Filtering**: SQL-based filtering for brands, types, colors, styles
+- **Multi-Value Support**: Handle comma-separated filter values
 - **Product Search**: Advanced search with query parameters and pagination
 - **Image Management**: Static file serving for product images
-- **Database Integration**: PostgreSQL with Sequelize ORM
+- **Database Integration**: PostgreSQL with Sequelize ORM and enhanced schema
 - **Error Handling**: Comprehensive error handling and logging
 
 ## 🛠 Tech Stack
@@ -39,7 +60,22 @@ A modern, responsive e-commerce platform for fashion and lifestyle products buil
   - Git for version control
   - VS Code configuration
 
-## 🚀 Getting Started
+## � Current Product Catalog
+
+### Available Products
+- **PD0001**: Nike Dunk Low - White/Black, Classic style
+- **PD0002**: Nike Dunk Low Retro Panda - Black/White, Retro style  
+- **PD0003**: Adidas Samba OG - Black/White, Vintage style
+- **PD0004**: Nike Sportswear Club Button-Up - Black, Casual style
+- **PD0005**: Nike Sportswear Club T-Shirt SS25 - White, Basic style
+- **PD0006**: Nike Killshot 2 Leather - White/Green, Tennis style
+
+### Product Access
+- **Direct URLs**: Access products directly via `localhost:5173/PD0001`
+- **Category Pages**: Browse by Footwear, Clothes, Accessories, Service
+- **Filter Options**: Filter by Brand (Nike, Adidas), Color, Style, Type
+
+## �🚀 Getting Started
 
 ### Prerequisites
 
@@ -51,8 +87,8 @@ A modern, responsive e-commerce platform for fashion and lifestyle products buil
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/PhucFanMu20Nams/textura2306.git
-   cd textura2306
+   git clone https://github.com/PhucFanMu20Nams/texturaalmost.git
+   cd texturaalmost
    ```
 
 2. **Backend Setup**
