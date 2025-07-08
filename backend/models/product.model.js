@@ -28,13 +28,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    color: {
-      type: DataTypes.STRING,
+    colors: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: true,
-    },
-    style: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      defaultValue: []
     },
     image: {
       type: DataTypes.STRING,

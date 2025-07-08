@@ -67,7 +67,7 @@ exports.getAllProducts = async (req, res) => {
     
     // Brand filter - support multiple brands
     if (req.query.brand) {
-      const brands = req.query.brand.split(',').map(b => b.trim());
+      const brands = Array.isArray(req.query.brand) ? req.query.brand : [req.query.brand];
       whereClause.brand = {
         [Op.in]: brands
       };
@@ -75,40 +75,28 @@ exports.getAllProducts = async (req, res) => {
     
     // Type filter - support multiple types
     if (req.query.type) {
-      const types = req.query.type.split(',').map(t => t.trim());
+      const types = Array.isArray(req.query.type) ? req.query.type : [req.query.type];
       whereClause.type = {
         [Op.in]: types
       };
     }
     
-    // Color filter - support multiple colors
-    if (req.query.color) {
-      const colors = req.query.color.split(',').map(c => c.trim());
-      whereClause.color = {
-        [Op.or]: colors.map(color => ({
-          [Op.iLike]: `%${color}%`
-        }))
-      };
-    }
-    
-    // Style filter - support multiple styles
-    if (req.query.style) {
-      const styles = req.query.style.split(',').map(s => s.trim());
-      whereClause.style = {
-        [Op.or]: styles.map(style => ({
-          [Op.iLike]: `%${style}%`
-        }))
+    // Color filter - support multiple colors with array overlap
+    if (req.query.colors) {
+      const selectedColors = Array.isArray(req.query.colors) ? req.query.colors : [req.query.colors];
+      whereClause.colors = {
+        [Op.overlap]: selectedColors
       };
     }
     
     // Price range filter
-    if (req.query.minPrice || req.query.maxPrice) {
+    if (req.query.priceMin || req.query.priceMax) {
       whereClause.price = {};
-      if (req.query.minPrice) {
-        whereClause.price[Op.gte] = parseInt(req.query.minPrice);
+      if (req.query.priceMin) {
+        whereClause.price[Op.gte] = parseInt(req.query.priceMin);
       }
-      if (req.query.maxPrice) {
-        whereClause.price[Op.lte] = parseInt(req.query.maxPrice);
+      if (req.query.priceMax) {
+        whereClause.price[Op.lte] = parseInt(req.query.priceMax);
       }
     }
 

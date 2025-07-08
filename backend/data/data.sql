@@ -14,8 +14,7 @@ CREATE TABLE products (
   category VARCHAR(255) NOT NULL,
   subcategory VARCHAR(255),
   type VARCHAR(255),
-  color VARCHAR(255),
-  style VARCHAR(255),
+  colors VARCHAR(255)[],
   image VARCHAR(255) NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -57,13 +56,13 @@ CREATE TABLE IF NOT EXISTS admins (
 );
 
 -- Insert product data
-INSERT INTO products (id, name, brand, price, category, subcategory, type, color, style, image) VALUES 
-('PD0001', 'Nike Dunk Low', 'Nike', 1800000, 'Footwear', 'Men', 'Sneaker', 'White/Black', 'Classic', '/images/products/nike-dunk-low.jpg'),
-('PD0002', 'Nike Dunk Low Retro Panda', 'Nike', 2300000, 'Footwear', 'Men', 'Sneaker', 'Black/White', 'Retro', '/images/products/nike_dunk_retro_panda_1.jpg'),
-('PD0003', 'Adidas Samba OG', 'Adidas', 1900000, 'Footwear', 'Men', 'Sneaker', 'Black/White', 'Vintage', '/images/products/adidas-samba-og.jpg'),
-('PD0004', 'Nike Sportswear Club Woven Short-Sleeve Button-Up', 'Nike', 890000, 'Clothes', 'Men', 'Shirt', 'Black', 'Casual', '/images/products/nike-button-up.jpg'),
-('PD0005', 'Nike Sportswear Club T-Shirt SS25', 'Nike', 550000, 'Clothes', 'Men', 'T-Shirt', 'White', 'Basic', '/images/products/nike-tshirt-ss25.jpg'),
-('PD0006', 'Nike Killshot 2 Leather', 'Nike', 1700000, 'Footwear', 'Men', 'Sneaker', 'White/Green', 'Tennis', '/images/products/nike-killshot-2.jpg');
+INSERT INTO products (id, name, brand, price, category, subcategory, type, colors, image) VALUES 
+('PD0001', 'Nike Dunk Low', 'Nike', 1800000, 'Footwear', 'Men', 'Sneaker', ARRAY['White', 'Black'], '/images/products/nike-dunk-low.jpg'),
+('PD0002', 'Nike Dunk Low Retro Panda', 'Nike', 2300000, 'Footwear', 'Men', 'Sneaker', ARRAY['Black', 'White'], '/images/products/nike_dunk_retro_panda_1.jpg'),
+('PD0003', 'Adidas Samba OG', 'Adidas', 1900000, 'Footwear', 'Men', 'Sneaker', ARRAY['Black', 'White'], '/images/products/adidas-samba-og.jpg'),
+('PD0004', 'Nike Sportswear Club Woven Short-Sleeve Button-Up', 'Nike', 890000, 'Clothes', 'Men', 'Shirt', ARRAY['Black'], '/images/products/nike-button-up.jpg'),
+('PD0005', 'Nike Sportswear Club T-Shirt SS25', 'Nike', 550000, 'Clothes', 'Men', 'T-Shirt', ARRAY['White'], '/images/products/nike-tshirt-ss25.jpg'),
+('PD0006', 'Nike Killshot 2 Leather', 'Nike', 1700000, 'Footwear', 'Men', 'Sneaker', ARRAY['White', 'Green'], '/images/products/nike-killshot-2.jpg');
 
 -- Insert product details
 INSERT INTO product_details ("productId", detail) VALUES

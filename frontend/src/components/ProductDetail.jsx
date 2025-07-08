@@ -127,7 +127,7 @@ function ProductDetail() {
   return (
     <div className="product-detail-container">
       <div className="breadcrumb">
-        {product.category} / {product.brand} / {product.type} / {product.color || 'N/A'} / {product.style || 'N/A'}
+        {product.category} / {product.brand} / {product.type}
       </div>
       
       <div className="product-content">

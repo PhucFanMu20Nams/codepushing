@@ -133,8 +133,7 @@ function ProductPage() {
   const [filters, setFilters] = useState({
     brand: [],
     type: [],
-    color: [],
-    style: [],
+    colors: [],
     priceMin: '',
     priceMax: ''
   });
@@ -144,7 +143,6 @@ function ProductPage() {
     brands: [],
     types: [],
     colors: [],
-    styles: []
   });
   
   const navigate = useNavigate();
@@ -169,36 +167,31 @@ function ProductPage() {
         return {
           brands: ['Nike', 'Adidas'],
           types: ['T-Shirt', 'Shirt'],
-          colors: ['Black', 'White'],
-          styles: ['Basic', 'Casual']
+          colors: ['Black', 'White']
         };
       case 'Footwear':
         return {
           brands: ['Nike', 'Adidas'],
           types: ['Sneaker'],
-          colors: ['White/Black', 'Black/White', 'White/Green'],
-          styles: ['Classic', 'Retro', 'Vintage', 'Tennis']
+          colors: ['White', 'Black', 'Green']
         };
       case 'Accessories':
         return {
           brands: ['Nike', 'Adidas'],
           types: ['Hat', 'Cap', 'Bag', 'Watch'],
-          colors: ['Black', 'White', 'Brown'],
-          styles: ['Casual', 'Sport', 'Modern']
+          colors: ['Black', 'White', 'Brown']
         };
       case 'Service':
         return {
           brands: ['Premium', 'Standard'],
           types: ['Cleaning', 'Repair'],
-          colors: [],
-          styles: ['Professional', 'Standard']
+          colors: []
         };
       default:
         return {
           brands: ['Nike', 'Adidas'],
           types: ['Sneaker', 'T-Shirt', 'Shirt'],
-          colors: ['Black', 'White', 'White/Black', 'Black/White', 'White/Green'],
-          styles: ['Classic', 'Retro', 'Vintage', 'Tennis', 'Basic', 'Casual']
+          colors: ['Black', 'White', 'Green']
         };
     }
   };
@@ -208,8 +201,7 @@ function ProductPage() {
     setFilters({
       brand: [],
       type: [],
-      color: [],
-      style: [],
+      colors: [],
       priceMin: '',
       priceMax: ''
     });
@@ -221,120 +213,29 @@ function ProductPage() {
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const params = {
+      const queryParams = {
         category: currentCategory,
         page: currentPage,
-        limit: 6
+        limit: 12
       };
 
-      // Add array filters
-      if (filters.brand.length > 0) {
-        params.brand = filters.brand.join(',');
-      }
-      if (filters.type.length > 0) {
-        params.type = filters.type.join(',');
-      }
-      if (filters.color.length > 0) {
-        params.color = filters.color.join(',');
-      }
-      if (filters.style.length > 0) {
-        params.style = filters.style.join(',');
-      }
-      if (filters.priceMin) {
-        params.minPrice = filters.priceMin;
-      }
-      if (filters.priceMax) {
-        params.maxPrice = filters.priceMax;
-      }
+      // Add filter parameters
+      if (filters.brand.length) queryParams.brand = filters.brand;
+      if (filters.type.length) queryParams.type = filters.type;
+      if (filters.colors.length) queryParams.colors = filters.colors;
+      if (filters.priceMin) queryParams.priceMin = filters.priceMin;
+      if (filters.priceMax) queryParams.priceMax = filters.priceMax;
 
-      // First try with all filters
-      let data = await apiService.getProducts(params);
-      
-      // If no products found, try frontend filtering as fallback
-      if (!data.products || data.products.length === 0) {
-        // Fetch all products and filter on frontend
-        const allProductsData = await apiService.getProducts({ page: 1, limit: 100 });
-        
-        if (allProductsData.products) {
-          let filteredProducts = allProductsData.products;
-          
-          // Apply category filter
-          filteredProducts = filteredProducts.filter(product => 
-            product.category && product.category.toLowerCase() === currentCategory.toLowerCase()
-          );
-          
-          // Apply brand filter
-          if (filters.brand.length > 0) {
-            filteredProducts = filteredProducts.filter(product => 
-              product.brand && filters.brand.some(brand => 
-                product.brand.toLowerCase().includes(brand.toLowerCase())
-              )
-            );
-          }
-          
-          // Apply type filter
-          if (filters.type.length > 0) {
-            filteredProducts = filteredProducts.filter(product => 
-              product.type && filters.type.some(type => 
-                product.type.toLowerCase().includes(type.toLowerCase())
-              )
-            );
-          }
-          
-          // Apply color filter
-          if (filters.color.length > 0) {
-            filteredProducts = filteredProducts.filter(product => 
-              product.color && filters.color.some(color => 
-                product.color.toLowerCase().includes(color.toLowerCase())
-              )
-            );
-          }
-          
-          // Apply style filter
-          if (filters.style.length > 0) {
-            filteredProducts = filteredProducts.filter(product => 
-              product.style && filters.style.some(style => 
-                product.style.toLowerCase().includes(style.toLowerCase())
-              )
-            );
-          }
-          
-          // Apply price range filter
-          if (filters.priceMin) {
-            const minPrice = parseInt(filters.priceMin);
-            filteredProducts = filteredProducts.filter(product => 
-              product.price >= minPrice
-            );
-          }
-          
-          if (filters.priceMax) {
-            const maxPrice = parseInt(filters.priceMax);
-            filteredProducts = filteredProducts.filter(product => 
-              product.price <= maxPrice
-            );
-          }
-          
-          // Apply pagination manually
-          const startIndex = (currentPage - 1) * 6;
-          const endIndex = startIndex + 6;
-          const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-          
-          data = {
-            products: paginatedProducts,
-            total: filteredProducts.length
-          };
-        }
-      }
-      
+      const data = await apiService.getProducts(queryParams);
       setProducts(data.products || []);
-      setTotalPages(Math.ceil((data.total || 0) / 6));
+      setTotalPages(Math.ceil((data.total || 0) / 12));
     } catch (error) {
       console.error('Error fetching products:', error);
       setProducts([]);
     } finally {
       setLoading(false);
     }
-  }, [currentCategory, currentPage, filters]);
+  }, [currentCategory, filters, currentPage]);
 
   // Fetch products on component mount and when dependencies change
   useEffect(() => {
@@ -342,35 +243,27 @@ function ProductPage() {
   }, [fetchProducts]);
 
   const handleFilterChange = (filterType, value, isChecked) => {
-    // Clear cache when filters change to ensure fresh results
-    apiService.invalidateProductCaches();
-    
-    setFilters(prev => {
-      if (filterType === 'priceMin' || filterType === 'priceMax') {
-        // Only allow numbers for price inputs
-        const numericValue = value.replace(/[^0-9]/g, '');
-        return {
-          ...prev,
-          [filterType]: numericValue
-        };
-      }
+    setFilters(prevFilters => {
+      const updatedFilters = { ...prevFilters };
       
-      // Handle array filters (brand, type, color, style)
-      const currentArray = prev[filterType] || [];
-      let newArray;
-      
-      if (isChecked) {
-        newArray = [...currentArray, value];
+      if (filterType === 'colors') {
+        // Handle color filtering
+        if (isChecked) {
+          updatedFilters.colors = [...prevFilters.colors, value];
+        } else {
+          updatedFilters.colors = prevFilters.colors.filter(color => color !== value);
+        }
       } else {
-        newArray = currentArray.filter(item => item !== value);
+        // Handle other filter types
+        if (isChecked) {
+          updatedFilters[filterType] = [...prevFilters[filterType], value];
+        } else {
+          updatedFilters[filterType] = prevFilters[filterType].filter(item => item !== value);
+        }
       }
       
-      return {
-        ...prev,
-        [filterType]: newArray
-      };
+      return updatedFilters;
     });
-    setCurrentPage(1); // Reset to first page when filters change
   };
 
   // Add separate handler for price inputs
@@ -431,7 +324,7 @@ function ProductPage() {
                       type="checkbox" 
                       value={brand} 
                       checked={filters.brand.includes(brand)}
-                      onChange={(e) => handleFilterChange('brand', e.target.value, e.target.checked)} 
+                      onChange={(e) => handleFilterChange('brand', brand, e.target.checked)} 
                     />
                     <span>{brand}</span>
                   </label>
@@ -456,7 +349,7 @@ function ProductPage() {
                       type="checkbox" 
                       value={type} 
                       checked={filters.type.includes(type)}
-                      onChange={(e) => handleFilterChange('type', e.target.value, e.target.checked)} 
+                      onChange={(e) => handleFilterChange('type', type, e.target.checked)} 
                     />
                     <span>{type}</span>
                   </label>
@@ -464,53 +357,26 @@ function ProductPage() {
               </div>
             </div>
 
-            {/* Color Filter - Only show if colors exist for this category */}
-            {filterOptions.colors.length > 0 && (
-              <div className="filter-group">
-                <h3 className="filter-heading">Color</h3>
-                <div className="search-box">
-                  <input type="text" placeholder="Search colors..." />
-                  <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                </div>
-                <div className="filter-options">
-                  {filterOptions.colors.map(color => (
-                    <label key={color} className="filter-option">
-                      <input 
-                        type="checkbox" 
-                        value={color} 
-                        checked={filters.color.includes(color)}
-                        onChange={(e) => handleFilterChange('color', e.target.value, e.target.checked)} 
-                      />
-                      <span>{color}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Style Filter */}
+            {/* Color Filter */}
             <div className="filter-group">
-              <h3 className="filter-heading">Style</h3>
+              <h3 className="filter-heading">Colors</h3>
               <div className="search-box">
-                <input type="text" placeholder="Search styles..." />
+                <input type="text" placeholder="Search colors..." />
                 <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </div>
               <div className="filter-options">
-                {filterOptions.styles.map(style => (
-                  <label key={style} className="filter-option">
+                {filterOptions.colors.map(color => (
+                  <label key={color} className="filter-option">
                     <input 
                       type="checkbox" 
-                      value={style} 
-                      checked={filters.style.includes(style)}
-                      onChange={(e) => handleFilterChange('style', e.target.value, e.target.checked)} 
+                      value={color} 
+                      checked={filters.colors.includes(color)}
+                      onChange={(e) => handleFilterChange('colors', color, e.target.checked)} 
                     />
-                    <span>{style}</span>
+                    <span>{color}</span>
                   </label>
                 ))}
               </div>
