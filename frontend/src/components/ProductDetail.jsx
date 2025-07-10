@@ -29,16 +29,50 @@ function ProductDetail() {
       actualProductId = location.pathname.replace('/', '');
     }
     
+    console.log('Fetching product with ID:', actualProductId);
+    
     // Fetch product data using cached API service
     const fetchProduct = async () => {
       try {
         setLoading(true);
         // Clear cache for this specific product to ensure fresh data
-        apiService.invalidateProductCaches(actualProductId);
-        const data = await apiService.getProductById(actualProductId);
-        console.log('Product data received:', data);
-        console.log('Color:', data.color, 'Style:', data.style);
-        setProduct(data);
+        apiService.invalidateProductCaches && apiService.invalidateProductCaches(actualProductId);
+        const response = await apiService.getProductById(actualProductId);
+        console.log('Product API response:', response);
+        
+        // Handle both direct data and nested data.data format
+        const data = response.data ? response.data : response;
+        
+        console.log('Product data processed:', data);
+        
+        // Normalize the product data structure and hide stock information
+        const normalizedProduct = {
+          ...data,
+          // Ensure gallery is an array of strings or extract imageUrl from objects
+          gallery: Array.isArray(data.gallery) 
+            ? data.gallery.map(item => typeof item === 'string' ? item : (item.imageUrl || ''))
+            : [data.image || data.imageUrl],
+          // Ensure sizes are objects with size and availability info (but no stock numbers)
+          sizes: Array.isArray(data.sizes) 
+            ? data.sizes.map(item => {
+                if (typeof item === 'string') {
+                  return { size: item, isAvailable: true };
+                } else {
+                  return { size: item.size || '', isAvailable: item.isAvailable !== false };
+                }
+              })
+            : (Array.isArray(data.details) 
+                ? data.details.map(detail => ({ 
+                    size: detail.size || '', 
+                    isAvailable: detail.stock > 0
+                  }))
+                : []),
+          // Replace details with just the description for privacy
+          details: [data.description || "No details available"]
+        };
+        
+        console.log('Normalized product data:', normalizedProduct);
+        setProduct(normalizedProduct);
       } catch (error) {
         console.error('Error fetching product:', error);
         setProduct(null);
@@ -120,8 +154,15 @@ function ProductDetail() {
       return imagePath;
     }
     
+    // Handle gallery items that might be objects
+    if (typeof imagePath === 'object' && imagePath.imageUrl) {
+      return getImageUrl(imagePath.imageUrl);
+    }
+    
+    // Make sure we have a proper backend URL with environment variable
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const path = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-    return `http://localhost:5000${path}`;
+    return `${apiUrl}${path}`;
   };
 
   return (
@@ -149,13 +190,19 @@ function ProductDetail() {
           
           {/* Show current image */}
           <img 
-            src={getImageUrl(product.gallery ? product.gallery[currentImageIndex] : product.image)} 
+            src={getImageUrl(
+              product.gallery && product.gallery.length > 0 
+                ? (typeof product.gallery[currentImageIndex] === 'object' 
+                    ? product.gallery[currentImageIndex].imageUrl 
+                    : product.gallery[currentImageIndex])
+                : (product.imageUrl || product.image)
+            )} 
             alt={product.name}
             className={`main-image${slideDirection ? ` slide-${slideDirection}` : ''}`}
             crossOrigin="anonymous"
             onError={(e) => {
               console.error('Image failed to load:', e.target.src);
-              e.target.src = '/assets/images/ralph_product.jpg';
+              e.target.src = '/placeholder-image.jpg';
             }}
           />
           
@@ -178,15 +225,29 @@ function ProductDetail() {
           <div className="size-selection">
             <p>Select size</p>
             <div className="size-options">
-              {product.sizes.map(size => (
-                <button 
-                  key={size} 
-                  className={`size-btn ${selectedSize === size ? 'selected' : ''}`}
-                  onClick={() => handleSizeSelect(size)}
-                >
-                  {size}
-                </button>
-              ))}
+              {product.sizes && product.sizes.map((sizeItem, index) => {
+                // Handle both string sizes and object sizes with size property
+                const size = typeof sizeItem === 'string' ? sizeItem : 
+                             (sizeItem && sizeItem.size ? sizeItem.size : `Size ${index+1}`);
+                // Check if size is available (but don't show stock numbers)
+                const isAvailable = typeof sizeItem === 'object' ? 
+                                   (sizeItem.isAvailable !== false) : true;
+                
+                // Skip rendering if we want to completely hide unavailable sizes
+                // (uncomment next line if you want to hide unavailable sizes)
+                // if (!isAvailable) return null;
+                
+                return (
+                  <button 
+                    key={size || index} 
+                    className={`size-btn ${selectedSize === size ? 'selected' : ''} ${!isAvailable ? 'disabled' : ''}`}
+                    onClick={() => isAvailable && handleSizeSelect(size)}
+                    disabled={!isAvailable}
+                  >
+                    {size}
+                  </button>
+                );
+              })}
             </div>
           </div>
           
@@ -200,9 +261,8 @@ function ProductDetail() {
           <div className="details">
             <h3>Details</h3>
             <ul>
-              {product.details.map((detail, index) => (
-                <li key={index}>{detail}</li>
-              ))}
+              {/* Only display the product description and hide stock-related information */}
+              <li>{product.description || 'No details available'}</li>
             </ul>
           </div>
         </div>

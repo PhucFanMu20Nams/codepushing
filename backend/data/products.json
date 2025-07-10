@@ -1,0 +1,526 @@
+[
+  {
+    "id": "NIK-1001",
+    "name": "Nike Dunk Low",
+    "description": "An iconic and highly versatile sneaker. Classic silhouette rooted in basketball heritage. Making it a staple for everyday style and various outfits.",
+    "price": 180,
+    "brand": "Nike",
+    "category": "Footwear",
+    "subcategory": "Men",
+    "type": "Sneaker",
+    "color": "White",
+    "imageUrl": "/images/products/nike-dunk-low.jpg",
+    "details": [
+      {
+        "size": "38",
+        "stock": 29,
+        "sku": "NIK-1001-38"
+      },
+      {
+        "size": "39",
+        "stock": 13,
+        "sku": "NIK-1001-39"
+      },
+      {
+        "size": "40",
+        "stock": 16,
+        "sku": "NIK-1001-40"
+      },
+      {
+        "size": "41",
+        "stock": 32,
+        "sku": "NIK-1001-41"
+      },
+      {
+        "size": "42",
+        "stock": 30,
+        "sku": "NIK-1001-42"
+      },
+      {
+        "size": "43",
+        "stock": 20,
+        "sku": "NIK-1001-43"
+      },
+      {
+        "size": "44",
+        "stock": 14,
+        "sku": "NIK-1001-44"
+      }
+    ],
+    "gallery": [
+      {
+        "imageUrl": "/images/products/nike-dunk-low.jpg",
+        "altText": "Nike Dunk Low - Main",
+        "isPrimary": true
+      },
+      {
+        "imageUrl": "/images/products/nike-dunk-low-2.jpg",
+        "altText": "Nike Dunk Low - Detail",
+        "isPrimary": false
+      }
+    ],
+    "sizes": [
+      {
+        "size": "38",
+        "isAvailable": true
+      },
+      {
+        "size": "39",
+        "isAvailable": true
+      },
+      {
+        "size": "40",
+        "isAvailable": true
+      },
+      {
+        "size": "41",
+        "isAvailable": true
+      },
+      {
+        "size": "42",
+        "isAvailable": true
+      },
+      {
+        "size": "43",
+        "isAvailable": true
+      },
+      {
+        "size": "44",
+        "isAvailable": true
+      }
+    ]
+  },
+  {
+    "id": "NIK-1002",
+    "name": "Nike Dunk Low Retro Panda",
+    "description": "The immensely popular \"Panda\" colorway of the Dunk Low. Timeless black and white contrast that is easy to pair with any look. A must-have for sneaker enthusiasts.",
+    "price": 230,
+    "brand": "Nike",
+    "category": "Footwear",
+    "subcategory": "Men",
+    "type": "Sneaker",
+    "color": "Black",
+    "imageUrl": "/images/products/nike_dunk_retro_panda_1.jpg",
+    "details": [
+      {
+        "size": "38",
+        "stock": 20,
+        "sku": "NIK-0002-38"
+      },
+      {
+        "size": "39",
+        "stock": 24,
+        "sku": "NIK-0002-39"
+      },
+      {
+        "size": "40",
+        "stock": 32,
+        "sku": "NIK-0002-40"
+      },
+      {
+        "size": "41",
+        "stock": 13,
+        "sku": "NIK-0002-41"
+      },
+      {
+        "size": "42",
+        "stock": 11,
+        "sku": "NIK-0002-42"
+      },
+      {
+        "size": "43",
+        "stock": 27,
+        "sku": "NIK-0002-43"
+      }
+    ],
+    "gallery": [
+      {
+        "imageUrl": "/images/products/nike_dunk_retro_panda_1.jpg",
+        "altText": "Nike Dunk Low Retro Panda - Main",
+        "isPrimary": true
+      },
+      {
+        "imageUrl": "/images/products/nike_dunk_retro_panda_2.jpg",
+        "altText": "Nike Dunk Low Retro Panda - Detail",
+        "isPrimary": false
+      },
+      {
+        "imageUrl": "/images/products/nike_dunk_retro_panda_3.jpg",
+        "altText": "Nike Dunk Low Retro Panda - Detail",
+        "isPrimary": false
+      }
+    ],
+    "sizes": [
+      {
+        "size": "38",
+        "isAvailable": true
+      },
+      {
+        "size": "39",
+        "isAvailable": true
+      },
+      {
+        "size": "40",
+        "isAvailable": true
+      },
+      {
+        "size": "41",
+        "isAvailable": true
+      },
+      {
+        "size": "42",
+        "isAvailable": true
+      },
+      {
+        "size": "43",
+        "isAvailable": true
+      }
+    ]
+  },
+  {
+    "id": "ADI-1001",
+    "name": "Adidas Samba OG",
+    "description": "A true classic with timeless, low-profile design. Signature T-toe overlay and gum sole. Transitioning effortlessly from football pitches to urban streets.",
+    "price": 190,
+    "brand": "Adidas",
+    "category": "Footwear",
+    "subcategory": "Men",
+    "type": "Sneaker",
+    "color": "Black",
+    "imageUrl": "/images/products/adidas-samba-og.jpg",
+    "details": [
+      {
+        "size": "38",
+        "stock": 26,
+        "sku": "ADI-0003-38"
+      },
+      {
+        "size": "39",
+        "stock": 34,
+        "sku": "ADI-0003-39"
+      },
+      {
+        "size": "40",
+        "stock": 12,
+        "sku": "ADI-0003-40"
+      },
+      {
+        "size": "41",
+        "stock": 28,
+        "sku": "ADI-0003-41"
+      },
+      {
+        "size": "42",
+        "stock": 18,
+        "sku": "ADI-0003-42"
+      },
+      {
+        "size": "43",
+        "stock": 38,
+        "sku": "ADI-0003-43"
+      },
+      {
+        "size": "44",
+        "stock": 16,
+        "sku": "ADI-0003-44"
+      },
+      {
+        "size": "45",
+        "stock": 14,
+        "sku": "ADI-0003-45"
+      }
+    ],
+    "gallery": [
+      {
+        "imageUrl": "/images/products/adidas-samba-og.jpg",
+        "altText": "Adidas Samba OG - Main",
+        "isPrimary": true
+      },
+      {
+        "imageUrl": "/images/products/adidas-samba-og-2.jpg",
+        "altText": "Adidas Samba OG - Detail",
+        "isPrimary": false
+      }
+    ],
+    "sizes": [
+      {
+        "size": "38",
+        "isAvailable": true
+      },
+      {
+        "size": "39",
+        "isAvailable": true
+      },
+      {
+        "size": "40",
+        "isAvailable": true
+      },
+      {
+        "size": "41",
+        "isAvailable": true
+      },
+      {
+        "size": "42",
+        "isAvailable": true
+      },
+      {
+        "size": "43",
+        "isAvailable": true
+      },
+      {
+        "size": "44",
+        "isAvailable": true
+      },
+      {
+        "size": "45",
+        "isAvailable": true
+      }
+    ]
+  },
+  {
+    "id": "NIK-2001",
+    "name": "Nike Sportswear Club Woven Short-Sleeve Button-Up",
+    "description": "Comfortable and lightweight short-sleeve button-up. Offers a relaxed fit and a clean, versatile look. Perfect for casual outings or layering during warmer weather.",
+    "price": 89,
+    "brand": "Nike",
+    "category": "Clothing",
+    "subcategory": "Men",
+    "type": "Shirt",
+    "color": "Black",
+    "imageUrl": "/images/products/nike-button-up.jpg",
+    "details": [
+      {
+        "size": "S",
+        "stock": 28,
+        "sku": "NIK-0004-S"
+      },
+      {
+        "size": "M",
+        "stock": 11,
+        "sku": "NIK-0004-M"
+      },
+      {
+        "size": "L",
+        "stock": 19,
+        "sku": "NIK-0004-L"
+      },
+      {
+        "size": "XL",
+        "stock": 27,
+        "sku": "NIK-0004-XL"
+      }
+    ],
+    "gallery": [
+      {
+        "imageUrl": "/images/products/nike-button-up.jpg",
+        "altText": "Nike Sportswear Club Woven Short-Sleeve Button-Up - Main",
+        "isPrimary": true
+      },
+      {
+        "imageUrl": "/images/products/nike-button-up-2.jpg",
+        "altText": "Nike Sportswear Club Woven Short-Sleeve Button-Up - Detail",
+        "isPrimary": false
+      }
+    ],
+    "sizes": [
+      {
+        "size": "S",
+        "isAvailable": true
+      },
+      {
+        "size": "M",
+        "isAvailable": true
+      },
+      {
+        "size": "L",
+        "isAvailable": true
+      },
+      {
+        "size": "XL",
+        "isAvailable": true
+      }
+    ]
+  },
+  {
+    "id": "NIK-2002",
+    "name": "Nike Sportswear Club T-Shirt SS25",
+    "description": "Your go-to essential for everyday comfort and classic style. From the Spring/Summer 2025 collection. Features soft fabric and the iconic Nike logo for a timeless athletic look.",
+    "price": 55,
+    "brand": "Nike",
+    "category": "Clothing",
+    "subcategory": "Men",
+    "type": "T-Shirt",
+    "color": "White",
+    "imageUrl": "/images/products/nike-tshirt-ss25.jpg",
+    "details": [
+      {
+        "size": "XS",
+        "stock": 35,
+        "sku": "NIK-0005-XS"
+      },
+      {
+        "size": "S",
+        "stock": 27,
+        "sku": "NIK-0005-S"
+      },
+      {
+        "size": "M",
+        "stock": 39,
+        "sku": "NIK-0005-M"
+      },
+      {
+        "size": "L",
+        "stock": 36,
+        "sku": "NIK-0005-L"
+      },
+      {
+        "size": "XL",
+        "stock": 32,
+        "sku": "NIK-0005-XL"
+      },
+      {
+        "size": "XXL",
+        "stock": 18,
+        "sku": "NIK-0005-XXL"
+      }
+    ],
+    "gallery": [
+      {
+        "imageUrl": "/images/products/nike-tshirt-ss25.jpg",
+        "altText": "Nike Sportswear Club T-Shirt SS25 - Main",
+        "isPrimary": true
+      },
+      {
+        "imageUrl": "/images/products/nike-tshirt-ss25-2.jpg",
+        "altText": "Nike Sportswear Club T-Shirt SS25 - Detail",
+        "isPrimary": false
+      }
+    ],
+    "sizes": [
+      {
+        "size": "XS",
+        "isAvailable": true
+      },
+      {
+        "size": "S",
+        "isAvailable": true
+      },
+      {
+        "size": "M",
+        "isAvailable": true
+      },
+      {
+        "size": "L",
+        "isAvailable": true
+      },
+      {
+        "size": "XL",
+        "isAvailable": true
+      },
+      {
+        "size": "XXL",
+        "isAvailable": true
+      }
+    ]
+  },
+  {
+    "id": "NIK-1004",
+    "name": "Nike Killshot 2 Leather",
+    "description": "A fan-favorite with clean, retro tennis-inspired aesthetic. Premium leather construction. Gum rubber sole for enduring style and comfort.",
+    "price": 170,
+    "brand": "Nike",
+    "category": "Footwear",
+    "subcategory": "Men",
+    "type": "Sneaker",
+    "color": "White",
+    "imageUrl": "/images/products/nike-killshot-2.jpg",
+    "details": [
+      {
+        "size": "38",
+        "stock": 16,
+        "sku": "NIK-0006-38"
+      },
+      {
+        "size": "39",
+        "stock": 19,
+        "sku": "NIK-0006-39"
+      },
+      {
+        "size": "40",
+        "stock": 28,
+        "sku": "NIK-0006-40"
+      },
+      {
+        "size": "41",
+        "stock": 34,
+        "sku": "NIK-0006-41"
+      },
+      {
+        "size": "42",
+        "stock": 36,
+        "sku": "NIK-0006-42"
+      },
+      {
+        "size": "43",
+        "stock": 24,
+        "sku": "NIK-0006-43"
+      },
+      {
+        "size": "44",
+        "stock": 32,
+        "sku": "NIK-0006-44"
+      },
+      {
+        "size": "45",
+        "stock": 22,
+        "sku": "NIK-0006-45"
+      }
+    ],
+    "gallery": [
+      {
+        "imageUrl": "/images/products/nike-killshot-2.jpg",
+        "altText": "Nike Killshot 2 Leather - Main",
+        "isPrimary": true
+      },
+      {
+        "imageUrl": "/images/products/nike-killshot-2-2.jpg",
+        "altText": "Nike Killshot 2 Leather - Detail",
+        "isPrimary": false
+      }
+    ],
+    "sizes": [
+      {
+        "size": "38",
+        "isAvailable": true
+      },
+      {
+        "size": "39",
+        "isAvailable": true
+      },
+      {
+        "size": "40",
+        "isAvailable": true
+      },
+      {
+        "size": "41",
+        "isAvailable": true
+      },
+      {
+        "size": "42",
+        "isAvailable": true
+      },
+      {
+        "size": "43",
+        "isAvailable": true
+      },
+      {
+        "size": "44",
+        "isAvailable": true
+      },
+      {
+        "size": "45",
+        "isAvailable": true
+      }
+    ]
+  }
+]

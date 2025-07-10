@@ -11,6 +11,13 @@
   width: 80%;
   max-height: 100vh;
   margin: 0 auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+  perspective: 1000px;
+  transform-style: preserve-3d;
 }
 
 .suggestion-item {
@@ -21,6 +28,15 @@
   align-items: stretch;
   justify-content: stretch;
   border-radius: 0px;
+  opacity: 0;
+  transform: scale(0.95) translateZ(0);
+  transition: opacity 0.85s cubic-bezier(0.33, 1, 0.68, 1),
+              transform 0.85s cubic-bezier(0.33, 1, 0.68, 1),
+              box-shadow 0.4s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  will-change: opacity, transform, box-shadow;
+  backface-visibility: hidden;
+  position: relative;
 }
 
 .suggestion-item img {
@@ -28,35 +44,176 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  opacity: 0;
+  filter: blur(10px);
+  transform: scale(1.08) translateZ(0);
+  transition: opacity 1s cubic-bezier(0.33, 1, 0.68, 1), 
+              filter 1s cubic-bezier(0.33, 1, 0.68, 1), 
+              transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, filter, transform;
+  backface-visibility: hidden;
+}
+
+.suggestion-item:hover img {
+  transform: scale(1.07) translateZ(0);
+  transition: transform 4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 /* Large left image */
 .item-large {
   grid-row: 1 / span 2;
   grid-column: 1 / 2;
+  transition-delay: 0.1s;
+}
+.item-large img {
+  transition-delay: 0.15s;
 }
 
 /* Top right (shoes) */
 .item-top-right {
   grid-row: 1 / 2;
   grid-column: 2 / 4;
+  transition-delay: 0.25s;
+}
+.item-top-right img {
+  transition-delay: 0.3s;
 }
 
 /* Middle (ring) */
 .item-middle {
   grid-row: 2 / 3;
   grid-column: 2 / 3;
+  transition-delay: 0.4s;
+}
+.item-middle img {
+  transition-delay: 0.45s;
 }
 
 /* Bottom right (bag) */
 .item-bottom-right {
   grid-row: 2 / 3;
   grid-column: 3 / 4;
+  transition-delay: 0.55s;
+}
+.item-bottom-right img {
+  transition-delay: 0.6s;
 }
 
 .suggestion-visible {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0) translateZ(0);
+}
+
+.suggestion-visible .suggestion-item {
+  opacity: 1;
+  transform: scale(1) translateZ(0);
+}
+
+.suggestion-visible.images-loaded .suggestion-item img,
+.suggestion-item img.loaded {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1) translateZ(0);
+}
+
+/* Add a modern shadow and subtle scaling effect on hover */
+.suggestion-item:hover {
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  transform: scale(1.02) translateZ(0);
+}
+
+/* Fade-in animation for the entire grid */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Add subtle shimmer effect for modern feel */
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.suggestion-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.suggestion-item:hover::before {
+  opacity: 1;
+  animation: shimmer 1.8s infinite;
+}
+
+/* Modern text overlay for products */
+.suggestion-item .overlay-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+  color: white;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 2;
+  pointer-events: none;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.suggestion-item:hover .overlay-text {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Improve animations on high-end devices */
+@media (prefers-reduced-motion: no-preference) {
+  .suggestion-grid {
+    transition-duration: 0.7s;
+  }
+  
+  .suggestion-item {
+    transition-duration: 0.75s;
+  }
+  
+  .suggestion-item img {
+    transition-duration: 0.9s;
+  }
+}
+
+.suggestion-grid {
+  animation: fadeIn 0.8s ease-out forwards;
+  animation-play-state: paused;
+}
+
+.suggestion-visible {
+  animation-play-state: running;
 }
 
 @media (max-width: 600px) {
@@ -80,5 +237,12 @@
     border-radius: 6px;
     min-width: 0;
     min-height: 0;
+    height: 150px; /* Fixed height for mobile */
   }
+  
+  /* Adjust animation delays for better mobile experience */
+  .item-large { transition-delay: 0.1s; }
+  .item-top-right { transition-delay: 0.2s; }
+  .item-middle { transition-delay: 0.3s; }
+  .item-bottom-right { transition-delay: 0.4s; }
 }

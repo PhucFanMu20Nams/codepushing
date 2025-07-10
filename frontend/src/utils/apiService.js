@@ -54,7 +54,30 @@ class ApiService {
    * Get all products with caching
    */
   async getProducts(params = {}) {
-    const queryParams = new URLSearchParams(params).toString();
+    // Handle array parameters properly
+    const processedParams = { ...params };
+    
+    // Convert arrays to single values for the API
+    if (Array.isArray(processedParams.brand) && processedParams.brand.length === 1) {
+      processedParams.brand = processedParams.brand[0];
+    } else if (Array.isArray(processedParams.brand) && processedParams.brand.length === 0) {
+      delete processedParams.brand;
+    }
+    
+    if (Array.isArray(processedParams.type) && processedParams.type.length === 1) {
+      processedParams.type = processedParams.type[0];
+    } else if (Array.isArray(processedParams.type) && processedParams.type.length === 0) {
+      delete processedParams.type;
+    }
+    
+    if (Array.isArray(processedParams.colors) && processedParams.colors.length === 1) {
+      processedParams.color = processedParams.colors[0]; // Note: backend expects 'color', not 'colors'
+      delete processedParams.colors;
+    } else if (Array.isArray(processedParams.colors) && processedParams.colors.length === 0) {
+      delete processedParams.colors;
+    }
+
+    const queryParams = new URLSearchParams(processedParams).toString();
     const url = `${this.baseURL}/products${queryParams ? `?${queryParams}` : ''}`;
     
     return this.fetchWithCache(

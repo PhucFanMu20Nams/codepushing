@@ -43,7 +43,7 @@ function Hero() {
       <video
         className="hero-bg-video"
         ref={videoRef}
-        src="/assets/images/background.mp4"
+        src="/images/background.mp4"
         autoPlay
         loop={false}
         muted

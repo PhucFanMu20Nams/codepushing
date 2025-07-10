@@ -1,180 +1,145 @@
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const rateLimit = require('express-rate-limit');
-const db = require('../models');
-const authConfig = require('../config/auth.config');
+const Admin = require('../models/Admin');
+const config = require('../config/db.config');
 
-// Rate limiter for auth endpoints
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 requests per windowMs
-  message: {
-    success: false,
-    error: {
-      code: 'TOO_MANY_ATTEMPTS',
-      message: 'Too many login attempts, please try again later.'
-    }
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Register admin (for initial setup only)
-exports.register = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    // Check if admin already exists
-    const existingAdmin = await db.admins.findOne({
-      where: { username }
-    });
-
-    if (existingAdmin) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'ADMIN_EXISTS',
-          message: 'Admin already exists'
-        }
-      });
-    }
-
-    // Hash password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Create admin
-    const admin = await db.admins.create({
-      username,
-      password: hashedPassword
-    });
-
-    res.status(201).json({
-      success: true,
-      data: {
-        message: 'Admin registered successfully',
-        adminId: admin.id
-      }
-    });
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'REGISTRATION_ERROR',
-        message: 'Error registering admin'
-      }
-    });
-  }
+// Generate JWT token
+const generateToken = (id) => {
+  return jwt.sign({ id }, config.JWT_SECRET, {
+    expiresIn: config.JWT_EXPIRE
+  });
 };
 
-// Login admin
-exports.login = [authLimiter, async (req, res) => {
+// Admin login
+exports.loginAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'MISSING_CREDENTIALS',
-          message: 'Username and password are required'
-        }
-      });
-    }
-
-    // Find admin
-    console.log('Login attempt:', { username });
+    // Check if admin exists
+    const admin = await Admin.findOne({ username, isActive: true });
     
-    const admin = await db.admins.findOne({
-      where: { username }
-    });
-
-    console.log('Admin found:', admin ? admin.username : 'none');
-
     if (!admin) {
       return res.status(401).json({
         success: false,
-        error: {
-          code: 'INVALID_CREDENTIALS',
-          message: 'Invalid username or password'
-        }
+        message: 'Invalid credentials'
       });
     }
 
     // Check password
-    const isValidPassword = await bcrypt.compare(password, admin.password);
-    if (!isValidPassword) {
+    const isPasswordValid = await admin.comparePassword(password);
+    
+    if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        error: {
-          code: 'INVALID_CREDENTIALS',
-          message: 'Invalid username or password'
-        }
+        message: 'Invalid credentials'
       });
     }
 
     // Update last login
-    await admin.update({ lastLogin: new Date() });
+    admin.lastLogin = new Date();
+    await admin.save();
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { 
-        adminId: admin.id, 
-        username: admin.username
-      },
-      authConfig.JWT_SECRET,
-      { expiresIn: authConfig.JWT_EXPIRES_IN }
-    );
+    // Generate token
+    const token = generateToken(admin._id);
 
     res.json({
       success: true,
       data: {
         token,
         admin: {
-          id: admin.id,
+          id: admin._id,
           username: admin.username,
-          lastLogin: admin.lastLogin
+          email: admin.email
         }
-      }
+      },
+      message: 'Login successful'
     });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      error: {
-        code: 'LOGIN_ERROR',
-        message: 'Error during login'
-      }
+      message: 'Login failed',
+      error: error.message
     });
   }
-}];
+};
+
+// Register admin (for setup only)
+exports.registerAdmin = async (req, res) => {
+  try {
+    const { username, password, email } = req.body;
+
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({ username });
+    
+    if (existingAdmin) {
+      return res.status(400).json({
+        success: false,
+        message: 'Admin already exists'
+      });
+    }
+
+    // Create new admin
+    const admin = new Admin({
+      username,
+      password,
+      email,
+      isActive: true
+    });
+
+    await admin.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin created successfully',
+      data: {
+        id: admin._id,
+        username: admin.username,
+        email: admin.email
+      }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Registration failed',
+      error: error.message
+    });
+  }
+};
 
 // Verify token middleware
-exports.verifyToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1]; // Bearer TOKEN
-
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      error: {
-        code: 'NO_TOKEN',
-        message: 'Access token is required'
-      }
-    });
-  }
-
+exports.verifyToken = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, authConfig.JWT_SECRET);
-    req.admin = decoded;
+    let token;
+    
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'No token provided'
+      });
+    }
+
+    const decoded = jwt.verify(token, config.JWT_SECRET);
+    const admin = await Admin.findById(decoded.id);
+
+    if (!admin || !admin.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token'
+      });
+    }
+
+    req.admin = admin;
     next();
   } catch (error) {
-    return res.status(401).json({
+    console.error('Token verification error:', error);
+    res.status(401).json({
       success: false,
-      error: {
-        code: 'INVALID_TOKEN',
-        message: 'Invalid or expired token'
-      }
+      message: 'Invalid token'
     });
   }
 };
@@ -182,32 +147,79 @@ exports.verifyToken = (req, res, next) => {
 // Get admin profile
 exports.getProfile = async (req, res) => {
   try {
-    const admin = await db.admins.findByPk(req.admin.adminId, {
-      attributes: ['id', 'username', 'lastLogin', 'createdAt']
+    const admin = await Admin.findById(req.admin._id).select('-password');
+    
+    res.json({
+      success: true,
+      data: admin
     });
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching profile',
+      error: error.message
+    });
+  }
+};
 
-    if (!admin) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          code: 'ADMIN_NOT_FOUND',
-          message: 'Admin not found'
-        }
-      });
-    }
+// Update admin profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    const admin = await Admin.findByIdAndUpdate(
+      req.admin._id,
+      { email },
+      { new: true, runValidators: true }
+    ).select('-password');
 
     res.json({
       success: true,
-      data: { admin }
+      data: admin,
+      message: 'Profile updated successfully'
     });
   } catch (error) {
-    console.error('Profile error:', error);
-    res.status(500).json({
+    console.error('Error updating profile:', error);
+    res.status(400).json({
       success: false,
-      error: {
-        code: 'PROFILE_ERROR',
-        message: 'Error fetching profile'
-      }
+      message: 'Error updating profile',
+      error: error.message
+    });
+  }
+};
+
+// Change password
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    const admin = await Admin.findById(req.admin._id);
+    
+    // Verify current password
+    const isCurrentPasswordValid = await admin.comparePassword(currentPassword);
+    
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Update password
+    admin.password = newPassword;
+    await admin.save();
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Error changing password',
+      error: error.message
     });
   }
 };

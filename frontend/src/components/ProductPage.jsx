@@ -14,7 +14,7 @@ function NoProductsFoundWithAlternatives({ currentCategory }) {
         setLoading(true);
         // Fetch all products without category filter to show available options
         const data = await apiService.getProducts({ limit: 20 });
-        setAvailableProducts(data.products || []);
+        setAvailableProducts(data.data || []);
       } catch (error) {
         console.error('Error fetching available products:', error);
         setAvailableProducts([]);
@@ -58,10 +58,10 @@ function NoProductsFoundWithAlternatives({ currentCategory }) {
           
           <div className="available-products-grid">
             {categoryProducts.map(product => (
-              <Link to={`/product/${product.id}`} key={product.id} className="available-product-card">
+              <Link to={`/product/${product._id}`} key={product._id} className="available-product-card">
                 <div className="available-product-image">
                   <img 
-                    src={getImageUrl(product.image)} 
+                    src={getImageUrl(product.imageUrl)} 
                     alt={product.name}
                     onError={(e) => {
                       e.target.src = '/placeholder-image.jpg';
@@ -93,10 +93,10 @@ function NoProductsFoundWithAlternatives({ currentCategory }) {
           
           <div className="available-products-grid">
             {otherProducts.slice(0, 6).map(product => (
-              <Link to={`/product/${product.id}`} key={product.id} className="available-product-card">
+              <Link to={`/product/${product._id}`} key={product._id} className="available-product-card">
                 <div className="available-product-image">
                   <img 
-                    src={getImageUrl(product.image)} 
+                    src={getImageUrl(product.imageUrl)} 
                     alt={product.name}
                     onError={(e) => {
                       e.target.src = '/placeholder-image.jpg';
@@ -151,11 +151,11 @@ function ProductPage() {
   // Determine category based on current path
   const getCurrentCategory = () => {
     const path = location.pathname;
-    if (path.includes('/clothes')) return 'Clothes';
+    if (path.includes('/clothes')) return 'Clothing';
     if (path.includes('/footwear')) return 'Footwear';
     if (path.includes('/accessories')) return 'Accessories';
     if (path.includes('/service')) return 'Service';
-    return 'Clothes'; // Default
+    return 'Clothing'; // Default
   };
 
   const currentCategory = getCurrentCategory();
@@ -163,17 +163,17 @@ function ProductPage() {
   // Get filter configuration based on category
   const getFilterConfig = () => {
     switch (currentCategory) {
-      case 'Clothes':
+      case 'Clothing':
         return {
           brands: ['Nike', 'Adidas'],
-          types: ['T-Shirt', 'Shirt'],
-          colors: ['Black', 'White']
+          types: ['T-Shirt', 'Shirt', 'Pants'],
+          colors: ['Blue', 'White', 'Beige', 'Khaki']
         };
       case 'Footwear':
         return {
           brands: ['Nike', 'Adidas'],
-          types: ['Sneaker'],
-          colors: ['White', 'Black', 'Green']
+          types: ['Sneakers'],
+          colors: ['White', 'Black/White', 'Grey/White', 'White/Navy']
         };
       case 'Accessories':
         return {
@@ -190,8 +190,8 @@ function ProductPage() {
       default:
         return {
           brands: ['Nike', 'Adidas'],
-          types: ['Sneaker', 'T-Shirt', 'Shirt'],
-          colors: ['Black', 'White', 'Green']
+          types: ['Sneakers', 'T-Shirt', 'Shirt', 'Pants'],
+          colors: ['Blue', 'White', 'Black/White', 'Grey/White', 'White/Navy', 'Beige', 'Khaki']
         };
     }
   };
@@ -227,8 +227,8 @@ function ProductPage() {
       if (filters.priceMax) queryParams.priceMax = filters.priceMax;
 
       const data = await apiService.getProducts(queryParams);
-      setProducts(data.products || []);
-      setTotalPages(Math.ceil((data.total || 0) / 12));
+      setProducts(data.data || []);
+      setTotalPages(data.pagination?.pages || 1);
     } catch (error) {
       console.error('Error fetching products:', error);
       setProducts([]);
@@ -445,13 +445,13 @@ function ProductPage() {
             ) : (
               products.map((product) => (
                 <div 
-                  key={product.id} 
+                  key={product._id} 
                   className="product-card"
-                  onClick={() => handleProductClick(product.id)}
+                  onClick={() => handleProductClick(product._id)}
                 >
                   <div className="product-image">
                     <img 
-                      src={getImageUrl(product.image)} 
+                      src={getImageUrl(product.imageUrl)} 
                       alt={product.name}
                       onError={(e) => {
                         e.target.src = '/placeholder-image.jpg';

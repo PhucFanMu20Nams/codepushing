@@ -12,9 +12,18 @@ function PopularItems() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const data = await apiService.getProducts({ limit: 6 });
-        console.log('Products data:', data);
-        setProducts(data.products || []);
+        const response = await apiService.getProducts({ limit: 6 });
+        console.log('Products data from API:', response);
+        console.log('Response structure:', Object.keys(response));
+        // Check the structure of the response and extract products accordingly
+        if (response.data && Array.isArray(response.data)) {
+          setProducts(response.data);
+        } else if (response.products && Array.isArray(response.products)) {
+          setProducts(response.products);
+        } else {
+          console.warn('Unexpected API response structure:', response);
+          setProducts(sampleProducts); // Fallback
+        }
       } catch (error) {
         console.error('Error fetching products:', error);
         // Fallback to sample data if API fails
@@ -81,7 +90,12 @@ function PopularItems() {
     
     // Handle backend images
     if (imagePath.startsWith('/images/')) {
-      return `http://localhost:5000${imagePath}`;
+      return `${import.meta.env.VITE_API_URL}${imagePath}`;
+    }
+    
+    // Handle API data that might include absolute server paths
+    if (imagePath.includes('products/')) {
+      return `${import.meta.env.VITE_API_URL}/images/${imagePath.split('products/').pop()}`;
     }
     
     // Handle frontend assets
@@ -103,10 +117,11 @@ function PopularItems() {
         
         <div className="products-grid">
           {displayProducts.slice(0, 6).map(product => (
-            <Link to={`/product/${product.id}`} key={product.id} className="product-card">
+            <Link to={`/product/${product.id || product._id}`} key={product.id || product._id} className="product-card">
               <div className="product-image">
                 <img 
-                  src={getImageUrl(product.image)} 
+                  loading="lazy"
+                  src={getImageUrl(product.image || product.imageUrl)} 
                   alt={product.name}
                   onError={(e) => {
                     console.error('Image failed to load:', e.target.src);

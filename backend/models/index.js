@@ -1,39 +1,21 @@
-const { Sequelize } = require("sequelize");
-const dbConfig = require("../config/db.config.js");
+// filepath: backend/models/index.js
+const mongoose = require('mongoose');
+const config = require('../config/db.config');
 
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-  host: dbConfig.HOST,
-  port: dbConfig.PORT,
-  dialect: dbConfig.dialect,
-  pool: {
-    max: dbConfig.pool.max,
-    min: dbConfig.pool.min,
-    acquire: dbConfig.pool.acquire,
-    idle: dbConfig.pool.idle
-  },
-  logging: false
-});
+mongoose.Promise = global.Promise;
 
 const db = {};
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
+db.mongoose = mongoose;
+db.url = config.MONGODB_URI;
 
-// Import models
-db.products = require("./product.model.js")(sequelize, Sequelize);
-db.productDetails = require("./productDetail.model.js")(sequelize, Sequelize);
-db.productImages = require("./productImage.model.js")(sequelize, Sequelize);
-db.productSizes = require("./productSize.model.js")(sequelize, Sequelize);
-db.admins = require("./admin.model.js")(sequelize, Sequelize);
+// Add your models here
+db.Product = require('./Product.js');
+db.Admin = require('./Admin.js');
 
-// Define relationships
-db.products.hasMany(db.productDetails, { as: "details", foreignKey: "productId" });
-db.productDetails.belongsTo(db.products, { foreignKey: "productId" });
-
-db.products.hasMany(db.productImages, { as: "gallery", foreignKey: "productId" });
-db.productImages.belongsTo(db.products, { foreignKey: "productId" });
-
-db.products.hasMany(db.productSizes, { as: "sizes", foreignKey: "productId" });
-db.productSizes.belongsTo(db.products, { foreignKey: "productId" });
+// Function to connect to the database
+db.connectDB = async () => {
+  await mongoose.connect(db.url);
+};
 
 module.exports = db;

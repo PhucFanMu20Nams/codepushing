@@ -1,554 +1,374 @@
-const db = require('../models');
-const { Op } = require('sequelize');
-const { productCache } = require('../utils/cacheManager');
+const Product = require('../models/Product');
 
 /**
  * Helper function to invalidate cache entries when products are modified
  * @param {string} productId - ID of the modified product (optional)
  */
 const invalidateProductCache = (productId = null) => {
-  // Always clear product listings cache as counts/pages may have changed
-  const productsPattern = 'products_';
-  const searchPattern = 'search_';
-  
-  // Invalidate specific product if ID is provided
-  if (productId) {
-    const productDetailPattern = `product_detail_{"id":"${productId}"}`;
-    productCache.delete(productDetailPattern);
-  }
-  
-  // Get all keys and delete those matching our patterns
-  const keys = Array.from(productCache.cache.keys());
-  let invalidatedCount = 0;
-  
-  keys.forEach(key => {
-    if (
-      key.startsWith(productsPattern) || 
-      key.startsWith(searchPattern)
-    ) {
-      productCache.delete(key);
-      invalidatedCount++;
-    }
-  });
-  
-  console.log(`Invalidated ${invalidatedCount} cache entries`);
-  return invalidatedCount;
+  // Cache invalidation logic can be implemented later if needed
+  console.log(`Cache invalidation for product: ${productId || 'all'}`);
 };
 
-// Get all products with pagination and filtering
+// Get all products with filtering and search
 exports.getAllProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
-    const offset = (page - 1) * limit;
+    const { 
+      search, 
+      brand, 
+      type, 
+      color, 
+      style, 
+      category,
+      minPrice, 
+      maxPrice, 
+      page = 1, 
+      limit = 10 
+    } = req.query;
+
+    // Build filter object
+    const filter = { isActive: true };
     
-    // Generate a cache key based on the request parameters
-    const cacheKey = productCache.generateKey('products', { 
-      page, 
-      limit, 
-      ...req.query 
-    });
-    
-    // Check if we have a cached response
-    const cachedData = productCache.get(cacheKey);
-    
-    if (cachedData) {
-      // Return cached data
-      return res.json(cachedData);
+    // Filter by category
+    if (category) {
+      filter.category = category;
     }
     
-    // Build filter conditions
-    const whereClause = {};
-    
-    // Category filter
-    if (req.query.category) {
-      whereClause.category = req.query.category;
+    // Search functionality
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { brand: { $regex: search, $options: 'i' } }
+      ];
     }
-    
-    // Brand filter - support multiple brands
-    if (req.query.brand) {
-      const brands = Array.isArray(req.query.brand) ? req.query.brand : [req.query.brand];
-      whereClause.brand = {
-        [Op.in]: brands
-      };
+
+    // Filter by brand (handle multiple values)
+    if (brand) {
+      const brands = brand.split(',').map(b => b.trim());
+      filter.brand = { $in: brands };
     }
-    
-    // Type filter - support multiple types
-    if (req.query.type) {
-      const types = Array.isArray(req.query.type) ? req.query.type : [req.query.type];
-      whereClause.type = {
-        [Op.in]: types
-      };
+
+    // Filter by type
+    if (type) {
+      const types = type.split(',').map(t => t.trim());
+      filter.type = { $in: types };
     }
-    
-    // Color filter - support multiple colors with array overlap
-    if (req.query.colors) {
-      const selectedColors = Array.isArray(req.query.colors) ? req.query.colors : [req.query.colors];
-      whereClause.colors = {
-        [Op.overlap]: selectedColors
-      };
+
+    // Filter by color
+    if (color) {
+      const colors = color.split(',').map(c => c.trim());
+      filter.color = { $in: colors };
     }
-    
+
+    // Filter by style
+    if (style) {
+      const styles = style.split(',').map(s => s.trim());
+      filter.style = { $in: styles };
+    }
+
     // Price range filter
-    if (req.query.priceMin || req.query.priceMax) {
-      whereClause.price = {};
-      if (req.query.priceMin) {
-        whereClause.price[Op.gte] = parseInt(req.query.priceMin);
-      }
-      if (req.query.priceMax) {
-        whereClause.price[Op.lte] = parseInt(req.query.priceMax);
-      }
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = parseFloat(minPrice);
+      if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
     }
 
-    // Fetch products with pagination
-    const { count, rows } = await db.products.findAndCountAll({
-      where: whereClause,
-      limit,
-      offset,
-      include: [
-        { model: db.productSizes, as: 'sizes', attributes: ['size'] }
-      ]
-    });
+    const skip = (page - 1) * limit;
+    
+    const products = await Product.find(filter)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
 
-    // Transform size data for client
-    const products = rows.map(product => {
-      const productData = product.toJSON();
-      if (productData.sizes) {
-        productData.sizes = productData.sizes.map(s => s.size);
+    const total = await Product.countDocuments(filter);
+
+    res.json({
+      success: true,
+      data: products,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
       }
-      return productData;
     });
-
-    // Set cache headers for successful GET requests
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.setHeader('Expires', new Date(Date.now() + 3600 * 1000).toUTCString());
-
-    // Prepare response data
-    const responseData = {
-      total: count,
-      page,
-      pages: Math.ceil(count / limit),
-      products
-    };
-
-    // Cache the response data in memory
-    productCache.set(cacheKey, responseData);
-
-    res.json(responseData);
   } catch (error) {
     console.error('Error fetching products:', error);
-    res.status(500).json({ message: 'Error fetching products' });
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching products',
+      error: error.message
+    });
   }
 };
 
 // Search products
 exports.searchProducts = async (req, res) => {
   try {
-    const query = req.query.q;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
+    const { query, page = 1, limit = 10 } = req.query;
     
     if (!query) {
-      return res.status(400).json({ message: 'Search query is required' });
-    }
-    
-    // Generate cache key based on search query and pagination
-    const cacheKey = productCache.generateKey('search', { 
-      query, page, limit 
-    });
-    
-    // Check if we have a cached response
-    const cachedData = productCache.get(cacheKey);
-    
-    if (cachedData) {
-      // Return cached data
-      return res.json(cachedData);
+      return res.status(400).json({
+        success: false,
+        message: 'Search query is required'
+      });
     }
 
-    const { count, rows } = await db.products.findAndCountAll({
-      where: {
-        [Op.or]: [
-          { name: { [Op.iLike]: `%${query}%` } },
-          { brand: { [Op.iLike]: `%${query}%` } },
-          { category: { [Op.iLike]: `%${query}%` } },
-          { subcategory: { [Op.iLike]: `%${query}%` } },
-          { type: { [Op.iLike]: `%${query}%` } }
-        ]
-      },
-      limit,
-      offset,
-      order: [['name', 'ASC']]
-    });
+    const filter = {
+      isActive: true,
+      $or: [
+        { name: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
+        { brand: { $regex: query, $options: 'i' } },
+        { category: { $regex: query, $options: 'i' } },
+        { type: { $regex: query, $options: 'i' } }
+      ]
+    };
 
-    const products = rows.map(product => product.toJSON());
+    const skip = (page - 1) * limit;
+    
+    const products = await Product.find(filter)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
 
-    // Set cache headers for search results
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.setHeader('Expires', new Date(Date.now() + 3600 * 1000).toUTCString());
+    const total = await Product.countDocuments(filter);
 
     res.json({
-      total: count,
-      page,
-      pages: Math.ceil(count / limit),
-      products
+      success: true,
+      data: products,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
     });
   } catch (error) {
     console.error('Error searching products:', error);
-    res.status(500).json({ message: 'Error searching products' });
+    res.status(500).json({
+      success: false,
+      message: 'Error searching products',
+      error: error.message
+    });
   }
 };
 
-// Get product by ID
+// Get single product
 exports.getProductById = async (req, res) => {
   try {
-    const productId = req.params.id;
-    
-    // Generate a cache key for this product
-    const cacheKey = productCache.generateKey('product_detail', { id: productId });
-    
-    // Check if we have a cached response
-    const cachedData = productCache.get(cacheKey);
-    
-    if (cachedData) {
-      // Return cached data
-      return res.json(cachedData);
+    // Try to find by MongoDB ObjectId first for backward compatibility
+    let product;
+    try {
+      if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+        // If it looks like an ObjectId, try finding by ID
+        product = await Product.findById(req.params.id);
+      }
+    } catch (err) {
+      // Ignore this error and continue with the next query
     }
     
-    const product = await db.products.findByPk(productId, {
-      include: [
-        { model: db.productDetails, as: 'details', attributes: ['detail'] },
-        { model: db.productImages, as: 'gallery', attributes: ['imageUrl'] },
-        { model: db.productSizes, as: 'sizes', attributes: ['size'] }
-      ]
-    });
+    // If not found by ObjectId, try finding by string ID field
+    if (!product) {
+      product = await Product.findOne({ id: req.params.id });
+    }
     
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-    
-    // Transform the product data to match the expected format
-    const productData = product.toJSON();
-    
-    // Convert details to simple array of strings
-    if (productData.details) {
-      productData.details = productData.details.map(d => d.detail);
-    }
-    
-    // Convert gallery to simple array of image URLs
-    if (productData.gallery) {
-      productData.gallery = productData.gallery.map(img => img.imageUrl);
-    }
-    
-    // Convert sizes to simple array of size strings
-    if (productData.sizes) {
-      productData.sizes = productData.sizes.map(s => s.size);
-    }
-    
-    // Set cache headers for individual product
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.setHeader('Expires', new Date(Date.now() + 3600 * 1000).toUTCString());
-    
-    // Cache the product data with a 30-minute TTL (slightly shorter than list views)
-    productCache.set(cacheKey, productData, 1800000);
-    
-    res.json(productData);
-  } catch (error) {
-    console.error('Error fetching product:', error);
-    res.status(500).json({ message: 'Error fetching product' });
-  }
-};
-
-// Create a new product
-exports.createProduct = async (req, res) => {
-  try {
-    const { 
-      id, name, brand, price, category, subcategory, type, image,
-      gallery = [], sizes = [], details = [] 
-    } = req.body;
-
-    // Validate required fields
-    if (!id || !name || !brand || !price || !category) {
-      return res.status(400).json({ 
-        message: 'Missing required fields: id, name, brand, price, and category are required' 
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
       });
     }
 
-    // Create main product record
-    const product = await db.products.create({
-      id, name, brand, price, category, subcategory, type, image
+    res.json({
+      success: true,
+      data: product
     });
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching product',
+      error: error.message
+    });
+  }
+};
 
-    // Add details
-    if (details.length > 0) {
-      await Promise.all(details.map(detail => 
-        db.productDetails.create({ productId: id, detail })
-      ));
-    }
-
-    // Add gallery images
-    if (gallery.length > 0) {
-      await Promise.all(gallery.map(imageUrl => 
-        db.productImages.create({ productId: id, imageUrl })
-      ));
-    }
-
-    // Add sizes
-    if (sizes.length > 0) {
-      await Promise.all(sizes.map(size => 
-        db.productSizes.create({ productId: id, size })
-      ));
-    }
-
-    // Invalidate product listings cache
+// Create product
+exports.createProduct = async (req, res) => {
+  try {
+    const product = new Product(req.body);
+    await product.save();
+    
     invalidateProductCache();
-
-    res.status(201).json({ 
-      message: 'Product created successfully', 
-      productId: product.id 
+    
+    res.status(201).json({
+      success: true,
+      data: product,
+      message: 'Product created successfully'
     });
   } catch (error) {
     console.error('Error creating product:', error);
-    res.status(500).json({ message: 'Error creating product' });
-  }
-};
-
-// Upload images and create product
-exports.uploadProductWithImages = async (req, res) => {
-  try {
-    const { id, name, brand, price, category } = req.body;
-    const files = req.files;
-
-    // Validate
-    if (!id || !name || !brand || !price || !category || !files || files.length < 1) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    // Save main product
-    const image = '/images/products/' + files[0].filename;
-    await db.products.create({
-      id, name, brand, price, category, image,
-      subcategory: '', type: ''
+    res.status(400).json({
+      success: false,
+      message: 'Error creating product',
+      error: error.message
     });
-
-    // Save gallery images
-    for (const file of files) {
-      await db.productImages.create({
-        productId: id,
-        imageUrl: '/images/products/' + file.filename
-      });
-    }
-
-    return res.status(201).json({ success: true });
-  } catch (error) {
-    console.error('Error uploading product:', error);
-    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-// Update a product
+// Update product
 exports.updateProduct = async (req, res) => {
   try {
-    const productId = req.params.id;
-    const { 
-      name, brand, price, category, subcategory, type, image,
-      gallery = [], sizes = [], details = [] 
-    } = req.body;
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
 
-    // Validate required fields
-    if (!name || !brand || !price || !category) {
-      return res.status(400).json({
-        success: false, 
-        error: {
-          code: 'MISSING_FIELDS',
-          message: 'Missing required fields: name, brand, price, and category are required'
-        }
-      });
-    }
-
-    // Check if product exists
-    const existingProduct = await db.products.findByPk(productId);
-    if (!existingProduct) {
+    if (!product) {
       return res.status(404).json({
         success: false,
-        error: {
-          code: 'PRODUCT_NOT_FOUND',
-          message: `Product with ID ${productId} not found`
-        }
+        message: 'Product not found'
       });
     }
 
-    // Update main product record
-    await existingProduct.update({
-      name, brand, price, category, subcategory, type, image
-    });
-
-    // Update details (remove old ones, add new ones)
-    await db.productDetails.destroy({ where: { productId } });
-    if (details.length > 0) {
-      await Promise.all(details.map(detail => 
-        db.productDetails.create({ productId, detail })
-      ));
-    }
-
-    // Update gallery images (remove old ones, add new ones)
-    await db.productImages.destroy({ where: { productId } });
-    if (gallery.length > 0) {
-      await Promise.all(gallery.map(imageUrl => 
-        db.productImages.create({ productId, imageUrl })
-      ));
-    }
-
-    // Update sizes (remove old ones, add new ones)
-    await db.productSizes.destroy({ where: { productId } });
-    if (sizes.length > 0) {
-      await Promise.all(sizes.map(size => 
-        db.productSizes.create({ productId, size })
-      ));
-    }
-
-    // Invalidate cache for this product and listings
-    invalidateProductCache(productId);
+    invalidateProductCache(req.params.id);
 
     res.json({
       success: true,
-      data: {
-        message: 'Product updated successfully',
-        productId
-      }
+      data: product,
+      message: 'Product updated successfully'
     });
   } catch (error) {
     console.error('Error updating product:', error);
-    res.status(500).json({
+    res.status(400).json({
       success: false,
-      error: {
-        code: 'UPDATE_ERROR',
-        message: 'Error updating product'
-      }
+      message: 'Error updating product',
+      error: error.message
     });
   }
 };
 
-// Partially update a product
-exports.partialUpdateProduct = async (req, res) => {
-  try {
-    const productId = req.params.id;
-    const updateData = req.body;
-    
-    // Check if product exists
-    const existingProduct = await db.products.findByPk(productId);
-    if (!existingProduct) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          code: 'PRODUCT_NOT_FOUND',
-          message: `Product with ID ${productId} not found`
-        }
-      });
-    }
-
-    // Update main product fields (only those provided)
-    const mainProductFields = ['name', 'brand', 'price', 'category', 'subcategory', 'type', 'image'];
-    const productUpdates = {};
-    
-    mainProductFields.forEach(field => {
-      if (updateData[field] !== undefined) {
-        productUpdates[field] = updateData[field];
-      }
-    });
-    
-    if (Object.keys(productUpdates).length > 0) {
-      await existingProduct.update(productUpdates);
-    }
-
-    // Update related data if provided
-    if (updateData.details) {
-      await db.productDetails.destroy({ where: { productId } });
-      await Promise.all(updateData.details.map(detail => 
-        db.productDetails.create({ productId, detail })
-      ));
-    }
-    
-    if (updateData.gallery) {
-      await db.productImages.destroy({ where: { productId } });
-      await Promise.all(updateData.gallery.map(imageUrl => 
-        db.productImages.create({ productId, imageUrl })
-      ));
-    }
-    
-    if (updateData.sizes) {
-      await db.productSizes.destroy({ where: { productId } });
-      await Promise.all(updateData.sizes.map(size => 
-        db.productSizes.create({ productId, size })
-      ));
-    }
-
-    // Invalidate cache for this product and listings
-    invalidateProductCache(productId);
-
-    res.json({
-      success: true,
-      data: {
-        message: 'Product partially updated successfully',
-        productId,
-        updatedFields: Object.keys(updateData)
-      }
-    });
-  } catch (error) {
-    console.error('Error updating product:', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'UPDATE_ERROR',
-        message: 'Error updating product'
-      }
-    });
-  }
-};
-
-// Delete a product
+// Delete product
 exports.deleteProduct = async (req, res) => {
   try {
-    const productId = req.params.id;
-    
-    // Check if product exists
-    const existingProduct = await db.products.findByPk(productId);
-    if (!existingProduct) {
+    const product = await Product.findByIdAndDelete(req.params.id);
+
+    if (!product) {
       return res.status(404).json({
         success: false,
-        error: {
-          code: 'PRODUCT_NOT_FOUND',
-          message: `Product with ID ${productId} not found`
-        }
+        message: 'Product not found'
       });
     }
 
-    // Delete related records first (to maintain referential integrity)
-    await db.productDetails.destroy({ where: { productId } });
-    await db.productImages.destroy({ where: { productId } });
-    await db.productSizes.destroy({ where: { productId } });
-    
-    // Delete the product
-    await existingProduct.destroy();
-
-    // Invalidate cache for this product and listings
-    invalidateProductCache(productId);
+    invalidateProductCache(req.params.id);
 
     res.json({
       success: true,
-      data: {
-        message: 'Product deleted successfully',
-        productId
-      }
+      message: 'Product deleted successfully'
     });
   } catch (error) {
     console.error('Error deleting product:', error);
     res.status(500).json({
       success: false,
-      error: {
-        code: 'DELETE_ERROR',
-        message: 'Error deleting product'
+      message: 'Error deleting product',
+      error: error.message
+    });
+  }
+};
+
+// Get all unique brands
+exports.getBrands = async (req, res) => {
+  try {
+    const brands = await Product.distinct('brand', { isActive: true });
+    
+    res.json({
+      success: true,
+      data: brands.sort()
+    });
+  } catch (error) {
+    console.error('Error fetching brands:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching brands',
+      error: error.message
+    });
+  }
+};
+
+// Get all unique categories
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Product.distinct('category', { isActive: true });
+    
+    res.json({
+      success: true,
+      data: categories.sort()
+    });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching categories',
+      error: error.message
+    });
+  }
+};
+
+// Get all unique types
+exports.getTypes = async (req, res) => {
+  try {
+    const types = await Product.distinct('type', { isActive: true });
+    
+    res.json({
+      success: true,
+      data: types.sort()
+    });
+  } catch (error) {
+    console.error('Error fetching types:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching types',
+      error: error.message
+    });
+  }
+};
+
+// Get product statistics
+exports.getProductStats = async (req, res) => {
+  try {
+    const totalProducts = await Product.countDocuments({ isActive: true });
+    const totalBrands = await Product.distinct('brand', { isActive: true });
+    const totalCategories = await Product.distinct('category', { isActive: true });
+    
+    const priceStats = await Product.aggregate([
+      { $match: { isActive: true } },
+      {
+        $group: {
+          _id: null,
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' }
+        }
       }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalProducts,
+        totalBrands: totalBrands.length,
+        totalCategories: totalCategories.length,
+        priceRange: priceStats[0] || { avgPrice: 0, minPrice: 0, maxPrice: 0 }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching product stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching product statistics',
+      error: error.message
     });
   }
 };
