@@ -6,15 +6,17 @@ import apiService from '../utils/apiService.js';
 function PopularItems() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Fetch products using the cached API service
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        // Use limit=6 to get just enough products for the popular items section
         const response = await apiService.getProducts({ limit: 6 });
         console.log('Products data from API:', response);
-        console.log('Response structure:', Object.keys(response));
+        
         // Check the structure of the response and extract products accordingly
         if (response.data && Array.isArray(response.data)) {
           setProducts(response.data);
@@ -22,12 +24,12 @@ function PopularItems() {
           setProducts(response.products);
         } else {
           console.warn('Unexpected API response structure:', response);
-          setProducts(sampleProducts); // Fallback
+          setError('Unexpected API response structure');
+          // Don't fall back to sample products immediately
         }
       } catch (error) {
         console.error('Error fetching products:', error);
-        // Fallback to sample data if API fails
-        setProducts(sampleProducts);
+        setError('Failed to load products from server');
       } finally {
         setLoading(false);
       }
@@ -36,78 +38,58 @@ function PopularItems() {
     fetchProducts();
   }, []);
 
-  // Sample product data as fallback - using your specified 6 products
-  const sampleProducts = [
-    {
-      id: "nike-dunk-low",
-      name: 'Nike Dunk Low',
-      brand: 'Nike',
-      price: 1800000,
-      image: '/images/products/nike-dunk-low.jpg'
-    },
-    {
-      id: "nike-dunk-low-panda",
-      name: 'Nike Dunk Low Retro Panda',
-      brand: 'Nike',
-      price: 2300000,
-      image: '/assets/images/products/nike_dunk_retro_panda_1.jpg'
-    },
-    {
-      id: "adidas-samba-og",
-      name: 'Adidas Samba OG',
-      brand: 'Adidas',
-      price: 1900000,
-      image: '/images/products/adidas-samba-og.jpg'
-    },
-    {
-      id: "nike-sportswear-club-button-up",
-      name: 'Nike Sportswear Club Woven Short-Sleeve Button-Up',
-      brand: 'Nike',
-      price: 890000,
-      image: '/images/products/nike-button-up.jpg'
-    },
-    {
-      id: "nike-sportswear-club-tshirt-ss25",
-      name: 'Nike Sportswear Club T-Shirt SS25',
-      brand: 'Nike',
-      price: 550000,
-      image: '/images/products/nike-tshirt-ss25.jgp'
-    },
-    {
-      id: "nike-killshot-2-leather",
-      name: 'Nike Killshot 2 Leather',
-      brand: 'Nike',
-      price: 1700000,
-      image: '/images/products/nike-killshot-2.jpg'
-    }
-  ];
-
-  // Helper function to handle image URLs
+  // Helper function to handle image URLs - updated to handle backend paths better
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return '/assets/images/shirt-1.jpg'; // Default
+    if (!imagePath) return '/assets/images/shirt-1.jpg'; // Default fallback
     
+    // If it's already an absolute URL, use it as is
     if (imagePath.startsWith('http')) return imagePath;
     
-    // Handle backend images
-    if (imagePath.startsWith('/images/')) {
-      return `${import.meta.env.VITE_API_URL}${imagePath}`;
-    }
+    // Get the API URL from environment, or use a default if not available
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     
-    // Handle API data that might include absolute server paths
+    // Handle paths from backend that include 'products/'
     if (imagePath.includes('products/')) {
-      return `${import.meta.env.VITE_API_URL}/images/${imagePath.split('products/').pop()}`;
+      // Make sure the path is properly formatted with leading slash if needed
+      if (imagePath.startsWith('/')) {
+        return `${apiUrl}${imagePath}`;
+      } else {
+        return `${apiUrl}/images/${imagePath}`;
+      }
     }
     
-    // Handle frontend assets
-    const path = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-    return path;
+    // Handle paths from backend that start with /images/
+    if (imagePath.startsWith('/images/')) {
+      return `${apiUrl}${imagePath}`;
+    }
+    
+    // Handle frontend public assets (these should be in the public folder)
+    if (imagePath.startsWith('/assets/')) {
+      return imagePath;
+    }
+    
+    // For any other path, try prepending the API URL and /images/
+    return `${apiUrl}/images/${imagePath.startsWith('/') ? imagePath.substring(1) : imagePath}`;
   };
 
   if (loading) {
     return <div className="loading">Loading products...</div>;
   }
 
-  const displayProducts = products.length > 0 ? products : sampleProducts;
+  // Only fall back to sample products if we have no products and there was an error
+  const displayProducts = products.length > 0 ? products : (error ? sampleProducts : []);
+
+  // If there are no products and no error, show a message
+  if (displayProducts.length === 0) {
+    return (
+      <section className="popular-items">
+        <div className="container">
+          <h2 className="section-title">POPULAR ITEMS</h2>
+          <p className="section-subtitle">No products available at this time</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="popular-items">
@@ -124,8 +106,15 @@ function PopularItems() {
                   src={getImageUrl(product.image || product.imageUrl)} 
                   alt={product.name}
                   onError={(e) => {
-                    console.error('Image failed to load:', e.target.src);
-                    e.target.src = '/assets/images/shirt-1.jpg'; // Fallback
+                    console.error('Image failed to load:', e.target.src, 'Original path:', product.image || product.imageUrl);
+                    // Try a different path construction as a fallback
+                    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                    const filename = (product.image || product.imageUrl || '').split('/').pop();
+                    if (filename) {
+                      e.target.src = `${apiUrl}/images/products/${filename}`;
+                    } else {
+                      e.target.src = '/assets/images/shirt-1.jpg'; // Last resort fallback
+                    }
                   }}
                 />
               </div>

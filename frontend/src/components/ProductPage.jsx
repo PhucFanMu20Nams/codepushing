@@ -29,7 +29,32 @@ function NoProductsFoundWithAlternatives({ currentCategory }) {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/placeholder-image.jpg';
     if (imagePath.startsWith('http')) return imagePath;
-    return `http://localhost:5000${imagePath.startsWith('/') ? imagePath : `/${imagePath}`}`;
+    
+    // Get the API URL from environment, or use a default if not available
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    // Handle paths from backend that include 'products/'
+    if (imagePath.includes('products/')) {
+      // Make sure the path is properly formatted with leading slash if needed
+      if (imagePath.startsWith('/')) {
+        return `${apiUrl}${imagePath}`;
+      } else {
+        return `${apiUrl}/images/${imagePath}`;
+      }
+    }
+    
+    // Handle paths from backend that start with /images/
+    if (imagePath.startsWith('/images/')) {
+      return `${apiUrl}${imagePath}`;
+    }
+    
+    // Handle frontend public assets (these should be in the public folder)
+    if (imagePath.startsWith('/assets/')) {
+      return imagePath;
+    }
+    
+    // For any other path, try prepending the API URL and /images/
+    return `${apiUrl}/images/${imagePath.startsWith('/') ? imagePath.substring(1) : imagePath}`;
   };
 
   if (loading) {
@@ -61,10 +86,18 @@ function NoProductsFoundWithAlternatives({ currentCategory }) {
               <Link to={`/product/${product._id}`} key={product._id} className="available-product-card">
                 <div className="available-product-image">
                   <img 
-                    src={getImageUrl(product.imageUrl)} 
+                    src={getImageUrl(product.image || product.imageUrl)} 
                     alt={product.name}
                     onError={(e) => {
-                      e.target.src = '/placeholder-image.jpg';
+                      console.error('Image failed to load:', e.target.src, 'Original path:', product.image || product.imageUrl);
+                      // Try a different path construction as a fallback
+                      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                      const filename = (product.image || product.imageUrl || '').split('/').pop();
+                      if (filename) {
+                        e.target.src = `${apiUrl}/images/products/${filename}`;
+                      } else {
+                        e.target.src = '/placeholder-image.jpg';
+                      }
                     }}
                   />
                 </div>
@@ -96,10 +129,18 @@ function NoProductsFoundWithAlternatives({ currentCategory }) {
               <Link to={`/product/${product._id}`} key={product._id} className="available-product-card">
                 <div className="available-product-image">
                   <img 
-                    src={getImageUrl(product.imageUrl)} 
+                    src={getImageUrl(product.image || product.imageUrl)} 
                     alt={product.name}
                     onError={(e) => {
-                      e.target.src = '/placeholder-image.jpg';
+                      console.error('Image failed to load:', e.target.src, 'Original path:', product.image || product.imageUrl);
+                      // Try a different path construction as a fallback
+                      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                      const filename = (product.image || product.imageUrl || '').split('/').pop();
+                      if (filename) {
+                        e.target.src = `${apiUrl}/images/products/${filename}`;
+                      } else {
+                        e.target.src = '/placeholder-image.jpg';
+                      }
                     }}
                   />
                 </div>
@@ -284,7 +325,32 @@ function ProductPage() {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/placeholder-image.jpg';
     if (imagePath.startsWith('http')) return imagePath;
-    return `http://localhost:5000${imagePath.startsWith('/') ? imagePath : `/${imagePath}`}`;
+    
+    // Get the API URL from environment, or use a default if not available
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    // Handle paths from backend that include 'products/'
+    if (imagePath.includes('products/')) {
+      // Make sure the path is properly formatted with leading slash if needed
+      if (imagePath.startsWith('/')) {
+        return `${apiUrl}${imagePath}`;
+      } else {
+        return `${apiUrl}/images/${imagePath}`;
+      }
+    }
+    
+    // Handle paths from backend that start with /images/
+    if (imagePath.startsWith('/images/')) {
+      return `${apiUrl}${imagePath}`;
+    }
+    
+    // Handle frontend public assets (these should be in the public folder)
+    if (imagePath.startsWith('/assets/')) {
+      return imagePath;
+    }
+    
+    // For any other path, try prepending the API URL and /images/
+    return `${apiUrl}/images/${imagePath.startsWith('/') ? imagePath.substring(1) : imagePath}`;
   };
 
   const handleProductClick = (productId) => {
@@ -451,10 +517,18 @@ function ProductPage() {
                 >
                   <div className="product-image">
                     <img 
-                      src={getImageUrl(product.imageUrl)} 
+                      src={getImageUrl(product.image || product.imageUrl)} 
                       alt={product.name}
                       onError={(e) => {
-                        e.target.src = '/placeholder-image.jpg';
+                        console.error('Image failed to load:', e.target.src, 'Original path:', product.image || product.imageUrl);
+                        // Try a different path construction as a fallback
+                        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                        const filename = (product.image || product.imageUrl || '').split('/').pop();
+                        if (filename) {
+                          e.target.src = `${apiUrl}/images/products/${filename}`;
+                        } else {
+                          e.target.src = '/placeholder-image.jpg';
+                        }
                       }}
                     />
                   </div>
