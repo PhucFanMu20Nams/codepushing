@@ -7,6 +7,8 @@
     "dev": "nodemon server.js",
     "check-db": "node scripts/check-mongodb.js",
     "seed": "node scripts/seed-mongodb.js",
+    "create-admin": "node scripts/create-admin.js",
+    "migrate": "npm run create-admin",
     "test-mongo": "node scripts/test-mongo-products.js",
     "setup": "npm run seed && npm run dev"
   },

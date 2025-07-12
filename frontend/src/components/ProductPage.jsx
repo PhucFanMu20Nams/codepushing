@@ -172,8 +172,8 @@ function ProductPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    brand: [],
-    type: [],
+    brand: '', // Changed to string for single selection
+    type: '',  // Changed to string for single selection
     colors: [],
     priceMin: '',
     priceMax: ''
@@ -240,8 +240,8 @@ function ProductPage() {
   // Reset filters when category changes
   useEffect(() => {
     setFilters({
-      brand: [],
-      type: [],
+      brand: '', // Reset to empty string for single selection
+      type: '',  // Reset to empty string for single selection
       colors: [],
       priceMin: '',
       priceMax: ''
@@ -261,8 +261,8 @@ function ProductPage() {
       };
 
       // Add filter parameters
-      if (filters.brand.length) queryParams.brand = filters.brand;
-      if (filters.type.length) queryParams.type = filters.type;
+      if (filters.brand) queryParams.brand = filters.brand; // Single brand
+      if (filters.type) queryParams.type = filters.type;    // Single type
       if (filters.colors.length) queryParams.colors = filters.colors;
       if (filters.priceMin) queryParams.priceMin = filters.priceMin;
       if (filters.priceMax) queryParams.priceMax = filters.priceMax;
@@ -288,23 +288,21 @@ function ProductPage() {
       const updatedFilters = { ...prevFilters };
       
       if (filterType === 'colors') {
-        // Handle color filtering
+        // Handle color filtering - multiple selection
         if (isChecked) {
           updatedFilters.colors = [...prevFilters.colors, value];
         } else {
           updatedFilters.colors = prevFilters.colors.filter(color => color !== value);
         }
-      } else {
-        // Handle other filter types
-        if (isChecked) {
-          updatedFilters[filterType] = [...prevFilters[filterType], value];
-        } else {
-          updatedFilters[filterType] = prevFilters[filterType].filter(item => item !== value);
-        }
+      } else if (filterType === 'brand' || filterType === 'type') {
+        // Handle single-choice filters (brand, type)
+        // If clicking on already selected item, deselect it; otherwise select the new one
+        updatedFilters[filterType] = prevFilters[filterType] === value ? '' : value;
       }
       
       return updatedFilters;
     });
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
   // Add separate handler for price inputs
@@ -389,8 +387,8 @@ function ProductPage() {
                     <input 
                       type="checkbox" 
                       value={brand} 
-                      checked={filters.brand.includes(brand)}
-                      onChange={(e) => handleFilterChange('brand', brand, e.target.checked)} 
+                      checked={filters.brand === brand}
+                      onChange={() => handleFilterChange('brand', brand, true)} 
                     />
                     <span>{brand}</span>
                   </label>
@@ -414,8 +412,8 @@ function ProductPage() {
                     <input 
                       type="checkbox" 
                       value={type} 
-                      checked={filters.type.includes(type)}
-                      onChange={(e) => handleFilterChange('type', type, e.target.checked)} 
+                      checked={filters.type === type}
+                      onChange={() => handleFilterChange('type', type, true)} 
                     />
                     <span>{type}</span>
                   </label>

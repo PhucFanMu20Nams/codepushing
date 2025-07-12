@@ -11,8 +11,8 @@
 ```bash
 cd backend
 npm install
-npm run migrate    # This now automatically creates admin user!
-npm run dev        # Start development server
+npm run create-admin    # This creates the admin user with proper password hashing
+npm run dev             # Start development server
 ```
 
 ### 2. Frontend Setup (in a new terminal)
@@ -33,10 +33,10 @@ npm run dev        # Start frontend development server
 - **Password**: `AdminTuanKiet`
 
 ## 📝 What changed?
-- ✅ `npm run migrate` now automatically creates the admin user
-- ✅ No need to run `node scripts/create-admin.js` separately
+- ✅ `npm run create-admin` properly creates the admin user with correct password hashing
+- ✅ `npm run migrate` is now an alias for `npm run create-admin`
 - ✅ Added `npm run setup` command for even quicker setup
-- ✅ Admin credentials are securely created without displaying in console
+- ✅ Admin credentials are securely created and hashed properly
 
 ## Alternative Commands
 
@@ -53,4 +53,4 @@ npm run create-admin    # Still available if needed
 
 ---
 
-**Note**: The admin user is automatically created during migration, so you can skip the manual admin creation step!
+**Note**: The admin user is created with proper password hashing using `npm run create-admin`. If you ever need to reset the admin password, just run this command again!

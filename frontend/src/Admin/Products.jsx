@@ -89,6 +89,7 @@ function AddProductModal({ open, onClose, onSubmit }) {
 
 function Products() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -97,11 +98,25 @@ function Products() {
     // Fetch products using cached API service
     const fetchProducts = async () => {
       try {
+        setLoading(true);
         const data = await apiService.getProducts({ limit: 1000 });
-        setProducts(data.products || data);
+        console.log('API Response:', data); // Debug log
+        // Handle different API response structures
+        if (data.data && Array.isArray(data.data)) {
+          setProducts(data.data);
+        } else if (data.products && Array.isArray(data.products)) {
+          setProducts(data.products);
+        } else if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          console.error('Unexpected API response structure:', data);
+          setProducts([]);
+        }
       } catch (error) {
         console.error('Error fetching products:', error);
         setProducts([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -111,7 +126,32 @@ function Products() {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/placeholder-image.jpg';
     if (imagePath.startsWith('http')) return imagePath;
-    return `http://localhost:5000${imagePath}`;
+    
+    // Get the API URL from environment, or use a default if not available
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    // Handle paths from backend that include 'products/'
+    if (imagePath.includes('products/')) {
+      // Make sure the path is properly formatted with leading slash if needed
+      if (imagePath.startsWith('/')) {
+        return `${apiUrl}${imagePath}`;
+      } else {
+        return `${apiUrl}/images/${imagePath}`;
+      }
+    }
+    
+    // Handle paths from backend that start with /images/
+    if (imagePath.startsWith('/images/')) {
+      return `${apiUrl}${imagePath}`;
+    }
+    
+    // Handle frontend public assets (these should be in the public folder)
+    if (imagePath.startsWith('/assets/')) {
+      return imagePath;
+    }
+    
+    // For any other path, try prepending the API URL and /images/
+    return `${apiUrl}/images/${imagePath.startsWith('/') ? imagePath.substring(1) : imagePath}`;
   };
 
   // Lọc sản phẩm theo tên hoặc thương hiệu
@@ -169,39 +209,104 @@ function Products() {
           </div>
           {successMsg && <div className="form-success">{successMsg}</div>}
           <h2 className="products-title">Danh sách sản phẩm</h2>
-          <div className="products-table-wrapper">
-            <table className="products-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Tên</th>
-                  <th>Thương hiệu</th>
-                  <th>Giá</th>
-                  <th>Danh mục</th>
-                  <th>Ảnh</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.map(p => (
-                  <tr key={p.id}>
-                    <td>{p.id}</td>
-                    <td>{p.name}</td>
-                    <td>{p.brand}</td>
-                    <td>{p.price.toLocaleString()}₫</td>
-                    <td>{p.category}</td>
-                    <td>
-                      <img
-                        src={getImageUrl(p.image)}
-                        alt={p.name}
-                        style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }}
-                        onError={e => { e.target.onerror = null; e.target.src = '/placeholder-image.jpg'; }}
-                      />
-                    </td>
+          
+          {loading ? (
+            <div className="loading" style={{ textAlign: 'center', padding: '40px' }}>
+              Loading products...
+            </div>
+          ) : (
+            <div className="products-table-wrapper">
+              <table className="products-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Thương hiệu</th>
+                    <th>Giá</th>
+                    <th>Danh mục</th>
+                    <th>Ảnh 1</th>
+                    <th>Ảnh 2</th>
+                    <th>Ảnh 3</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filteredProducts.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" style={{ textAlign: 'center', padding: '40px' }}>
+                        {search ? 'Không tìm thấy sản phẩm nào phù hợp' : 'Chưa có sản phẩm nào'}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredProducts.map(p => {
+                      // Get all images from gallery or fallback to single image
+                      const allImages = p.gallery && Array.isArray(p.gallery) ? p.gallery : [p.image || p.imageUrl];
+                      
+                      return (
+                        <tr key={p.id || p._id}>
+                          <td>{p.id || p._id}</td>
+                          <td>{p.name}</td>
+                          <td>{p.brand}</td>
+                          <td>{typeof p.price === 'number' ? p.price.toLocaleString() : p.price}₫</td>
+                          <td>{p.category}</td>
+                          {/* Image 1 */}
+                          <td>
+                            {allImages[0] ? (
+                              <img
+                                src={getImageUrl(allImages[0])}
+                                alt={`${p.name} - Image 1`}
+                                style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 6 }}
+                                onError={e => { 
+                                  console.error('Image failed to load:', e.target.src);
+                                  e.target.onerror = null; 
+                                  e.target.src = '/placeholder-image.jpg'; 
+                                }}
+                              />
+                            ) : (
+                              <span style={{ color: '#999', fontStyle: 'italic' }}>N/A</span>
+                            )}
+                          </td>
+                          {/* Image 2 */}
+                          <td>
+                            {allImages[1] ? (
+                              <img
+                                src={getImageUrl(allImages[1])}
+                                alt={`${p.name} - Image 2`}
+                                style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 6 }}
+                                onError={e => { 
+                                  console.error('Image failed to load:', e.target.src);
+                                  e.target.onerror = null; 
+                                  e.target.src = '/placeholder-image.jpg'; 
+                                }}
+                              />
+                            ) : (
+                              <span style={{ color: '#999', fontStyle: 'italic' }}>N/A</span>
+                            )}
+                          </td>
+                          {/* Image 3 */}
+                          <td>
+                            {allImages[2] ? (
+                              <img
+                                src={getImageUrl(allImages[2])}
+                                alt={`${p.name} - Image 3`}
+                                style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 6 }}
+                                onError={e => { 
+                                  console.error('Image failed to load:', e.target.src);
+                                  e.target.onerror = null; 
+                                  e.target.src = '/placeholder-image.jpg'; 
+                                }}
+                              />
+                            ) : (
+                              <span style={{ color: '#999', fontStyle: 'italic' }}>N/A</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
         <AddProductModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddProduct} />
       </main>

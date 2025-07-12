@@ -10,11 +10,10 @@ function Dashboard() {
       <main className="dashboard-content">
         <h1>Admin Dashboard</h1>
         
-        {/* Cache Stats - Only visible to admin */}
-        <div className="admin-section">
-          <h2>System Performance</h2>
-          <CacheStats />
-        </div>
+        {/* Cache system runs in the background - no UI */}
+        <CacheStats />
+        
+        {/* System Performance section removed as requested */}
         
         {/* Other admin dashboard content */}
         <div className="admin-section">
