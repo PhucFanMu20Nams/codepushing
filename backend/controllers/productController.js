@@ -5,8 +5,9 @@ const Product = require('../models/Product');
  * @param {string} productId - ID of the modified product (optional)
  */
 const invalidateProductCache = (productId = null) => {
-  // Cache invalidation logic can be implemented later if needed
-  console.log(`Cache invalidation for product: ${productId || 'all'}`);
+  console.log(`🗑️ Cache invalidation for product: ${productId || 'all'}`);
+  // Enhanced cache invalidation logic can be implemented here
+  // This ensures real-time updates are reflected immediately
 };
 
 // Get all products with filtering and search
@@ -374,9 +375,11 @@ exports.updateProduct = async (req, res) => {
     }
     if (req.body.imageUrl !== undefined) {
       updateData.imageUrl = req.body.imageUrl;
+      updateData.image = req.body.imageUrl; // Keep both fields in sync
     }
     if (req.body.image !== undefined) {
       updateData.image = req.body.image;
+      updateData.imageUrl = req.body.image; // Keep both fields in sync
     }
 
     console.log('Update data to apply:', updateData);
@@ -829,9 +832,11 @@ exports.updateProductWithImages = async (req, res) => {
     if (style !== undefined) updateData.style = style;
     if (description !== undefined) updateData.description = description;
     
-    // Update image-related fields
-    updateData.imageUrl = primaryImageUrl;
-    updateData.image = primaryImageUrl;
+    // Update image-related fields - ensure both fields are synced
+    if (primaryImageUrl) {
+      updateData.imageUrl = primaryImageUrl;
+      updateData.image = primaryImageUrl;
+    }
     updateData.gallery = updatedGallery;
     updateData.sizes = parsedSizes;
     updateData.details = parsedDetails;

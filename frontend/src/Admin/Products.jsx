@@ -98,32 +98,32 @@ function Products() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
 
-  useEffect(() => {
-    // Fetch products using cached API service
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const data = await apiService.getProducts({ limit: 1000 });
-        console.log('API Response:', data); // Debug log
-        // Handle different API response structures
-        if (data.data && Array.isArray(data.data)) {
-          setProducts(data.data);
-        } else if (data.products && Array.isArray(data.products)) {
-          setProducts(data.products);
-        } else if (Array.isArray(data)) {
-          setProducts(data);
-        } else {
-          console.error('Unexpected API response structure:', data);
-          setProducts([]);
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error);
+  // Fetch products function - moved to component level so it can be accessed everywhere
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.getProducts({ limit: 1000 });
+      console.log('API Response:', data); // Debug log
+      // Handle different API response structures
+      if (data.data && Array.isArray(data.data)) {
+        setProducts(data.data);
+      } else if (data.products && Array.isArray(data.products)) {
+        setProducts(data.products);
+      } else if (Array.isArray(data)) {
+        setProducts(data);
+      } else {
+        console.error('Unexpected API response structure:', data);
         setProducts([]);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProducts();
   }, [showAdd, successMsg]);
 
@@ -198,6 +198,10 @@ function Products() {
       
       setShowAdd(false);
       setSuccessMsg('Add product successful');
+      
+      // Force refresh of product list to show real-time updates
+      await fetchProducts();
+      
       setTimeout(() => setSuccessMsg(''), 2000);
     } catch (error) {
       console.error('Error adding product:', error);
@@ -315,6 +319,10 @@ function Products() {
       setShowEdit(false);
       setEditingProduct(null);
       setSuccessMsg('Product updated successfully');
+      
+      // Force refresh of product list to show real-time updates
+      await fetchProducts();
+      
       setTimeout(() => setSuccessMsg(''), 3000);
     } catch (error) {
       console.error('Error updating product:', error);
@@ -346,6 +354,10 @@ function Products() {
       await apiService.deleteProduct(productId, token);
       
       setSuccessMsg('Product deleted successfully');
+      
+      // Force refresh of product list to show real-time updates
+      await fetchProducts();
+      
       setTimeout(() => setSuccessMsg(''), 3000);
     } catch (error) {
       console.error('Error deleting product:', error);

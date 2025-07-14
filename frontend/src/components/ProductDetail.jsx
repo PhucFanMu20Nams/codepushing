@@ -35,8 +35,10 @@ function ProductDetail() {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        // Clear cache for this specific product to ensure fresh data
-        apiService.invalidateProductCaches && apiService.invalidateProductCaches(actualProductId);
+        // Force fresh data by clearing cache for this specific product
+        if (apiService.invalidateProductCaches) {
+          apiService.invalidateProductCaches(actualProductId);
+        }
         const response = await apiService.getProductById(actualProductId);
         console.log('Product API response:', response);
         
@@ -50,8 +52,10 @@ function ProductDetail() {
           ...data,
           // Ensure gallery is an array of strings or extract imageUrl from objects
           gallery: Array.isArray(data.gallery) 
-            ? data.gallery.map(item => typeof item === 'string' ? item : (item.imageUrl || ''))
-            : [data.image || data.imageUrl],
+            ? data.gallery.map(item => typeof item === 'string' ? item : (item.url || item.imageUrl || ''))
+            : [data.imageUrl || data.image],
+          // Ensure primary image is set properly
+          primaryImage: data.imageUrl || data.image,
           // Ensure sizes are objects with size and availability info (but no stock numbers)
           sizes: Array.isArray(data.sizes) 
             ? data.sizes.map(item => {
