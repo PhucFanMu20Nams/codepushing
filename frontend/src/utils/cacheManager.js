@@ -208,6 +208,32 @@ class CacheManager {
       totalSizeKB: Math.round(totalSize / 1024)
     };
   }
+
+  /**
+   * Invalidate cache for product updates
+   * Enhanced for real-time updates
+   */
+  invalidateProductUpdate(productId = null) {
+    try {
+      // Clear all product-related caches when a product is updated
+      this.clearType('products');
+      this.clearType('search');
+      
+      // Clear specific product detail cache if productId provided
+      if (productId) {
+        this.clearType('productDetail', { productId });
+      }
+      
+      // Also clear categories cache as product changes might affect category data
+      this.clearType('categories');
+      
+      console.log('Cache invalidated for product update:', productId || 'all products');
+      return true;
+    } catch (error) {
+      console.warn('Error invalidating cache for product update:', error);
+      return false;
+    }
+  }
 }
 
 // Create singleton instance

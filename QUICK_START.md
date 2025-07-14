@@ -11,8 +11,8 @@
 ```bash
 cd backend
 npm install
-npm run create-admin    # This creates the admin user with proper password hashing
-npm run dev             # Start development server
+npm run seed      # This seeds the database AND creates the admin user with proper password hashing
+npm run dev       # Start development server
 ```
 
 ### 2. Frontend Setup (in a new terminal)
@@ -33,24 +33,25 @@ npm run dev        # Start frontend development server
 - **Password**: `AdminTuanKiet`
 
 ## 📝 What changed?
-- ✅ `npm run create-admin` properly creates the admin user with correct password hashing
-- ✅ `npm run migrate` is now an alias for `npm run create-admin`
-- ✅ Added `npm run setup` command for even quicker setup
-- ✅ Admin credentials are securely created and hashed properly
+- ✅ `npm run seed` now creates the database AND admin user with proper password hashing
+- ✅ `npm run migrate` is now an alias for `npm run seed` (complete setup)
+- ✅ Added `npm run full-setup` command for complete installation + seeding + server start
+- ✅ Admin credentials are securely created and hashed during database seeding
 
 ## Alternative Commands
 
 ### Single Command Setup
 ```bash
 cd backend
-npm run setup      # Runs migrate + dev in sequence
+npm run setup         # Runs seed + dev in sequence
+npm run full-setup    # Runs install + seed + dev in sequence (complete setup from scratch)
 ```
 
 ### Manual Admin Creation (if needed)
 ```bash
-npm run create-admin    # Still available if needed
+npm run create-admin    # Still available if needed, but npm run seed does this automatically
 ```
 
 ---
 
-**Note**: The admin user is created with proper password hashing using `npm run create-admin`. If you ever need to reset the admin password, just run this command again!
+**Note**: The admin user is now automatically created during database seeding with `npm run seed`. The password is properly hashed and secured. If you ever need to reset the admin password, you can run `npm run create-admin` or just re-run `npm run seed`!

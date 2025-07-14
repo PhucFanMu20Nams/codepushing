@@ -1,3 +1,4 @@
 const upload = require('../config/multer.config');
 
-exports.uploadProductImages = upload.array('images', 10);
+// Export the upload middleware directly
+module.exports = upload;

@@ -46,14 +46,19 @@ async function seedMongoDB() {
     }
     console.log(`📦 Inserted ${productsData.length} products`);
 
-    // Read admin data from JSON file
-    const adminsPath = path.join(__dirname, '../data/admins.json');
-    console.log(`📂 Reading admins from: ${adminsPath}`);
-    const adminsData = JSON.parse(fs.readFileSync(adminsPath, 'utf8'));
+    // Create admin user with proper password hashing
+    console.log('👤 Creating admin user with password hashing...');
     
-    // Insert admins
-    await Admin.insertMany(adminsData);
-    console.log(`👤 Inserted ${adminsData.length} admin users`);
+    // Create admin user (password will be automatically hashed by the schema)
+    const admin = new Admin({
+      username: 'Teekayyj',
+      password: 'AdminTuanKiet', // This will be hashed automatically
+      email: 'admin@textura.com',
+      isActive: true
+    });
+
+    await admin.save();
+    console.log(`👤 Created admin user with hashed password`);
 
     console.log('✅ Database seeding completed successfully!');
     console.log('\n📋 Admin Credentials:');
@@ -61,8 +66,8 @@ async function seedMongoDB() {
     console.log('Password: AdminTuanKiet');
     console.log(`\n📊 Database Statistics:`);
     console.log(`   Products: ${productsData.length}`);
-    console.log(`   Admins: ${adminsData.length}`);
-    console.log(`   Total Documents: ${productsData.length + adminsData.length}`);
+    console.log(`   Admins: 1`);
+    console.log(`   Total Documents: ${productsData.length + 1}`);
     
     return true;
   } catch (error) {

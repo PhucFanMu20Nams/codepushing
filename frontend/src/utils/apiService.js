@@ -119,6 +119,19 @@ class ApiService {
   }
 
   /**
+   * Get field options for dropdowns with caching
+   */
+  async getFieldOptions() {
+    const url = `${this.baseURL}/products/field-options`;
+    
+    return this.fetchWithCache(
+      url,
+      {},
+      'fieldOptions'
+    );
+  }
+
+  /**
    * Create product (admin only) - invalidates cache
    */
   async createProduct(productData, token) {
@@ -147,21 +160,31 @@ class ApiService {
   async updateProduct(productId, productData, token) {
     const url = `${this.baseURL}/products/${productId}`;
     
-    const result = await this.fetchWithCache(
-      url,
-      {
+    try {
+      const response = await fetch(url, {
         method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(productData)
-      }
-    );
+      });
 
-    // Invalidate relevant caches
-    this.invalidateProductCaches(productId);
-    
-    return result;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Invalidate relevant caches
+      this.invalidateProductCaches(productId);
+      
+      return result;
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
   }
 
   /**
@@ -170,20 +193,29 @@ class ApiService {
   async deleteProduct(productId, token) {
     const url = `${this.baseURL}/products/${productId}`;
     
-    const result = await this.fetchWithCache(
-      url,
-      {
+    try {
+      const response = await fetch(url, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
-      }
-    );
+      });
 
-    // Invalidate relevant caches
-    this.invalidateProductCaches(productId);
-    
-    return result;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Invalidate relevant caches
+      this.invalidateProductCaches(productId);
+      
+      return result;
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
   }
 
   /**
@@ -213,6 +245,38 @@ class ApiService {
   }
 
   /**
+   * Update product with images (admin only) - invalidates cache
+   */
+  async updateProductWithImages(productId, formData, token) {
+    const url = `${this.baseURL}/products/${productId}/images`;
+    
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData // FormData, don't set Content-Type
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Invalidate relevant caches
+      this.invalidateProductCaches(productId);
+      
+      return data;
+    } catch (error) {
+      console.error('Error updating product with images:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Invalidate product-related caches
    */
   invalidateProductCaches(productId = null) {
@@ -222,12 +286,17 @@ class ApiService {
     // Clear search caches
     cacheManager.clearType('search');
     
-    // Clear specific product cache if ID provided
+    // Clear specific product detail cache if productId provided
     if (productId) {
-      cacheManager.delete('productDetail', { id: productId });
+      cacheManager.clearType('productDetail', { productId });
     } else {
       // Clear all product detail caches
       cacheManager.clearType('productDetail');
+    }
+    
+    // Use enhanced invalidation for product updates
+    if (cacheManager.invalidateProductUpdate) {
+      cacheManager.invalidateProductUpdate(productId);
     }
     
     // Only log for admin users - silent for regular users

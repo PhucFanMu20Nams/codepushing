@@ -8,9 +8,10 @@
     "check-db": "node scripts/check-mongodb.js",
     "seed": "node scripts/seed-mongodb.js",
     "create-admin": "node scripts/create-admin.js",
-    "migrate": "npm run create-admin",
+    "migrate": "npm run seed",
     "test-mongo": "node scripts/test-mongo-products.js",
-    "setup": "npm run seed && npm run dev"
+    "setup": "npm run seed && npm run dev",
+    "full-setup": "npm install && npm run seed && npm run dev"
   },
   "keywords": [],
   "author": "",
@@ -22,11 +23,12 @@
     "dotenv": "^16.3.1",
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.1",
+    "form-data": "^4.0.3",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.2",
     "multer": "^2.0.1",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^2.7.0",
     "sharp": "^0.34.2"
   },
   "devDependencies": {
