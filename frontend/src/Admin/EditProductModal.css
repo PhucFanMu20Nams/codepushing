@@ -163,6 +163,14 @@
   display: block;
 }
 
+.info-msg {
+  color: #3b82f6;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+  font-style: italic;
+}
+
 /* Image Styles */
 .existing-images-grid,
 .new-images-grid {

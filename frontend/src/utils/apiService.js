@@ -14,16 +14,21 @@ class ApiService {
    * Generic fetch with caching
    */
   async fetchWithCache(url, options = {}, cacheType = null, cacheParams = {}) {
+    console.log('fetchWithCache called:', { url, cacheType, cacheParams });
+    
     // Check cache first for GET requests
     if ((!options.method || options.method === 'GET') && cacheType) {
       const cached = cacheManager.get(cacheType, cacheParams);
       if (cached) {
-        // Silent cache hit - no console logs for users
+        console.log('Cache hit for:', { url, cacheType });
         return cached;
+      } else {
+        console.log('Cache miss for:', { url, cacheType });
       }
     }
 
     try {
+      console.log('Making API request to:', url);
       const response = await fetch(url, {
         ...options,
         headers: {
@@ -32,20 +37,25 @@ class ApiService {
         }
       });
 
+      console.log('Response status:', response.status, 'for', url);
+
       if (!response.ok) {
+        console.error('Response not ok:', response.status, 'for', url);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Response data for', url, ':', data);
 
-      // Cache successful GET responses silently
+      // Cache successful GET responses
       if ((!options.method || options.method === 'GET') && cacheType) {
         cacheManager.set(cacheType, data, cacheParams);
+        console.log('Cached response for:', { url, cacheType });
       }
 
       return data;
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error('API request failed for', url, ':', error);
       throw error;
     }
   }
@@ -399,6 +409,30 @@ class ApiService {
     }
     
     return true;
+  }
+
+  /**
+   * Get field options for dropdowns
+   */
+  async getFieldOptions() {
+    const url = `${this.baseURL}/products/field-options`;
+    return this.fetchWithCache(url, {}, 'fieldOptions');
+  }
+
+  /**
+   * Get category-specific field options
+   */
+  async getCategorySpecificOptions(category) {
+    const url = `${this.baseURL}/products/category-options/${encodeURIComponent(category)}`;
+    return this.fetchWithCache(url, {}, 'categoryOptions', { category });
+  }
+
+  /**
+   * Get all category options
+   */
+  async getAllCategoryOptions() {
+    const url = `${this.baseURL}/products/category-options`;
+    return this.fetchWithCache(url, {}, 'allCategoryOptions');
   }
 }
 

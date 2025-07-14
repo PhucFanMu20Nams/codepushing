@@ -8,6 +8,8 @@ const upload = require('../middleware/upload.middleware');
 router.get('/', productController.getAllProducts);
 router.get('/search', productController.searchProducts);
 router.get('/field-options', productController.getFieldOptions);
+router.get('/category-options', productController.getAllCategoryOptions);
+router.get('/category-options/:category', productController.getCategorySpecificOptions);
 router.get('/brands', productController.getBrands);
 router.get('/categories', productController.getCategories);
 router.get('/types', productController.getTypes);

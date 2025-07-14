@@ -29,6 +29,8 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
     colors: [],
     styles: []
   });
+  const [categoryOptions, setCategoryOptions] = useState({});
+  const [loadingCategoryOptions, setLoadingCategoryOptions] = useState(false);
 
   // Initialize form when product changes or modal opens
   useEffect(() => {
@@ -93,13 +95,28 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
   useEffect(() => {
     if (open) {
       fetchFieldOptions();
+      fetchAllCategoryOptions();
     }
   }, [open]);
 
+  // Fetch category-specific options when category changes
+  useEffect(() => {
+    if (form.category && open) {
+      fetchCategorySpecificOptions(form.category);
+    }
+  }, [form.category, open]);
+
   const fetchFieldOptions = async () => {
     try {
-      const options = await apiService.getFieldOptions();
-      setFieldOptions(options);
+      console.log('Fetching field options...');
+      const response = await apiService.getFieldOptions();
+      console.log('Field options response:', response);
+      if (response.success) {
+        setFieldOptions(response.data);
+        console.log('Field options set successfully:', response.data);
+      } else {
+        throw new Error('Failed to fetch field options');
+      }
     } catch (error) {
       console.error('Failed to fetch field options:', error);
       // Set default fallback options
@@ -114,6 +131,50 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
     }
   };
 
+  const fetchAllCategoryOptions = async () => {
+    try {
+      console.log('Fetching all category options...');
+      const response = await apiService.getAllCategoryOptions();
+      console.log('All category options response:', response);
+      if (response.success) {
+        setCategoryOptions(response.data.categoryOptions);
+        console.log('Category options set successfully:', response.data.categoryOptions);
+      }
+    } catch (error) {
+      console.error('Failed to fetch all category options:', error);
+    }
+  };
+
+  const fetchCategorySpecificOptions = async (category) => {
+    if (!category) return;
+    
+    try {
+      console.log('Fetching category-specific options for:', category);
+      setLoadingCategoryOptions(true);
+      const response = await apiService.getCategorySpecificOptions(category);
+      console.log('Category-specific options response:', response);
+      if (response.success) {
+        setCategoryOptions(prev => ({
+          ...prev,
+          [category]: response.data
+        }));
+        console.log('Category-specific options set for', category, ':', response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch category-specific options:', error);
+    } finally {
+      setLoadingCategoryOptions(false);
+    }
+  };
+
+  // Helper function to get options for current category
+  const getCurrentCategoryOptions = () => {
+    if (!form.category || !categoryOptions[form.category]) {
+      return fieldOptions; // Fallback to all options
+    }
+    return categoryOptions[form.category];
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -121,6 +182,19 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: false }));
+    }
+
+    // When category changes, reset category-dependent fields
+    if (name === 'category') {
+      setForm(prev => ({
+        ...prev,
+        [name]: value,
+        brand: '',
+        type: '',
+        color: '',
+        style: '',
+        subcategory: ''
+      }));
     }
   };
 
@@ -294,14 +368,19 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   value={form.brand}
                   onChange={handleChange}
                   className={errors.brand ? 'error' : ''}
-                  disabled={loading}
+                  disabled={loading || loadingCategoryOptions || !form.category}
                 >
-                  <option value="">Select Brand</option>
-                  {fieldOptions.brands.map(brand => (
+                  <option value="">
+                    {!form.category ? 'Select Category First' : 'Select Brand'}
+                  </option>
+                  {form.category && getCurrentCategoryOptions().brands?.map(brand => (
                     <option key={brand} value={brand}>{brand}</option>
                   ))}
                 </select>
                 {errors.brand && <span className="error-msg">Required</span>}
+                {!form.category && (
+                  <span className="info-msg">Please select a category first to see available brands</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -346,10 +425,12 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   name="subcategory"
                   value={form.subcategory}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={loading || loadingCategoryOptions || !form.category}
                 >
-                  <option value="">Select Subcategory</option>
-                  {fieldOptions.subcategories.map(subcategory => (
+                  <option value="">
+                    {!form.category ? 'Select Category First' : 'Select Subcategory'}
+                  </option>
+                  {form.category && getCurrentCategoryOptions().subcategories?.map(subcategory => (
                     <option key={subcategory} value={subcategory}>{subcategory}</option>
                   ))}
                 </select>
@@ -361,10 +442,12 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   name="type"
                   value={form.type}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={loading || loadingCategoryOptions || !form.category}
                 >
-                  <option value="">Select Type</option>
-                  {fieldOptions.types.map(type => (
+                  <option value="">
+                    {!form.category ? 'Select Category First' : 'Select Type'}
+                  </option>
+                  {form.category && getCurrentCategoryOptions().types?.map(type => (
                     <option key={type} value={type}>{type}</option>
                   ))}
                 </select>
@@ -376,10 +459,12 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   name="color"
                   value={form.color}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={loading || loadingCategoryOptions || !form.category}
                 >
-                  <option value="">Select Color</option>
-                  {fieldOptions.colors.map(color => (
+                  <option value="">
+                    {!form.category ? 'Select Category First' : 'Select Color'}
+                  </option>
+                  {form.category && getCurrentCategoryOptions().colors?.map(color => (
                     <option key={color} value={color}>{color}</option>
                   ))}
                 </select>
@@ -391,10 +476,12 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   name="style"
                   value={form.style}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={loading || loadingCategoryOptions || !form.category}
                 >
-                  <option value="">Select Style</option>
-                  {fieldOptions.styles.map(style => (
+                  <option value="">
+                    {!form.category ? 'Select Category First' : 'Select Style'}
+                  </option>
+                  {form.category && getCurrentCategoryOptions().styles?.map(style => (
                     <option key={style} value={style}>{style}</option>
                   ))}
                 </select>
