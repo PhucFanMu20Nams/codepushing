@@ -269,6 +269,28 @@ class CacheManager {
   }
 
   /**
+   * General invalidate method - removes specific cache type or pattern
+   */
+  invalidate(type, params = {}) {
+    try {
+      if (params && Object.keys(params).length > 0) {
+        // Clear specific cache entry
+        const key = this.generateKey(type, params);
+        localStorage.removeItem(key);
+        console.log(`Cache invalidated for ${type} with params:`, params);
+      } else {
+        // Clear all cache entries of this type
+        this.clearType(type);
+        console.log(`All ${type} cache cleared`);
+      }
+      return true;
+    } catch (error) {
+      console.warn(`Error invalidating ${type} cache:`, error);
+      return false;
+    }
+  }
+
+  /**
    * Preload and cache data for better performance
    */
   async preloadData(apiService, categories = []) {

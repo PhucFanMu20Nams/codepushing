@@ -8,6 +8,7 @@ import cacheManager from './cacheManager.js';
 class ApiService {
   constructor() {
     this.baseURL = 'http://localhost:5000/api';
+    this.cacheManager = cacheManager; // Expose cache manager for debugging
   }
 
   /**
@@ -554,9 +555,210 @@ class ApiService {
       console.log('Category options preloading completed');
     });
   }
+
+  /**
+   * Category Management API Methods
+   */
+  
+  /**
+   * Get all categories
+   */
+  async getCategories() {
+    const url = `${this.baseURL}/categories`;
+    
+    return this.fetchWithCache(
+      url,
+      {},
+      'categories'
+    );
+  }
+
+  /**
+   * Alias for getCategories - for backward compatibility
+   */
+  async getAllCategories() {
+    return this.getCategories();
+  }
+
+  /**
+   * Create category (admin only) - invalidates cache
+   */
+  async createCategory(categoryData, token) {
+    const url = `${this.baseURL}/categories`;
+    
+    const result = await this.fetchWithCache(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(categoryData)
+      }
+    );
+    
+    // Invalidate all category-related caches
+    cacheManager.invalidate('categories');
+    cacheManager.invalidate('fieldOptions');
+    
+    return result;
+  }
+
+  /**
+   * Get specific category options
+   */
+  async getCategoryOptions(categoryName) {
+    const url = `${this.baseURL}/categories/${encodeURIComponent(categoryName)}`;
+    return this.fetchWithCache(url, {}, 'categoryOptions', { category: categoryName });
+  }
+
+  /**
+   * Get specific field options for a category
+   */
+  async getCategoryFieldOptions(categoryName, field) {
+    const url = `${this.baseURL}/categories/${encodeURIComponent(categoryName)}/options/${encodeURIComponent(field)}`;
+    return this.fetchWithCache(url, {}, 'fieldOptions', { category: categoryName, field });
+  }
+
+  /**
+   * Create or update category configuration (Admin only)
+   */
+  async createOrUpdateCategory(categoryData, token) {
+    const url = `${this.baseURL}/categories`;
+    const response = await this.fetchWithCache(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(categoryData)
+    });
+
+    // Invalidate related caches
+    cacheManager.invalidate('categories');
+    cacheManager.invalidate('categoryOptions');
+    cacheManager.invalidate('fieldOptions');
+    cacheManager.invalidate('products');
+
+    return response;
+  }
+
+  /**
+   * Update category options (Admin only)
+   */
+  async updateCategoryOptions(categoryName, updates, token) {
+    const url = `${this.baseURL}/categories/${encodeURIComponent(categoryName)}`;
+    const response = await this.fetchWithCache(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(updates)
+    });
+
+    // Invalidate related caches
+    cacheManager.invalidate('categoryOptions', { category: categoryName });
+    cacheManager.invalidate('fieldOptions', { category: categoryName });
+    cacheManager.invalidate('products');
+
+    return response;
+  }
+
+  /**
+   * Add option to specific category field (Admin only)
+   */
+  async addCategoryOption(categoryId, field, option, token) {
+    const url = `${this.baseURL}/categories/${categoryId}/options`;
+    const response = await this.fetchWithCache(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ field, option })
+    });
+
+    // Invalidate related caches
+    cacheManager.invalidate('categories');
+    cacheManager.invalidate('categoryOptions');
+    cacheManager.invalidate('fieldOptions');
+    cacheManager.invalidate('products');
+
+    return response;
+  }
+
+  /**
+   * Remove option from specific category field (Admin only)
+   */
+  async removeCategoryOption(categoryId, field, option, token) {
+    const url = `${this.baseURL}/categories/${categoryId}/options`;
+    const response = await this.fetchWithCache(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ field, option })
+    });
+
+    // Invalidate related caches
+    cacheManager.invalidate('categories');
+    cacheManager.invalidate('categoryOptions');
+    cacheManager.invalidate('fieldOptions');
+    cacheManager.invalidate('products');
+
+    return response;
+  }
+
+  /**
+   * Toggle category active status (Admin only)
+   */
+  async toggleCategoryStatus(categoryName, token) {
+    const url = `${this.baseURL}/categories/${encodeURIComponent(categoryName)}/toggle`;
+    const response = await this.fetchWithCache(url, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    // Invalidate related caches
+    cacheManager.invalidate('categories');
+    cacheManager.invalidate('categoryOptions', { category: categoryName });
+    cacheManager.invalidate('products');
+
+    return response;
+  }
+
+  /**
+   * Initialize default categories (Admin only)
+   */
+  async initializeDefaultCategories(token) {
+    const url = `${this.baseURL}/categories/initialize`;
+    const response = await this.fetchWithCache(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    // Invalidate all related caches
+    cacheManager.invalidate('categories');
+    cacheManager.invalidate('categoryOptions');
+    cacheManager.invalidate('fieldOptions');
+
+    return response;
+  }
 }
 
 // Create singleton instance
 const apiService = new ApiService();
+
+// Make available globally for debugging (development only)
+if (typeof window !== 'undefined') {
+  window.apiService = apiService;
+}
 
 export default apiService;

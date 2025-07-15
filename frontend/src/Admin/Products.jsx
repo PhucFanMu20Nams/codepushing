@@ -3,6 +3,9 @@ import Toolbar from './Toolbar';
 import './Products.css';
 import apiService from '../utils/apiService.js';
 import EditProductModal from './EditProductModal';
+import AddCategoryModal from './AddCategoryModal';
+import CategoryManagement from './CategoryManagement';
+import DynamicProductForm from './DynamicProductForm';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 function AddProductModal({ open, onClose, onSubmit }) {
@@ -12,6 +15,9 @@ function AddProductModal({ open, onClose, onSubmit }) {
     brand: '',
     price: '',
     category: '',
+    type: '',
+    color: '',
+    description: '',
     images: []
   });
   const [errors, setErrors] = useState({});
@@ -19,70 +25,149 @@ function AddProductModal({ open, onClose, onSubmit }) {
 
   useEffect(() => {
     if (!open) {
-      setForm({ id: '', name: '', brand: '', price: '', category: '', images: [] });
+      setForm({ 
+        id: '', 
+        name: '', 
+        brand: '', 
+        price: '', 
+        category: '', 
+        type: '', 
+        color: '', 
+        description: '', 
+        images: [] 
+      });
       setErrors({});
       setPreview([]);
     }
   }, [open]);
 
-  const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleFormChange = (updatedForm) => {
+    setForm(updatedForm);
+  };
+
+  const handleValidation = (formData, validationErrors = {}) => {
+    setErrors(validationErrors);
+  };
+
+  const validateForm = (formData) => {
+    const newErrors = {};
+    
+    // Required field validation
+    if (!formData.id) newErrors.id = true;
+    if (!formData.name) newErrors.name = true;
+    if (!formData.price) newErrors.price = true;
+    if (!formData.category) newErrors.category = true;
+    
+    // Image validation
+    if (!formData.images || formData.images.length < 2) {
+      newErrors.images = true;
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleImages = e => {
     const files = Array.from(e.target.files);
-    setForm({ ...form, images: files });
+    const updatedForm = { ...form, images: files };
+    setForm(updatedForm);
     setPreview(files.map(file => URL.createObjectURL(file)));
+    
+    // Clear image error if files are selected
+    if (files.length >= 2 && errors.images) {
+      setErrors({ ...errors, images: false });
+    }
   };
 
   const handleSubmit = e => {
     e.preventDefault();
-    let newErrors = {};
-    if (!form.id) newErrors.id = true;
-    if (!form.name) newErrors.name = true;
-    if (!form.brand) newErrors.brand = true;
-    if (!form.price) newErrors.price = true;
-    if (!form.category) newErrors.category = true;
-    if (!form.images || form.images.length < 2) newErrors.images = true;
-
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
-
-    onSubmit(form);
+    
+    if (validateForm(form)) {
+      onSubmit(form);
+    }
   };
 
   if (!open) return null;
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <h3>Thêm sản phẩm mới</h3>
+      <div className="modal-content add-product-modal">
+        <div className="modal-header">
+          <h3>🆕 Add New Product</h3>
+          <button className="close-btn" onClick={onClose} aria-label="Close">
+            ✕
+          </button>
+        </div>
+        
         <form onSubmit={handleSubmit} className="add-product-form">
-          <input name="id" placeholder="ID" value={form.id} onChange={handleChange} />
-          {errors.id && <div className="form-error">thiếu ID</div>}
-          <input name="name" placeholder="Tên" value={form.name} onChange={handleChange} />
-          {errors.name && <div className="form-error">thiếu Tên</div>}
-          <input name="brand" placeholder="Thương hiệu" value={form.brand} onChange={handleChange} />
-          {errors.brand && <div className="form-error">thiếu Thương hiệu</div>}
-          <input name="price" placeholder="Giá" type="number" value={form.price} onChange={handleChange} />
-          {errors.price && <div className="form-error">thiếu Giá</div>}
-          <input name="category" placeholder="Danh mục" value={form.category} onChange={handleChange} />
-          {errors.category && <div className="form-error">thiếu Danh Mục</div>}
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImages}
-            style={{ marginTop: 8 }}
-          />
-          {errors.images && <div className="form-error">thiếu ít nhất 2 ảnh</div>}
-          <div style={{ display: 'flex', gap: 8, margin: '8px 0' }}>
-            {preview.map((src, idx) => (
-              <img key={idx} src={src} alt="preview" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 6 }} />
-            ))}
+          <div className="modal-body">
+            {/* Dynamic Product Form */}
+            <DynamicProductForm
+              formData={form}
+              onFormChange={handleFormChange}
+              errors={errors}
+              onValidation={handleValidation}
+            />
+            
+            {/* Image Upload Section */}
+            <div className="form-section">
+              <h4 className="section-title">Product Images</h4>
+              <div className="form-field">
+                <label className="form-label">
+                  Images <span className="required">*</span>
+                  <span className="image-requirement">(minimum 2 images)</span>
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImages}
+                  className={`form-input ${errors.images ? 'error' : ''}`}
+                />
+                {errors.images && (
+                  <div className="form-error">
+                    Please select at least 2 images
+                  </div>
+                )}
+                
+                {/* Image Preview */}
+                {preview.length > 0 && (
+                  <div className="image-preview">
+                    <h5>Preview:</h5>
+                    <div className="preview-grid">
+                      {preview.map((src, idx) => (
+                        <div key={idx} className="preview-item">
+                          <img 
+                            src={src} 
+                            alt={`Preview ${idx + 1}`} 
+                            className="preview-image"
+                          />
+                          <span className="image-label">Image {idx + 1}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-          <button type="submit" className="products-action-btn" style={{ width: '100%' }}>Submit</button>
-          <button type="button" className="products-action-btn" style={{ width: '100%', marginTop: 8, background: '#ccc', color: '#222' }} onClick={onClose}>Đóng</button>
+          
+          <div className="modal-footer">
+            <button 
+              type="button" 
+              className="btn-secondary" 
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="btn-primary"
+              disabled={Object.keys(errors).some(key => errors[key])}
+            >
+              Create Product
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -95,6 +180,8 @@ function Products() {
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showCategoryManagement, setShowCategoryManagement] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -366,6 +453,17 @@ function Products() {
     }
   };
 
+  // Handle category modal success
+  const handleCategorySuccess = (response) => {
+    console.log('Category operation successful:', response);
+    setSuccessMsg(response.message || 'Category updated successfully');
+    
+    // Force refresh of product list to reflect any category changes
+    fetchProducts();
+    
+    setTimeout(() => setSuccessMsg(''), 3000);
+  };
+
   return (
     <div className="dashboard-root">
       <Toolbar />
@@ -384,7 +482,12 @@ function Products() {
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
-            <button className="products-action-btn">Add Category</button>
+            <button className="products-action-btn" onClick={() => setShowCategoryModal(true)}>
+              Add Category
+            </button>
+            <button className="products-action-btn" onClick={() => setShowCategoryManagement(true)}>
+              Manage Categories
+            </button>
             <button className="products-action-btn" onClick={() => setShowAdd(true)}>Add Product</button>
           </div>
           {successMsg && <div className="form-success">{successMsg}</div>}
@@ -508,6 +611,16 @@ function Products() {
           )}
         </div>
         <AddProductModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddProduct} />
+        <AddCategoryModal 
+          open={showCategoryModal} 
+          onClose={() => setShowCategoryModal(false)} 
+          onSuccess={handleCategorySuccess}
+        />
+        {showCategoryManagement && (
+          <CategoryManagement 
+            onClose={() => setShowCategoryManagement(false)} 
+          />
+        )}
         <ErrorBoundary>
           <EditProductModal 
             open={showEdit} 

@@ -24,13 +24,23 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (CORS_ORIGINS.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+    // In development, allow any localhost origin
+    if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return callback(null, true);
+      }
+    }
+    
+    if (CORS_ORIGINS.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.log('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 // Middleware
@@ -45,6 +55,7 @@ app.use('/images', express.static(path.join(__dirname, STATIC_FILES_PATH)));
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cache', cacheRoutes);
+app.use('/api/categories', require('./routes/categories'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -74,6 +85,54 @@ app.get('/api/debug/category-options', async (req, res) => {
       debug: true,
       error: error.message,
       stack: error.stack
+    });
+  }
+});
+
+// Debug endpoint for testing authentication
+app.post('/api/debug/test-auth', async (req, res) => {
+  try {
+    console.log('=== TEST AUTH DEBUG ===');
+    console.log('Headers:', req.headers);
+    console.log('Authorization header:', req.headers.authorization);
+    
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        success: false,
+        message: 'No valid auth header',
+        received: authHeader
+      });
+    }
+
+    const token = authHeader.substring(7);
+    console.log('Token length:', token.length);
+    
+    const config = require('./config/db.config');
+    const jwt = require('jsonwebtoken');
+    
+    try {
+      const decoded = jwt.verify(token, config.JWT_SECRET);
+      console.log('Token decoded successfully:', decoded);
+      
+      res.json({
+        success: true,
+        message: 'Authentication successful',
+        decoded: decoded
+      });
+    } catch (jwtError) {
+      console.error('JWT verification failed:', jwtError.message);
+      res.status(401).json({
+        success: false,
+        message: 'Token verification failed',
+        error: jwtError.message
+      });
+    }
+  } catch (error) {
+    console.error('Auth test error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });

@@ -1,289 +1,720 @@
-# Textura - Modern E-commerce Fashion Platform
+# 🏪 Textura - Modern E-commerce Web Application
 
-A modern, responsive e-commerce platform for fashion and lifestyle products built with React, Express.js, and PostgreSQL. Features a sophisticated product catalog, advanced filtering system, and a sleek user interface with enhanced product categorization.
+[![Security](https://img.shields.io/badge/Security-Enhanced-green)](https://github.com/PhucFanMu20Nams/codepushing)
+[![Environment](https://img.shields.io/badge/Environment-Variables-blue)](https://github.com/PhucFanMu20Nams/codepushing)
+[![Dynamic Filters](https://img.shields.io/badge/Filters-Dynamic-orange)](https://github.com/PhucFanMu20Nams/codepushing)
 
-## 🌟 Latest Updates (v2.0)
+A modern, secure e-commerce web application built with React frontend and Node.js backend, featuring dynamic product filtering, comprehensive security measures, and environment-based configuration.
 
-### 🆕 New Product ID System
-- **Structured Product IDs**: Products now use standardized PD#### format (PD0001, PD0002, etc.)
-- **SEO-Friendly URLs**: Direct access via `localhost:5173/PD0001` format
-- **Enhanced Breadcrumbs**: New format - `Category / Brand / Type / Color / Style`
+---
 
-### 🎨 Enhanced Product Information
-- **Color Fields**: Detailed color information (e.g., "White/Black", "Black/White")
-- **Style Categories**: Product styles (Classic, Retro, Vintage, Tennis, Basic, Casual)
-- **Comprehensive Filtering**: Filter by brand, type, color, style, and price range
+## 📋 **Table of Contents**
 
-### 🔍 Advanced Filtering System
-- **Multi-Select Filters**: Choose multiple brands, colors, styles simultaneously
-- **Real-Time Results**: Instant filtering with backend database queries
-- **Cache Management**: Smart cache invalidation for fresh filter results
-- **Category-Specific Filters**: Different filter options per category
+- [� Overview](#overview)
+- [✨ Features](#features)
+- [🛡️ Security Features](#security-features)
+- [🏗️ Architecture](#architecture)
+- [📋 Prerequisites](#prerequisites)
+- [🚀 Quick Start](#quick-start)
+- [⚙️ Installation](#installation)
+- [🔧 Configuration](#configuration)
+- [�‍♂️ Running the Application](#running-the-application)
+- [🧪 Testing](#testing)
+- [📁 Project Structure](#project-structure)
+- [🔌 API Documentation](#api-documentation)
+- [🛡️ Security Guide](#security-guide)
+- [🚀 Deployment](#deployment)
+- [🤝 Contributing](#contributing)
+- [📜 License](#license)
 
-## 🌟 Core Features
+---
 
-### Frontend Features
-- **Modern UI/UX**: Clean, responsive design with Inter font typography
-- **Advanced Search**: Real-time product search with autocomplete dropdown
-- **Smart Filtering**: Multi-criteria filtering with checkboxes and price ranges
-- **Product Catalog**: Grid-based product display with hover effects
-- **Enhanced Navigation**: Dynamic routing with product ID support
-- **Product Details**: Comprehensive product pages with new breadcrumb system
-- **Popular Items Section**: Curated product showcase with centered layout
-- **Mobile Responsive**: Optimized for all device sizes
+## 🎯 **Overview**
 
-### Backend Features
-- **RESTful API**: Well-structured API endpoints with advanced filtering
-- **Database Filtering**: SQL-based filtering for brands, types, colors, styles
-- **Multi-Value Support**: Handle comma-separated filter values
-- **Product Search**: Advanced search with query parameters and pagination
-- **Image Management**: Static file serving for product images
-- **Database Integration**: PostgreSQL with Sequelize ORM and enhanced schema
-- **Error Handling**: Comprehensive error handling and logging
+Textura is a full-stack e-commerce application that provides a seamless shopping experience with robust security measures. The application features dynamic product filtering, secure file uploads, comprehensive authentication, and production-ready security configurations.
 
-## 🛠 Tech Stack
+### **Key Highlights:**
+- 🔐 **Enterprise-grade security** with environment variable management
+- ⚡ **Dynamic filtering system** with real-time API-driven options  
+- 🎨 **Modern React frontend** with responsive design
+- 🛡️ **Secure Node.js backend** with MongoDB integration
+- 📱 **Mobile-first responsive design**
+- 🚀 **Production-ready** with comprehensive deployment guides
 
-- **Frontend**: 
-  - React 18 with Hooks
-  - React Router for navigation
-  - CSS3 with custom styling
-  - Vite for build tooling
-  
-- **Backend**: 
-  - Express.js
-  - Sequelize ORM
-  - PostgreSQL database
-  - Node.js runtime
+---
 
-- **Development Tools**:
-  - ESLint for code quality
-  - Git for version control
-  - VS Code configuration
+## ✨ **Features**
 
-## � Current Product Catalog
+### **Frontend Features**
+- 🛍️ **Product Catalog** - Browse products with detailed information
+- 🔍 **Dynamic Filtering** - Real-time filtering by category, brand, type, and color
+- 🛒 **Shopping Cart** - Add, remove, and manage cart items
+- � **User Authentication** - Secure login and registration
+- 📱 **Responsive Design** - Optimized for all device sizes
+- ⚡ **Performance Optimized** - Caching, debouncing, and lazy loading
+- 🎨 **Modern UI/UX** - Clean, intuitive interface
 
-### Available Products
-- **PD0001**: Nike Dunk Low - White/Black, Classic style
-- **PD0002**: Nike Dunk Low Retro Panda - Black/White, Retro style  
-- **PD0003**: Adidas Samba OG - Black/White, Vintage style
-- **PD0004**: Nike Sportswear Club Button-Up - Black, Casual style
-- **PD0005**: Nike Sportswear Club T-Shirt SS25 - White, Basic style
-- **PD0006**: Nike Killshot 2 Leather - White/Green, Tennis style
+### **Backend Features**
+- 🔐 **Secure Authentication** - JWT-based with rate limiting
+- 📁 **File Upload System** - Secure image uploads with validation
+- 🗄️ **MongoDB Integration** - Scalable database with proper indexing
+- 🛡️ **Security Middleware** - CORS, Helmet, rate limiting
+- 📊 **Dynamic API Endpoints** - Real-time data generation
+- 🚀 **Performance Optimized** - Connection pooling and caching
+- 📈 **Monitoring Ready** - Comprehensive logging and error handling
 
-### Product Access
-- **Direct URLs**: Access products directly via `localhost:5173/PD0001`
-- **Category Pages**: Browse by Footwear, Clothes, Accessories, Service
-- **Filter Options**: Filter by Brand (Nike, Adidas), Color, Style, Type
+### **Admin Features**
+- 👨‍💼 **Product Management** - Add, edit, delete products
+- 📊 **Analytics Dashboard** - Sales and performance metrics
+- 🔧 **System Configuration** - Manage application settings
+- 📁 **File Management** - Upload and organize product images
 
-## �🚀 Getting Started
+---
 
-### Prerequisites
+## 🛡️ **Security Features**
 
-- Node.js (v16 or higher)
-- PostgreSQL (v13 or higher)
-- npm or yarn package manager
+### **Environment Variable Security**
+- ✅ **No hardcoded secrets** in source code
+- ✅ **Environment-specific configuration** (dev/staging/production)
+- ✅ **Automatic security validation** for production deployments
+- ✅ **Secure credential management**
 
-### Installation
+### **Authentication & Authorization**
+- ✅ **JWT-based authentication** with configurable expiration
+- ✅ **Rate limiting** to prevent brute force attacks
+- ✅ **Secure password hashing** with bcrypt
+- ✅ **Login attempt monitoring** and account lockout
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/PhucFanMu20Nams/texturaalmost.git
-   cd texturaalmost
-   ```
+### **File Upload Security**
+- ✅ **MIME type validation** and file extension checking
+- ✅ **File size limits** and upload restrictions
+- ✅ **Secure filename generation** with crypto
+- ✅ **Directory traversal protection**
+- ✅ **Virus scanning ready** (configurable)
 
-2. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-   ```
+### **Request Security**
+- ✅ **CORS protection** with configurable origins
+- ✅ **Security headers** (Helmet.js integration)
+- ✅ **Request size limits** and validation
+- ✅ **XSS and CSRF protection**
 
-3. **Frontend Setup**
-   ```bash
-   cd frontend
-   npm install
-   ```
+---
 
-### 📊 Database Configuration
+## 🏗️ **Architecture**
 
-1. **Create PostgreSQL Database**
-   ```sql
-   CREATE DATABASE textura_db;
-   ```
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │    Backend      │    │    Database     │
+│   (React)       │◄──►│   (Node.js)     │◄──►│   (MongoDB)     │
+│                 │    │                 │    │                 │
+│ • Components    │    │ • REST APIs     │    │ • Collections   │
+│ • State Mgmt    │    │ • Auth System   │    │ • Indexes       │
+│ • Routing       │    │ • File Upload   │    │ • Aggregation   │
+│ • Caching       │    │ • Security      │    │ • Replication   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
-2. **Environment Configuration**
-   Create `.env` file in the backend directory:
-   ```env
-   DB_HOST=localhost
-   DB_USER=postgres
-   DB_PASSWORD=123
-   DB_NAME=textura_db
-   DB_PORT=5432
-   ```
+### **Technology Stack**
 
-3. **Initialize Database**
-   ```bash
-   cd backend
-   node migrations/execute-sql-file.js
-   ```
+**Frontend:**
+- React 19.1.0 with Hooks
+- React Router DOM for navigation
+- CSS3 with responsive design
+- Vite for build tooling
+- ESLint for code quality
 
-### 🎯 Running the Application
+**Backend:**
+- Node.js with Express.js
+- MongoDB with Mongoose ODM
+- JWT for authentication
+- Multer for file uploads
+- Helmet for security headers
+- bcryptjs for password hashing
 
-1. **Start Backend Server** (Simplified - 2 commands only!)
-   ```bash
-   cd backend
-   npm run migrate    # Automatically creates admin user
-   npm run dev        # Start development server
-   # Server runs on http://localhost:5000
-   ```
+**Development & Security:**
+- Environment variable management
+- Comprehensive testing suite
+- Production-ready deployment configs
+- Security validation and monitoring
 
-2. **Start Frontend Server** (in a new terminal)
-   ```bash
-   cd frontend
-   npm run dev
-   # Frontend runs on http://localhost:5173
-   ```
+---
 
-3. **Access Admin Panel**
-   - URL: http://localhost:5173/admin/login
-   - Username: `Teekayyj`
-   - Password: `AdminTuanKiet`
+## 📋 **Prerequisites**
 
-### ⚡ Quick Start (Alternative)
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (v16.0.0 or higher)
+- **npm** (v7.0.0 or higher) or **yarn**
+- **MongoDB** (v4.4 or higher)
+- **Git** for version control
+
+### **System Requirements**
+- **OS:** Windows 10+, macOS 10.15+, or Linux
+- **RAM:** 4GB minimum, 8GB recommended
+- **Storage:** 2GB available space
+- **Network:** Internet connection for dependencies
+
+---
+
+## 🚀 **Quick Start**
+
+Get the application running in under 5 minutes:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/PhucFanMu20Nams/codepushing.git
+cd codepushing
+
+# 2. Install dependencies
+npm install
+cd frontend && npm install
+cd ../backend && npm install
+
+# 3. Set up environment variables
+cd backend
+cp .env.example .env
+# Edit .env with your configuration
+
+# 4. Start MongoDB (if running locally)
+mongod
+
+# 5. Seed the database
+npm run seed
+
+# 6. Start the application
+# Terminal 1 - Backend
+cd backend && npm run dev
+
+# Terminal 2 - Frontend
+cd frontend && npm run dev
+```
+
+🎉 **Application is now running!**
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5000
+
+---
+
+## ⚙️ **Installation**
+
+### **Step 1: Clone Repository**
+```bash
+git clone https://github.com/PhucFanMu20Nams/codepushing.git
+cd codepushing
+```
+
+### **Step 2: Install Dependencies**
+
+**Root dependencies (optional styling):**
+```bash
+npm install
+```
+
+**Backend dependencies:**
 ```bash
 cd backend
-npm run setup      # Runs migrate + dev in one command
-```
-   ```
-
-2. **Start Frontend Development Server**
-   ```bash
-   cd frontend
-   npm run dev
-   # Frontend runs on http://localhost:5173
-   ```
-
-## 📱 Project Structure
-
-```
-textura2306/
-├── backend/
-│   ├── config/          # Database configuration
-│   ├── data/           # SQL initialization scripts
-│   ├── images/         # Static product images
-│   ├── migrations/     # Database migration scripts
-│   ├── models/         # Sequelize models
-│   ├── routes/         # API route handlers
-│   └── server.js       # Express server setup
-├── frontend/
-│   ├── public/         # Static assets
-│   ├── src/
-│   │   ├── components/ # React components
-│   │   ├── context/    # React context providers
-│   │   ├── assets/     # Frontend assets
-│   │   └── main.jsx    # App entry point
-│   └── vite.config.js  # Vite configuration
-└── README.md
+npm install
 ```
 
-## 🔌 API Endpoints
+**Frontend dependencies:**
+```bash
+cd frontend
+npm install
+```
 
-### Products API
+### **Step 3: Database Setup**
 
-- **GET** `/api/products` - Get all products
-  - Query params: `page`, `limit`, `category`, `brand`
-  - Response: Paginated product list
+**Option A: Local MongoDB**
+```bash
+# Install MongoDB
+# Windows: Download from https://www.mongodb.com/try/download/community
+# macOS: brew install mongodb-community
+# Linux: sudo apt-get install mongodb
 
-- **GET** `/api/products/search` - Search products
-  - Query params: `q` (search term), `page`, `limit`
-  - Response: Filtered products with search relevance
+# Start MongoDB service
+mongod
+```
 
-- **GET** `/api/products/:id` - Get single product
-  - Response: Detailed product information
+**Option B: MongoDB Atlas (Cloud)**
+1. Create account at https://www.mongodb.com/atlas
+2. Create a cluster
+3. Get connection string
+4. Update `MONGODB_URI` in `.env`
 
-### Example API Usage
+---
+
+## 🔧 **Configuration**
+
+### **Environment Variables Setup**
+
+**Backend Configuration (`backend/.env`):**
+```bash
+# Copy template
+cp backend/.env.example backend/.env
+```
+
+**Required Variables:**
+```env
+# Database
+MONGODB_URI=mongodb://localhost:27017/textura_db
+
+# Authentication (CRITICAL - Generate strong secret!)
+JWT_SECRET=your-super-secure-jwt-secret-64-chars-minimum
+JWT_EXPIRE=24h
+
+# Server
+PORT=5000
+NODE_ENV=development
+
+# File Upload
+UPLOAD_MAX_FILE_SIZE=5242880  # 5MB
+UPLOAD_DIR=images/products
+
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+
+# Security
+RATE_LIMIT_MAX_REQUESTS=100
+SESSION_SECRET=your-session-secret
+```
+
+### **Generate Secure Secrets**
+```bash
+# Generate JWT secret
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+# Generate session secret
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+### **Frontend Configuration**
+
+The frontend automatically connects to the backend. Update `frontend/src/utils/apiService.js` if needed:
 
 ```javascript
-// Search for Nike products
-fetch('http://localhost:5000/api/products/search?q=nike&limit=12')
-  .then(res => res.json())
-  .then(data => console.log(data.products));
-
-// Get paginated products
-fetch('http://localhost:5000/api/products?page=1&limit=6')
-  .then(res => res.json())
-  .then(data => console.log(data.products));
+const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:5000';
 ```
 
-## 💾 Database Schema
+---
 
-### Core Tables
+## �‍♂️ **Running the Application**
 
-1. **products** - Main product information
-   - id, name, brand, price, category, subcategory, type, image
+### **Development Mode**
 
-2. **product_details** - Product descriptions
-   - id, productId (FK), detail
+**1. Start Backend (Terminal 1):**
+```bash
+cd backend
+npm run dev
+# Server starts on http://localhost:5000
+```
 
-3. **product_images** - Product gallery
-   - id, productId (FK), imageUrl
+**2. Start Frontend (Terminal 2):**
+```bash
+cd frontend
+npm run dev
+# Application opens at http://localhost:5173
+```
 
-4. **product_sizes** - Available sizes
-   - id, productId (FK), size
+### **Production Mode**
 
-## 🎨 UI Components
+**1. Build Frontend:**
+```bash
+cd frontend
+npm run build
+```
 
-### Key Components
+**2. Start Production Server:**
+```bash
+cd backend
+NODE_ENV=production npm start
+```
 
-- **Header**: Navigation with mega menu and search functionality
-- **PopularItems**: Featured products grid with centered shop button
-- **SearchResults**: Advanced search results with pagination
-- **ProductDetail**: Comprehensive product information display
-- **Footer**: Modern footer with social links
+### **Database Operations**
 
-### Styling Features
+**Seed Database:**
+```bash
+cd backend
+npm run seed
+```
 
-- **Responsive Grid**: 3-column desktop, 2-column tablet, adaptive mobile
-- **Interactive Elements**: Hover effects, smooth transitions
-- **Typography**: Inter font family for modern look
-- **Color Scheme**: Professional black/white/gray palette
+**Create Admin User:**
+```bash
+cd backend
+npm run create-admin
+```
 
-## 🛒 Featured Products
+**Check Database Connection:**
+```bash
+cd backend
+npm run check-db
+```
 
-Current product catalog includes:
+---
 
-- **Nike Collection**: Dunk Low, Retro Panda, Killshot 2 Leather
-- **Adidas**: Samba OG series
-- **Apparel**: Nike Sportswear Club items
-- **Price Range**: 550,000 VND - 2,300,000 VND
+## 🧪 **Testing**
 
-## 📝 Development Notes
+### **Backend Testing**
+```bash
+cd backend
 
-### Recent Updates
-- ✅ Fixed footer overlap in search results
-- ✅ Improved product display formatting
-- ✅ Enhanced responsive design
-- ✅ Centered shop button in popular items
-- ✅ Added comprehensive product search
+# Test environment variables
+node -e "require('dotenv').config(); console.log('JWT Secret:', !!process.env.JWT_SECRET)"
 
-### Code Quality
-- ESLint configuration for consistent code style
-- Modular component architecture
-- Reusable CSS classes and utilities
-- Error handling and fallbacks
+# Test database connection
+npm run check-db
 
-## 🤝 Contributing
+# Test API endpoints
+curl http://localhost:5000/api/health
+curl http://localhost:5000/api/products/category-options
+```
 
+### **Frontend Testing**
+```bash
+cd frontend
+
+# Lint code
+npm run lint
+
+# Build test
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+### **Security Testing**
+```bash
+cd backend
+
+# Test multer configuration
+node -e "console.log('Multer:', require('./config/multer.config.js').config ? 'Enhanced' : 'Basic')"
+
+# Test app configuration
+node -e "console.log('Security Level:', require('./config/app.config.js').getConfigSummary().securityLevel)"
+```
+
+---
+
+## � **Project Structure**
+
+```
+codepushing/
+├── 📄 README.md                    # This file
+├── 📄 package.json                 # Root dependencies
+├── 📁 frontend/                    # React frontend
+│   ├── 📄 package.json
+│   ├── 📄 vite.config.js
+│   ├── 📄 index.html
+│   ├── 📁 src/
+│   │   ├── 📄 App.jsx              # Main app component
+│   │   ├── 📄 main.jsx             # Entry point
+│   │   ├── 📁 components/          # React components
+│   │   │   ├── 📄 ProductPage.jsx  # Product listing with filters
+│   │   │   ├── 📄 ProductCard.jsx  # Individual product display
+│   │   │   └── 📄 ...
+│   │   ├── 📁 Admin/               # Admin components
+│   │   ├── 📁 context/             # React context
+│   │   └── 📁 utils/               # Utility functions
+│   │       ├── 📄 apiService.js    # API communication
+│   │       ├── 📄 cacheManager.js  # Caching system
+│   │       └── 📄 filterSystemTester.js
+│   └── 📁 public/                  # Static assets
+├── 📁 backend/                     # Node.js backend
+│   ├── 📄 package.json
+│   ├── 📄 server.js                # Main server file
+│   ├── 📄 .env.example             # Environment template
+│   ├── 📁 config/                  # Configuration files
+│   │   ├── 📄 app.config.js        # Central config with security
+│   │   ├── 📄 auth.config.js       # Authentication config
+│   │   ├── 📄 db.config.js         # Database config
+│   │   └── 📄 multer.config.js     # File upload config
+│   ├── 📁 controllers/             # Request handlers
+│   │   ├── 📄 authController.js    # Authentication logic
+│   │   └── 📄 productController.js # Product operations
+│   ├── 📁 models/                  # Database models
+│   │   ├── 📄 Admin.js             # Admin user model
+│   │   ├── 📄 Product.js           # Product model
+│   │   └── 📄 index.js             # Model exports
+│   ├── 📁 routes/                  # API routes
+│   │   ├── 📄 auth.js              # Authentication routes
+│   │   ├── 📄 products.js          # Product routes
+│   │   └── 📄 cache.js             # Cache routes
+│   ├── 📁 middleware/              # Express middleware
+│   │   ├── 📄 auth.middleware.js   # Auth verification
+│   │   └── 📄 upload.middleware.js # File upload handling
+│   ├── 📁 services/                # Business logic
+│   │   └── 📄 productServices.js   # Product operations
+│   ├── 📁 utils/                   # Utility functions
+│   │   └── 📄 cacheManager.js      # Server-side caching
+│   ├── 📁 validators/              # Input validation
+│   │   └── 📄 productValidators.js # Product validation
+│   ├── 📁 scripts/                 # Database scripts
+│   │   └── 📄 seed-mongodb.js      # Database seeding
+│   ├── 📁 images/                  # Uploaded files
+│   │   └── 📁 products/            # Product images
+│   └── 📁 data/                    # Initial data
+│       ├── 📄 products.json        # Sample products
+│       └── 📄 admins.json          # Admin users
+└── 📁 docs/                        # Documentation
+    ├── 📄 SECURITY_SETUP_GUIDE.md  # Security implementation
+    ├── 📄 SECURITY_DEMONSTRATION.md # Security examples
+    ├── 📄 ENV_SETUP_GUIDE.md       # Environment setup
+    └── 📄 ENVIRONMENT_IMPLEMENTATION_TEST_RESULTS.md
+```
+
+---
+
+## 🔌 **API Documentation**
+
+### **Base URL**
+```
+http://localhost:5000/api
+```
+
+### **Authentication Endpoints**
+```http
+POST /auth/login
+POST /auth/register
+POST /auth/logout
+GET  /auth/profile
+```
+
+### **Product Endpoints**
+```http
+GET    /products                    # Get all products
+GET    /products/:id                # Get product by ID
+POST   /products                    # Create product (Admin)
+PUT    /products/:id                # Update product (Admin)
+DELETE /products/:id                # Delete product (Admin)
+GET    /products/search             # Search products
+GET    /products/category-options   # Get filter options
+```
+
+### **File Upload Endpoints**
+```http
+POST /products/upload               # Upload product images
+```
+
+### **Cache Endpoints**
+```http
+GET    /cache/stats                 # Get cache statistics
+DELETE /cache/clear                 # Clear cache (Admin)
+```
+
+### **Example API Calls**
+
+**Get Products with Filters:**
+```bash
+curl "http://localhost:5000/api/products?category=Footwear&brand=Nike"
+```
+
+**Get Dynamic Filter Options:**
+```bash
+curl "http://localhost:5000/api/products/category-options"
+```
+
+**Search Products:**
+```bash
+curl "http://localhost:5000/api/products/search?q=nike"
+```
+
+---
+
+## 🛡️ **Security Guide**
+
+### **Environment Variable Security**
+
+**✅ What's Secured:**
+- Database credentials (`MONGODB_URI`)
+- JWT secrets (`JWT_SECRET`)
+- File upload configuration (`UPLOAD_DIR`, `UPLOAD_MAX_FILE_SIZE`)
+- CORS settings (`CORS_ORIGINS`)
+- Rate limiting (`RATE_LIMIT_MAX_REQUESTS`)
+- Session secrets (`SESSION_SECRET`)
+
+**🔧 Security Features:**
+- Automatic production validation
+- Strong secret requirements (64+ characters)
+- Environment-specific configurations
+- Secure file upload with MIME validation
+- Directory traversal protection
+- Request size limitations
+
+### **Production Security Checklist**
+
+**Before Deployment:**
+- [ ] Generate strong JWT secret (64+ characters)
+- [ ] Set production MongoDB URI
+- [ ] Configure production CORS origins
+- [ ] Set appropriate file upload limits
+- [ ] Enable security headers (Helmet)
+- [ ] Configure rate limiting
+- [ ] Set up SSL/TLS certificates
+- [ ] Enable secure cookies
+- [ ] Configure proper logging
+
+**Security Validation:**
+```bash
+# Check security configuration
+node -e "
+const config = require('./backend/config/app.config.js');
+console.log('Security Check:', config.isSecureEnvironment());
+console.log('Validation:', config.validateEnvironment());
+"
+```
+
+---
+
+## 🚀 **Deployment**
+
+### **Environment-Specific Deployment**
+
+**Development:**
+```env
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/textura_dev
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+```
+
+**Production:**
+```env
+NODE_ENV=production
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/textura_prod
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+JWT_SECRET=your-super-secure-64-character-secret
+UPLOAD_MAX_FILE_SIZE=2097152  # 2MB for production
+RATE_LIMIT_MAX_REQUESTS=50    # Lower for production
+```
+
+### **Docker Deployment**
+
+**Dockerfile (Backend):**
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 5000
+CMD ["npm", "start"]
+```
+
+**Docker Compose:**
+```yaml
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - mongodb
+  
+  mongodb:
+    image: mongo:5
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
+```
+
+### **Cloud Deployment**
+
+**Heroku:**
+```bash
+# Install Heroku CLI
+heroku create your-app-name
+heroku config:set NODE_ENV=production
+heroku config:set JWT_SECRET=your-secret
+heroku config:set MONGODB_URI=your-mongodb-uri
+git push heroku main
+```
+
+**Vercel (Frontend):**
+```bash
+# Install Vercel CLI
+npm i -g vercel
+cd frontend
+vercel --prod
+```
+
+---
+
+## 🤝 **Contributing**
+
+We welcome contributions! Please follow these guidelines:
+
+### **Development Setup**
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Install dependencies: `npm install`
+4. Set up environment variables
+5. Make your changes
+6. Test thoroughly
+7. Commit: `git commit -m 'Add amazing feature'`
+8. Push: `git push origin feature/amazing-feature`
+9. Open a Pull Request
 
-## 📄 License
+### **Code Standards**
+- Follow ESLint configuration
+- Write meaningful commit messages
+- Add tests for new features
+- Update documentation
+- Ensure security best practices
 
-This project is licensed under the MIT License. See LICENSE file for details.
+### **Security Contributions**
+- Never commit `.env` files
+- Use environment variables for all secrets
+- Follow OWASP security guidelines
+- Test security configurations
 
-## 👨‍💻 Author
+---
+
+## 📞 **Support & Contact**
+
+- **GitHub Issues:** [Report bugs or request features](https://github.com/PhucFanMu20Nams/codepushing/issues)
+- **Documentation:** Check the `docs/` folder for detailed guides
+- **Security Issues:** Report privately to repository maintainers
+
+---
+
+## � **License**
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🎉 **Acknowledgments**
+
+- React team for the amazing framework
+- Express.js for the robust backend framework
+- MongoDB for the flexible database
+- All contributors and the open-source community
+
+---
+
+## 📊 **Project Status**
+
+- ✅ **Backend:** Production-ready with comprehensive security
+- ✅ **Frontend:** Responsive and optimized
+- ✅ **Security:** Environment variables implemented
+- ✅ **Dynamic Filters:** Fully functional
+- ✅ **Database:** MongoDB integration complete
+- ✅ **Documentation:** Comprehensive guides available
+
+**Ready for production deployment!** 🚀
+
+---
+
+## 👨‍💻 **Author**
 
 **PhucFanMu20Nams**
-**teekayyj-dotcom**
+
+---
+
+*Last updated: January 15, 2025*

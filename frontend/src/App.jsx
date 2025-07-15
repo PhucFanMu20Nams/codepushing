@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ModalProvider } from './context/ModalContext';
+import { FilterProvider } from './context/FilterContext';
 import './index.css';
 import './App.css';
 import Header from './components/Header';
@@ -12,6 +13,7 @@ import ProductDetail from './components/ProductDetail';
 import InboxModal from './components/InboxModal';
 import SearchResults from './components/SearchResults';
 import ProductPage from './components/ProductPage';
+import FilterUpdateNotification from './components/FilterUpdateNotification';
 import Login from './Admin/Login';
 import Dashboard from './Admin/Dashboard'; 
 import Products from './Admin/Products'; 
@@ -90,6 +92,7 @@ function AppContent() {
       {!hideHeaderFooter && <Footer />}
       {showModal && <Modal onClose={() => setShowModal(false)} />}
       <InboxModal />
+      <FilterUpdateNotification />
     </div>
   );
 }
@@ -97,9 +100,11 @@ function AppContent() {
 function App() {
   return (
     <ModalProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <FilterProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </FilterProvider>
     </ModalProvider>
   );
 }

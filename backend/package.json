@@ -8,10 +8,15 @@
     "check-db": "node scripts/check-mongodb.js",
     "seed": "node scripts/seed-mongodb.js",
     "create-admin": "node scripts/create-admin.js",
+    "init-categories": "node scripts/init-categories.js",
+    "migrate-categories": "node scripts/migrate-categories.js",
+    "seed-categories": "node scripts/seed-categories.js",
+    "verify-categories": "node scripts/verify-categories.js",
     "migrate": "npm run seed",
     "test-mongo": "node scripts/test-mongo-products.js",
-    "setup": "npm run seed && npm run dev",
-    "full-setup": "npm install && npm run seed && npm run dev"
+    "setup": "npm run seed && npm run init-categories",
+    "setup-dev": "npm run setup && npm run dev",
+    "full-setup": "npm install && npm run setup && npm run verify-categories"
   },
   "keywords": [],
   "author": "",

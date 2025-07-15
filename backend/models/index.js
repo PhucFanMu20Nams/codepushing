@@ -12,6 +12,7 @@ db.url = config.MONGODB_URI;
 // Add your models here
 db.Product = require('./Product.js');
 db.Admin = require('./Admin.js');
+db.CategoryConfig = require('./CategoryConfig.js');
 
 // Function to connect to the database
 db.connectDB = async () => {

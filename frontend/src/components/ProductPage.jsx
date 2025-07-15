@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useFilter } from '../context/FilterContext';
 import './ProductPage.css';
 import apiService from '../utils/apiService.js';
 
@@ -169,6 +170,7 @@ function NoProductsFoundWithAlternatives({ currentCategory }) {
 }
 
 function ProductPage() {
+  const { getFiltersForCategory, loading: filterContextLoading, lastUpdated } = useFilter();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -180,18 +182,21 @@ function ProductPage() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [filterOptions, setFilterOptions] = useState({
-    brands: [],
-    types: [],
-    colors: [],
-  });
-  const [loadingFilterOptions, setLoadingFilterOptions] = useState(false);
-  const [filterOptionsError, setFilterOptionsError] = useState(null);
   
   const navigate = useNavigate();
   const location = useLocation();
 
   // Determine category based on current path
+  // Map category names for compatibility
+  const getCategoryMappedName = (category) => {
+    switch (category) {
+      case 'Clothing': return 'Clothes';
+      case 'Footwear': return 'Footwear';
+      case 'Accessories': return 'Accessories';
+      default: return 'Clothes';
+    }
+  };
+
   const getCurrentCategory = () => {
     const path = location.pathname;
     if (path.includes('/clothes')) return 'Clothing';
@@ -202,52 +207,12 @@ function ProductPage() {
   };
 
   const currentCategory = getCurrentCategory();
+  const mappedCategoryName = getCategoryMappedName(currentCategory);
+  
+  // Get filter options from context
+  const filterOptions = getFiltersForCategory(mappedCategoryName);
 
-  // Dynamic filter fetching function
-  const fetchFilterOptions = useCallback(async (category) => {
-    setLoadingFilterOptions(true);
-    setFilterOptionsError(null);
-    
-    try {
-      console.log(`Fetching filter options for category: ${category}`);
-      const response = await apiService.getCategorySpecificOptions(category);
-      
-      if (response.success && response.data) {
-        const options = {
-          brands: response.data.brands || [],
-          types: response.data.types || [],
-          colors: response.data.colors || [],
-        };
-        setFilterOptions(options);
-        console.log(`Filter options loaded for ${category}:`, options);
-      } else {
-        // Handle API error or empty response
-        console.warn(`No filter options available for category: ${category}`);
-        setFilterOptions({
-          brands: [],
-          types: [],
-          colors: [],
-        });
-        if (!response.success) {
-          setFilterOptionsError(`Failed to load filter options for ${category}`);
-        }
-      }
-    } catch (error) {
-      console.error(`Error fetching filter options for ${category}:`, error);
-      setFilterOptionsError(`Unable to load filter options. Please try again.`);
-      
-      // Set empty options as fallback
-      setFilterOptions({
-        brands: [],
-        types: [],
-        colors: [],
-      });
-    } finally {
-      setLoadingFilterOptions(false);
-    }
-  }, []);
-
-  // Reset filters when category changes and fetch new filter options
+  // Reset filters when category changes
   useEffect(() => {
     setFilters({
       brand: '', // Reset to empty string for single selection
@@ -257,10 +222,7 @@ function ProductPage() {
       priceMax: ''
     });
     setCurrentPage(1);
-    
-    // Fetch filter options dynamically
-    fetchFilterOptions(currentCategory);
-  }, [currentCategory, fetchFilterOptions]);
+  }, [currentCategory]);
 
   // Fetch products function with useCallback to prevent infinite re-renders
   const fetchProducts = useCallback(async () => {
@@ -309,28 +271,6 @@ function ProductPage() {
       });
     }
   }, []); // Run only once on mount
-
-  // Debounced filter options fetching to prevent rapid API calls
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      fetchFilterOptions(currentCategory);
-    }, 100); // 100ms debounce
-
-    return () => clearTimeout(debounceTimer);
-  }, [currentCategory]); // Separate from fetchFilterOptions dependency
-
-  // Performance monitoring for filter options loading
-  const fetchFilterOptionsWithPerformance = useCallback(async (category) => {
-    const startTime = performance.now();
-    
-    try {
-      await fetchFilterOptions(category);
-      const loadTime = performance.now() - startTime;
-      console.log(`Filter options for ${category} loaded in ${loadTime.toFixed(2)}ms`);
-    } catch (error) {
-      console.error(`Failed to load filter options for ${category}:`, error);
-    }
-  }, [fetchFilterOptions]);
 
   const handleFilterChange = (filterType, value, isChecked) => {
     setFilters(prevFilters => {
@@ -457,11 +397,32 @@ function ProductPage() {
           <div className="sidebar-content">
             <div className="category-breadcrumb">
               <span>Category / {currentCategory}</span>
+              <button 
+                onClick={() => {
+                  console.log('Manual refresh triggered');
+                  window.dispatchEvent(new CustomEvent('categoryUpdated', { detail: { manual: true } }));
+                }}
+                style={{ 
+                  marginLeft: '10px', 
+                  padding: '4px 8px', 
+                  fontSize: '12px', 
+                  background: '#007bff', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '3px',
+                  cursor: 'pointer'
+                }}
+              >
+                🔄 Refresh Filters
+              </button>
             </div>
 
             {/* Brand Filter */}
             <div className="filter-group">
               <h3 className="filter-heading">Brand</h3>
+              <div style={{ fontSize: '10px', color: '#666', marginBottom: '5px' }}>
+                Debug: {filterOptions.brands.length} brands loaded | Last updated: {lastUpdated?.toLocaleTimeString() || 'Never'}
+              </div>
               <div className="search-box">
                 <input type="text" placeholder="Search brands..." />
                 <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -471,22 +432,11 @@ function ProductPage() {
               </div>
               
               {/* Loading State */}
-              {loadingFilterOptions ? (
+              {filterContextLoading ? (
                 <div className="filter-loading">
                   <div className="loading-skeleton"></div>
                   <div className="loading-skeleton"></div>
                   <div className="loading-skeleton"></div>
-                </div>
-              ) : filterOptionsError ? (
-                /* Error State */
-                <div className="filter-error">
-                  <p className="error-message">Unable to load brands</p>
-                  <button 
-                    className="retry-button"
-                    onClick={() => fetchFilterOptions(currentCategory)}
-                  >
-                    Try Again
-                  </button>
                 </div>
               ) : filterOptions.brands.length === 0 ? (
                 /* Empty State */
@@ -523,22 +473,11 @@ function ProductPage() {
               </div>
               
               {/* Loading State */}
-              {loadingFilterOptions ? (
+              {filterContextLoading ? (
                 <div className="filter-loading">
                   <div className="loading-skeleton"></div>
                   <div className="loading-skeleton"></div>
                   <div className="loading-skeleton"></div>
-                </div>
-              ) : filterOptionsError ? (
-                /* Error State */
-                <div className="filter-error">
-                  <p className="error-message">Unable to load types</p>
-                  <button 
-                    className="retry-button"
-                    onClick={() => fetchFilterOptions(currentCategory)}
-                  >
-                    Try Again
-                  </button>
                 </div>
               ) : filterOptions.types.length === 0 ? (
                 /* Empty State */
@@ -575,22 +514,11 @@ function ProductPage() {
               </div>
               
               {/* Loading State */}
-              {loadingFilterOptions ? (
+              {filterContextLoading ? (
                 <div className="filter-loading">
                   <div className="loading-skeleton"></div>
                   <div className="loading-skeleton"></div>
                   <div className="loading-skeleton"></div>
-                </div>
-              ) : filterOptionsError ? (
-                /* Error State */
-                <div className="filter-error">
-                  <p className="error-message">Unable to load colors</p>
-                  <button 
-                    className="retry-button"
-                    onClick={() => fetchFilterOptions(currentCategory)}
-                  >
-                    Try Again
-                  </button>
                 </div>
               ) : filterOptions.colors.length === 0 ? (
                 /* Empty State */
