@@ -423,8 +423,38 @@ class ApiService {
    * Get category-specific field options
    */
   async getCategorySpecificOptions(category) {
+    if (!category) {
+      throw new Error('Category parameter is required');
+    }
+    
     const url = `${this.baseURL}/products/category-options/${encodeURIComponent(category)}`;
-    return this.fetchWithCache(url, {}, 'categoryOptions', { category });
+    
+    try {
+      const response = await this.fetchWithCache(url, {}, 'categoryOptions', { category });
+      
+      // Validate response structure
+      if (!response.success || !response.data) {
+        throw new Error('Invalid response structure from category options API');
+      }
+      
+      return response;
+    } catch (error) {
+      console.error(`Error fetching category options for ${category}:`, error);
+      
+      // Return fallback empty options structure
+      return {
+        success: false,
+        error: error.message,
+        data: {
+          category,
+          brands: [],
+          types: [],
+          colors: [],
+          styles: [],
+          subcategories: []
+        }
+      };
+    }
   }
 
   /**
@@ -432,7 +462,97 @@ class ApiService {
    */
   async getAllCategoryOptions() {
     const url = `${this.baseURL}/products/category-options`;
-    return this.fetchWithCache(url, {}, 'allCategoryOptions');
+    
+    try {
+      const response = await this.fetchWithCache(url, {}, 'allCategoryOptions');
+      
+      // Validate response structure
+      if (!response.success || !response.data) {
+        throw new Error('Invalid response structure from all category options API');
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error fetching all category options:', error);
+      
+      // Return fallback empty structure
+      return {
+        success: false,
+        error: error.message,
+        data: {
+          categories: [],
+          categoryOptions: {}
+        }
+      };
+    }
+  }
+
+  /**
+   * Get filter options for multiple categories (batch request optimization)
+   */
+  async getMultipleCategoryOptions(categories) {
+    if (!Array.isArray(categories) || categories.length === 0) {
+      throw new Error('Categories must be a non-empty array');
+    }
+
+    try {
+      // For now, make individual requests - can be optimized later with a batch API
+      const results = await Promise.all(
+        categories.map(category => this.getCategorySpecificOptions(category))
+      );
+      
+      const categoryOptionsMap = {};
+      categories.forEach((category, index) => {
+        if (results[index].success) {
+          categoryOptionsMap[category] = results[index].data;
+        }
+      });
+      
+      return {
+        success: true,
+        data: categoryOptionsMap
+      };
+    } catch (error) {
+      console.error('Error fetching multiple category options:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Clear category options cache (useful when products are updated)
+   */
+  clearCategoryOptionsCache(category = null) {
+    if (category) {
+      cacheManager.invalidate('categoryOptions', { category });
+      console.log(`Cleared cache for category: ${category}`);
+    } else {
+      cacheManager.invalidate('categoryOptions');
+      cacheManager.invalidate('allCategoryOptions');
+      console.log('Cleared all category options cache');
+    }
+  }
+
+  /**
+   * Preload category options for better UX
+   */
+  async preloadCategoryOptions(categories) {
+    if (!Array.isArray(categories)) {
+      categories = ['Clothing', 'Footwear', 'Accessories', 'Service'];
+    }
+    
+    console.log('Preloading category options for:', categories);
+    
+    // Load in background without blocking
+    Promise.all(
+      categories.map(category => 
+        this.getCategorySpecificOptions(category).catch(error => {
+          console.warn(`Failed to preload options for ${category}:`, error);
+          return null;
+        })
+      )
+    ).then(results => {
+      console.log('Category options preloading completed');
+    });
   }
 }
 

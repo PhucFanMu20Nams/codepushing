@@ -9,7 +9,10 @@ class CacheManager {
       products: 60 * 60 * 1000, // 1 hour for product listings
       productDetail: 30 * 60 * 1000, // 30 minutes for individual products
       search: 15 * 60 * 1000, // 15 minutes for search results
-      categories: 2 * 60 * 60 * 1000 // 2 hours for categories
+      categories: 2 * 60 * 60 * 1000, // 2 hours for categories
+      categoryOptions: 4 * 60 * 60 * 1000, // 4 hours for category-specific options
+      allCategoryOptions: 6 * 60 * 60 * 1000, // 6 hours for all category options
+      fieldOptions: 4 * 60 * 60 * 1000 // 4 hours for field options
     };
   }
 
@@ -227,11 +230,87 @@ class CacheManager {
       // Also clear categories cache as product changes might affect category data
       this.clearType('categories');
       
+      // Clear category options cache since product changes affect filter options
+      this.clearType('categoryOptions');
+      this.clearType('allCategoryOptions');
+      this.clearType('fieldOptions');
+      
       console.log('Cache invalidated for product update:', productId || 'all products');
       return true;
     } catch (error) {
       console.warn('Error invalidating cache for product update:', error);
       return false;
+    }
+  }
+
+  /**
+   * Smart cache invalidation for category options
+   * Only clears relevant category cache, not all
+   */
+  invalidateCategoryOptions(category = null) {
+    try {
+      if (category) {
+        // Clear specific category cache
+        const key = this.generateKey('categoryOptions', { category });
+        localStorage.removeItem(key);
+        console.log(`Cache cleared for category: ${category}`);
+      } else {
+        // Clear all category options cache
+        this.clearType('categoryOptions');
+        this.clearType('allCategoryOptions');
+        this.clearType('fieldOptions');
+        console.log('All category options cache cleared');
+      }
+      return true;
+    } catch (error) {
+      console.warn('Error invalidating category options cache:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Preload and cache data for better performance
+   */
+  async preloadData(apiService, categories = []) {
+    if (!Array.isArray(categories) || categories.length === 0) {
+      categories = ['Clothing', 'Footwear', 'Accessories', 'Service'];
+    }
+    
+    console.log('Starting preload for categories:', categories);
+    
+    try {
+      // Preload all category options in parallel
+      const preloadPromises = categories.map(async (category) => {
+        try {
+          // Check if already cached
+          const cached = this.get('categoryOptions', { category });
+          if (cached) {
+            console.log(`Cache hit for preload: ${category}`);
+            return { category, status: 'cached' };
+          }
+          
+          // Fetch and cache
+          await apiService.getCategorySpecificOptions(category);
+          return { category, status: 'loaded' };
+        } catch (error) {
+          console.warn(`Preload failed for ${category}:`, error);
+          return { category, status: 'failed', error: error.message };
+        }
+      });
+      
+      const results = await Promise.all(preloadPromises);
+      console.log('Preload completed:', results);
+      
+      return {
+        success: true,
+        results: results
+      };
+    } catch (error) {
+      console.error('Preload failed:', error);
+      return {
+        success: false,
+        error: error.message
+      };
     }
   }
 }

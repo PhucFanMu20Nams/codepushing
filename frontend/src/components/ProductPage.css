@@ -568,6 +568,77 @@
   transform: translateY(-1px);
 }
 
+/* Filter Loading, Error, and Empty States */
+.filter-loading {
+  padding: 8px;
+}
+
+.loading-skeleton {
+  height: 32px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.loading-skeleton:last-child {
+  margin-bottom: 0;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.filter-error {
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.error-message {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.retry-button {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retry-button:hover {
+  background: #555;
+}
+
+.retry-button:active {
+  background: #222;
+}
+
+.filter-empty {
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.empty-message {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+  line-height: 1.4;
+  font-style: italic;
+}
+
 /* Responsive Design - Same breakpoints as Header */
 @media (max-width: 1200px) {
   .product-page-layout {

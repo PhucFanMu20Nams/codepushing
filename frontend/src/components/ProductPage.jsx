@@ -185,6 +185,8 @@ function ProductPage() {
     types: [],
     colors: [],
   });
+  const [loadingFilterOptions, setLoadingFilterOptions] = useState(false);
+  const [filterOptionsError, setFilterOptionsError] = useState(null);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -201,43 +203,51 @@ function ProductPage() {
 
   const currentCategory = getCurrentCategory();
 
-  // Get filter configuration based on category
-  const getFilterConfig = () => {
-    switch (currentCategory) {
-      case 'Clothing':
-        return {
-          brands: ['Nike', 'Adidas'],
-          types: ['T-Shirt', 'Shirt', 'Pants'],
-          colors: ['Blue', 'White', 'Beige', 'Khaki']
+  // Dynamic filter fetching function
+  const fetchFilterOptions = useCallback(async (category) => {
+    setLoadingFilterOptions(true);
+    setFilterOptionsError(null);
+    
+    try {
+      console.log(`Fetching filter options for category: ${category}`);
+      const response = await apiService.getCategorySpecificOptions(category);
+      
+      if (response.success && response.data) {
+        const options = {
+          brands: response.data.brands || [],
+          types: response.data.types || [],
+          colors: response.data.colors || [],
         };
-      case 'Footwear':
-        return {
-          brands: ['Nike', 'Adidas'],
-          types: ['Sneakers'],
-          colors: ['White', 'Black/White', 'Grey/White', 'White/Navy']
-        };
-      case 'Accessories':
-        return {
-          brands: ['Nike', 'Adidas'],
-          types: ['Hat', 'Cap', 'Bag', 'Watch'],
-          colors: ['Black', 'White', 'Brown']
-        };
-      case 'Service':
-        return {
-          brands: ['Premium', 'Standard'],
-          types: ['Cleaning', 'Repair'],
-          colors: []
-        };
-      default:
-        return {
-          brands: ['Nike', 'Adidas'],
-          types: ['Sneakers', 'T-Shirt', 'Shirt', 'Pants'],
-          colors: ['Blue', 'White', 'Black/White', 'Grey/White', 'White/Navy', 'Beige', 'Khaki']
-        };
+        setFilterOptions(options);
+        console.log(`Filter options loaded for ${category}:`, options);
+      } else {
+        // Handle API error or empty response
+        console.warn(`No filter options available for category: ${category}`);
+        setFilterOptions({
+          brands: [],
+          types: [],
+          colors: [],
+        });
+        if (!response.success) {
+          setFilterOptionsError(`Failed to load filter options for ${category}`);
+        }
+      }
+    } catch (error) {
+      console.error(`Error fetching filter options for ${category}:`, error);
+      setFilterOptionsError(`Unable to load filter options. Please try again.`);
+      
+      // Set empty options as fallback
+      setFilterOptions({
+        brands: [],
+        types: [],
+        colors: [],
+      });
+    } finally {
+      setLoadingFilterOptions(false);
     }
-  };
+  }, []);
 
-  // Reset filters when category changes
+  // Reset filters when category changes and fetch new filter options
   useEffect(() => {
     setFilters({
       brand: '', // Reset to empty string for single selection
@@ -247,8 +257,10 @@ function ProductPage() {
       priceMax: ''
     });
     setCurrentPage(1);
-    setFilterOptions(getFilterConfig());
-  }, [currentCategory]);
+    
+    // Fetch filter options dynamically
+    fetchFilterOptions(currentCategory);
+  }, [currentCategory, fetchFilterOptions]);
 
   // Fetch products function with useCallback to prevent infinite re-renders
   const fetchProducts = useCallback(async () => {
@@ -282,6 +294,43 @@ function ProductPage() {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  // Preload category options for better UX (run once on mount)
+  useEffect(() => {
+    const preloadCategories = ['Clothing', 'Footwear', 'Accessories', 'Service'];
+    const categoriesToPreload = preloadCategories.filter(cat => cat !== currentCategory);
+    
+    if (categoriesToPreload.length > 0) {
+      // Enhanced preload with performance monitoring
+      const preloadStart = performance.now();
+      apiService.preloadCategoryOptions(categoriesToPreload).then(() => {
+        const preloadTime = performance.now() - preloadStart;
+        console.log(`Category options preloaded in ${preloadTime.toFixed(2)}ms`);
+      });
+    }
+  }, []); // Run only once on mount
+
+  // Debounced filter options fetching to prevent rapid API calls
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      fetchFilterOptions(currentCategory);
+    }, 100); // 100ms debounce
+
+    return () => clearTimeout(debounceTimer);
+  }, [currentCategory]); // Separate from fetchFilterOptions dependency
+
+  // Performance monitoring for filter options loading
+  const fetchFilterOptionsWithPerformance = useCallback(async (category) => {
+    const startTime = performance.now();
+    
+    try {
+      await fetchFilterOptions(category);
+      const loadTime = performance.now() - startTime;
+      console.log(`Filter options for ${category} loaded in ${loadTime.toFixed(2)}ms`);
+    } catch (error) {
+      console.error(`Failed to load filter options for ${category}:`, error);
+    }
+  }, [fetchFilterOptions]);
 
   const handleFilterChange = (filterType, value, isChecked) => {
     setFilters(prevFilters => {
@@ -361,6 +410,45 @@ function ProductPage() {
     }
   };
 
+  // Batch optimization: Load all categories at once on first visit
+  useEffect(() => {
+    const hasVisited = sessionStorage.getItem('filterOptionsLoaded');
+    
+    if (!hasVisited) {
+      const loadAllCategories = async () => {
+        try {
+          console.log('First visit detected - loading all category options...');
+          const startTime = performance.now();
+          
+          const response = await apiService.getAllCategoryOptions();
+          if (response.success) {
+            console.log('All category options loaded:', response.data);
+            
+            // Cache individual category options for faster access
+            const { categoryOptions } = response.data;
+            Object.entries(categoryOptions).forEach(([category, options]) => {
+              // Pre-populate individual category caches
+              const cacheKey = `categoryOptions_${category}`;
+              sessionStorage.setItem(cacheKey, JSON.stringify({
+                success: true,
+                data: { category, ...options }
+              }));
+            });
+            
+            sessionStorage.setItem('filterOptionsLoaded', 'true');
+            
+            const loadTime = performance.now() - startTime;
+            console.log(`All category options cached in ${loadTime.toFixed(2)}ms`);
+          }
+        } catch (error) {
+          console.warn('Failed to batch load category options:', error);
+        }
+      };
+      
+      loadAllCategories();
+    }
+  }, []); // Run only once on mount
+
   return (
     <div className="product-page">
       <div className="product-page-layout">
@@ -381,19 +469,46 @@ function ProductPage() {
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </div>
-              <div className="filter-options">
-                {filterOptions.brands.map(brand => (
-                  <label key={brand} className="filter-option">
-                    <input 
-                      type="checkbox" 
-                      value={brand} 
-                      checked={filters.brand === brand}
-                      onChange={() => handleFilterChange('brand', brand, true)} 
-                    />
-                    <span>{brand}</span>
-                  </label>
-                ))}
-              </div>
+              
+              {/* Loading State */}
+              {loadingFilterOptions ? (
+                <div className="filter-loading">
+                  <div className="loading-skeleton"></div>
+                  <div className="loading-skeleton"></div>
+                  <div className="loading-skeleton"></div>
+                </div>
+              ) : filterOptionsError ? (
+                /* Error State */
+                <div className="filter-error">
+                  <p className="error-message">Unable to load brands</p>
+                  <button 
+                    className="retry-button"
+                    onClick={() => fetchFilterOptions(currentCategory)}
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : filterOptions.brands.length === 0 ? (
+                /* Empty State */
+                <div className="filter-empty">
+                  <p className="empty-message">No brands available for {currentCategory}</p>
+                </div>
+              ) : (
+                /* Normal State */
+                <div className="filter-options">
+                  {filterOptions.brands.map(brand => (
+                    <label key={brand} className="filter-option">
+                      <input 
+                        type="checkbox" 
+                        value={brand} 
+                        checked={filters.brand === brand}
+                        onChange={() => handleFilterChange('brand', brand, true)} 
+                      />
+                      <span>{brand}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Type Filter */}
@@ -406,19 +521,46 @@ function ProductPage() {
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </div>
-              <div className="filter-options">
-                {filterOptions.types.map(type => (
-                  <label key={type} className="filter-option">
-                    <input 
-                      type="checkbox" 
-                      value={type} 
-                      checked={filters.type === type}
-                      onChange={() => handleFilterChange('type', type, true)} 
-                    />
-                    <span>{type}</span>
-                  </label>
-                ))}
-              </div>
+              
+              {/* Loading State */}
+              {loadingFilterOptions ? (
+                <div className="filter-loading">
+                  <div className="loading-skeleton"></div>
+                  <div className="loading-skeleton"></div>
+                  <div className="loading-skeleton"></div>
+                </div>
+              ) : filterOptionsError ? (
+                /* Error State */
+                <div className="filter-error">
+                  <p className="error-message">Unable to load types</p>
+                  <button 
+                    className="retry-button"
+                    onClick={() => fetchFilterOptions(currentCategory)}
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : filterOptions.types.length === 0 ? (
+                /* Empty State */
+                <div className="filter-empty">
+                  <p className="empty-message">No types available for {currentCategory}</p>
+                </div>
+              ) : (
+                /* Normal State */
+                <div className="filter-options">
+                  {filterOptions.types.map(type => (
+                    <label key={type} className="filter-option">
+                      <input 
+                        type="checkbox" 
+                        value={type} 
+                        checked={filters.type === type}
+                        onChange={() => handleFilterChange('type', type, true)} 
+                      />
+                      <span>{type}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Color Filter */}
@@ -431,19 +573,46 @@ function ProductPage() {
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </div>
-              <div className="filter-options">
-                {filterOptions.colors.map(color => (
-                  <label key={color} className="filter-option">
-                    <input 
-                      type="checkbox" 
-                      value={color} 
-                      checked={filters.colors.includes(color)}
-                      onChange={(e) => handleFilterChange('colors', color, e.target.checked)} 
-                    />
-                    <span>{color}</span>
-                  </label>
-                ))}
-              </div>
+              
+              {/* Loading State */}
+              {loadingFilterOptions ? (
+                <div className="filter-loading">
+                  <div className="loading-skeleton"></div>
+                  <div className="loading-skeleton"></div>
+                  <div className="loading-skeleton"></div>
+                </div>
+              ) : filterOptionsError ? (
+                /* Error State */
+                <div className="filter-error">
+                  <p className="error-message">Unable to load colors</p>
+                  <button 
+                    className="retry-button"
+                    onClick={() => fetchFilterOptions(currentCategory)}
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : filterOptions.colors.length === 0 ? (
+                /* Empty State */
+                <div className="filter-empty">
+                  <p className="empty-message">No colors available for {currentCategory}</p>
+                </div>
+              ) : (
+                /* Normal State */
+                <div className="filter-options">
+                  {filterOptions.colors.map(color => (
+                    <label key={color} className="filter-option">
+                      <input 
+                        type="checkbox" 
+                        value={color} 
+                        checked={filters.colors.includes(color)}
+                        onChange={(e) => handleFilterChange('colors', color, e.target.checked)} 
+                      />
+                      <span>{color}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Price Filter */}
