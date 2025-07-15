@@ -10,6 +10,9 @@
 .env.test.local
 .env.production.local
 
+# But track the example file
+!.env.example
+
 # Logs
 logs
 *.log

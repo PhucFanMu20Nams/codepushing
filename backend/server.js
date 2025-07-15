@@ -3,6 +3,9 @@ const cors = require('cors');
 const path = require('path');
 const db = require('./models');
 
+// Load environment variables
+require('dotenv').config();
+
 // Import routes
 const productRoutes = require('./routes/products');
 const authRoutes = require('./routes/auth');
@@ -11,13 +14,32 @@ const cacheRoutes = require('./routes/cache');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Get configuration from environment variables
+const STATIC_FILES_PATH = process.env.STATIC_FILES_PATH || 'images';
+const CORS_ORIGINS = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : ['http://localhost:3000', 'http://localhost:5173'];
 
-// Static files
-app.use('/images', express.static(path.join(__dirname, 'images')));
+// CORS Configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (CORS_ORIGINS.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+};
+
+// Middleware
+app.use(cors(corsOptions));
+app.use(express.json({ limit: process.env.JSON_LIMIT || '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: process.env.URL_ENCODED_LIMIT || '10mb' }));
+
+// Static files - use environment variable for path
+app.use('/images', express.static(path.join(__dirname, STATIC_FILES_PATH)));
 
 // Routes
 app.use('/api/products', productRoutes);
