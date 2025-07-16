@@ -6,6 +6,19 @@ const db = require('./models');
 // Load environment variables
 require('dotenv').config();
 
+// Add request logging middleware for debugging
+const logRequests = (req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  if (req.method === 'PUT' && req.url.includes('/images')) {
+    console.log('PUT /images request details:', {
+      headers: Object.keys(req.headers),
+      contentType: req.headers['content-type'],
+      contentLength: req.headers['content-length']
+    });
+  }
+  next();
+};
+
 // Import routes
 const productRoutes = require('./routes/products');
 const authRoutes = require('./routes/auth');
@@ -47,6 +60,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json({ limit: process.env.JSON_LIMIT || '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: process.env.URL_ENCODED_LIMIT || '10mb' }));
+app.use(logRequests);
 
 // Static files - use environment variable for path
 app.use('/images', express.static(path.join(__dirname, STATIC_FILES_PATH)));

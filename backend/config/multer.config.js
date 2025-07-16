@@ -120,7 +120,7 @@ module.exports = multer({
   limits: { 
     fileSize: MAX_FILE_SIZE,
     files: MAX_FILES,
-    fields: 10, // Limit number of non-file fields
+    fields: 25, // Allow up to 25 non-file fields to accommodate complex forms
     fieldNameSize: 100, // Limit field name size
     fieldSize: 1024 * 1024, // Limit field value size to 1MB
     headerPairs: 2000 // Limit number of header key-value pairs

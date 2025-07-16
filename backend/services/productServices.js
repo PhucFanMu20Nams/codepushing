@@ -391,107 +391,191 @@ const uploadProductWithImagesService = async (productData, files) => {
  * @returns {Object} Updated product or error
  */
 const updateProductWithImagesService = async (productId, updateData, files) => {
-  const product = await findProductById(productId);
+  console.log('=== UPDATE PRODUCT WITH IMAGES SERVICE START ===');
+  try {
+    console.log('updateProductWithImagesService called with:', {
+      productId,
+      updateData: Object.keys(updateData),
+      filesCount: files ? files.length : 0
+    });
 
-  if (!product) {
-    return {
-      success: false,
-      message: 'Product not found',
-      statusCode: 404
-    };
-  }
+    const product = await findProductById(productId);
 
-  const {
-    name, brand, price, category, subcategory, type, color, style,
-    description, sizes, details, existingImages
-  } = updateData;
+    if (!product) {
+      console.log('Product not found for ID:', productId);
+      return {
+        success: false,
+        message: 'Product not found',
+        statusCode: 404
+      };
+    }
 
-  // Process existing images
-  let updatedGallery = [];
-  let primaryImageUrl = null;
-  
-  // Handle existing images if provided
-  if (existingImages) {
-    const parsedExistingImages = parseJSONField(existingImages, []);
+    console.log('Found product:', product.name);
+
+    const {
+      name, brand, price, category, subcategory, type, color, style,
+      description, sizes, details, existingImages
+    } = updateData;
+
+    // Process existing images
+    let updatedGallery = [];
+    let primaryImageUrl = null;
     
-    if (Array.isArray(parsedExistingImages)) {
-      updatedGallery = parsedExistingImages.map(img => {
-        if (typeof img === 'string') {
-          return { url: img, isPrimary: false };
+    console.log('Processing existing images...', existingImages ? 'provided' : 'not provided');
+    
+    // Handle existing images if provided
+    if (existingImages) {
+      try {
+        const parsedExistingImages = parseJSONField(existingImages, []);
+        
+        if (Array.isArray(parsedExistingImages)) {
+          updatedGallery = parsedExistingImages.map(img => {
+            if (typeof img === 'string') {
+              return { url: img, isPrimary: false };
+            }
+            return img;
+          });
+          
+          // Find primary image from existing
+          const primaryImg = updatedGallery.find(img => img.isPrimary);
+          if (primaryImg) {
+            primaryImageUrl = primaryImg.url;
+          } else if (updatedGallery.length > 0) {
+            primaryImageUrl = updatedGallery[0].url;
+            updatedGallery[0].isPrimary = true;
+          }
         }
-        return img;
-      });
+      } catch (existingImagesError) {
+        console.error('Error parsing existing images:', existingImagesError);
+        console.log('Falling back to current product gallery');
+        updatedGallery = [...(product.gallery || [])];
+        primaryImageUrl = product.imageUrl || product.image;
+      }
+    } else {
+      // Keep current gallery if no existing images provided
+      updatedGallery = [...(product.gallery || [])];
+      primaryImageUrl = product.imageUrl || product.image;
+    }
+    
+    console.log('Gallery after existing images processing:', updatedGallery.length, 'images');
+    
+    // Process new uploaded images if any
+    if (files && files.length > 0) {
+      console.log('Processing', files.length, 'new uploaded files...');
+      const productName = name || product.name;
       
-      // Find primary image from existing
-      const primaryImg = updatedGallery.find(img => img.isPrimary);
-      if (primaryImg) {
-        primaryImageUrl = primaryImg.url;
-      } else if (updatedGallery.length > 0) {
-        primaryImageUrl = updatedGallery[0].url;
-        updatedGallery[0].isPrimary = true;
+      try {
+        const { gallery: newImageGallery } = processUploadedImages(files, productName);
+        
+        console.log('New images processed:', newImageGallery.length);
+        
+        // Add new images to gallery
+        updatedGallery.push(...newImageGallery);
+        
+        // Set first uploaded image as primary if no primary exists
+        if (!primaryImageUrl && newImageGallery.length > 0) {
+          primaryImageUrl = newImageGallery[0].url;
+          // Find the first new image in the updated gallery and set it as primary
+          const firstNewImageIndex = updatedGallery.length - newImageGallery.length;
+          if (firstNewImageIndex >= 0 && firstNewImageIndex < updatedGallery.length) {
+            updatedGallery[firstNewImageIndex].isPrimary = true;
+          }
+        }
+      } catch (imageProcessError) {
+        console.error('Error processing uploaded images:', imageProcessError);
+        throw new Error(`Image processing failed: ${imageProcessError.message}`);
       }
     }
-  } else {
-    // Keep current gallery if no existing images provided
-    updatedGallery = [...(product.gallery || [])];
-    primaryImageUrl = product.imageUrl || product.image;
-  }
-  
-  // Process new uploaded images if any
-  if (files && files.length > 0) {
-    const productName = name || product.name;
-    const { gallery: newImageGallery } = processUploadedImages(files, productName);
+
+    console.log('Final gallery count:', updatedGallery.length);
+
+    // Parse JSON fields using helper function
+    let parsedSizes = product.sizes || [];
+    let parsedDetails = product.details || [];
     
-    // Add new images to gallery
-    updatedGallery.push(...newImageGallery);
-    
-    // Set first uploaded image as primary if no primary exists
-    if (!primaryImageUrl && newImageGallery.length > 0) {
-      primaryImageUrl = newImageGallery[0].url;
-      updatedGallery[updatedGallery.length - newImageGallery.length].isPrimary = true;
+    try {
+      parsedSizes = sizes !== undefined ? parseJSONField(sizes, product.sizes || []) : product.sizes || [];
+    } catch (err) {
+      console.warn('Error parsing sizes:', err);
+      parsedSizes = product.sizes || [];
     }
+    
+    try {
+      parsedDetails = details !== undefined ? parseJSONField(details, product.details || []) : product.details || [];
+    } catch (err) {
+      console.warn('Error parsing details:', err);
+      parsedDetails = product.details || [];
+    }
+
+    console.log('Parsed sizes:', parsedSizes.length, 'details:', parsedDetails.length);
+
+    // Update product data
+    const productUpdateData = { updatedAt: new Date() };
+
+    // Only update provided fields
+    if (name !== undefined) productUpdateData.name = name;
+    if (brand !== undefined) productUpdateData.brand = brand;
+    if (price !== undefined) {
+      const numericPrice = parseFloat(price);
+      if (isNaN(numericPrice)) {
+        console.warn('Invalid price provided:', price, 'using original price');
+        productUpdateData.price = product.price;
+      } else {
+        productUpdateData.price = numericPrice;
+      }
+    }
+    if (category !== undefined) productUpdateData.category = category;
+    if (subcategory !== undefined) productUpdateData.subcategory = subcategory;
+    if (type !== undefined) productUpdateData.type = type;
+    if (color !== undefined) productUpdateData.color = color;
+    if (style !== undefined) productUpdateData.style = style;
+    if (description !== undefined) productUpdateData.description = description;
+    
+    // Update image-related fields - ensure both fields are synced
+    if (primaryImageUrl) {
+      productUpdateData.imageUrl = primaryImageUrl;
+      productUpdateData.image = primaryImageUrl;
+    }
+    productUpdateData.gallery = updatedGallery;
+    productUpdateData.sizes = parsedSizes;
+    productUpdateData.details = parsedDetails;
+
+    console.log('Updating product with data keys:', Object.keys(productUpdateData));
+
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(
+        product._id,
+        productUpdateData,
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedProduct) {
+        console.error('Failed to update product - no product returned');
+        throw new Error('Failed to update product in database');
+      }
+
+      console.log('Product updated successfully:', updatedProduct.name);
+
+      invalidateProductCache(productId);
+
+      console.log('=== UPDATE PRODUCT WITH IMAGES SERVICE END ===');
+      
+      return {
+        success: true,
+        data: updatedProduct,
+        message: 'Product updated successfully'
+      };
+    } catch (dbError) {
+      console.error('Database update error:', dbError);
+      console.error('Update data that caused error:', productUpdateData);
+      throw new Error(`Database update failed: ${dbError.message}`);
+    }
+  } catch (error) {
+    console.error('Error in updateProductWithImagesService:', error);
+    console.error('Error stack:', error.stack);
+    console.log('=== UPDATE PRODUCT WITH IMAGES SERVICE ERROR END ===');
+    throw error; // Re-throw to be handled by the controller
   }
-
-  // Parse JSON fields using helper function
-  const parsedSizes = sizes !== undefined ? parseJSONField(sizes, product.sizes || []) : product.sizes || [];
-  const parsedDetails = details !== undefined ? parseJSONField(details, product.details || []) : product.details || [];
-
-  // Update product data
-  const productUpdateData = { updatedAt: new Date() };
-
-  // Only update provided fields
-  if (name !== undefined) productUpdateData.name = name;
-  if (brand !== undefined) productUpdateData.brand = brand;
-  if (price !== undefined) productUpdateData.price = parseFloat(price);
-  if (category !== undefined) productUpdateData.category = category;
-  if (subcategory !== undefined) productUpdateData.subcategory = subcategory;
-  if (type !== undefined) productUpdateData.type = type;
-  if (color !== undefined) productUpdateData.color = color;
-  if (style !== undefined) productUpdateData.style = style;
-  if (description !== undefined) productUpdateData.description = description;
-  
-  // Update image-related fields - ensure both fields are synced
-  if (primaryImageUrl) {
-    productUpdateData.imageUrl = primaryImageUrl;
-    productUpdateData.image = primaryImageUrl;
-  }
-  productUpdateData.gallery = updatedGallery;
-  productUpdateData.sizes = parsedSizes;
-  productUpdateData.details = parsedDetails;
-
-  const updatedProduct = await Product.findByIdAndUpdate(
-    product._id,
-    productUpdateData,
-    { new: true, runValidators: true }
-  );
-
-  invalidateProductCache(productId);
-
-  return {
-    success: true,
-    data: updatedProduct,
-    message: 'Product updated successfully'
-  };
 };
 
 /**

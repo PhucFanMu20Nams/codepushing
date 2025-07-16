@@ -21,10 +21,16 @@ const AddCategoryModal = ({ open, onClose, onSuccess }) => {
     { key: 'colors', label: 'Colors', icon: '🎨' }
   ];
 
-  // Reset modal state when opened/closed
+  // Reset modal state when opened/closed and preload data when opened
   useEffect(() => {
     if (!open) {
       resetModal();
+    } else {
+      // When modal opens, clear any cached data to ensure fresh loads
+      if (window.apiService && window.apiService.cacheManager) {
+        window.apiService.cacheManager.invalidate('categories');
+        window.apiService.cacheManager.invalidate('categoryOptions');
+      }
     }
   }, [open]);
 
@@ -86,7 +92,8 @@ const AddCategoryModal = ({ open, onClose, onSuccess }) => {
     setSuccess('');
     
     console.log('Debug: About to call fetchCategoryOptions...');
-    const categoryData = await fetchCategoryOptions(category);
+    // Force refresh to ensure we get the latest data
+    const categoryData = await fetchCategoryOptions(category, true);
     console.log('Debug: fetchCategoryOptions returned:', categoryData);
     
     // Update state with the fresh data immediately

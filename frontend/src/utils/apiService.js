@@ -261,7 +261,23 @@ class ApiService {
   async updateProductWithImages(productId, formData, token) {
     const url = `${this.baseURL}/products/${productId}/images`;
     
+    console.log('=== API SERVICE DEBUG ===');
+    console.log('URL:', url);
+    console.log('ProductId:', productId);
+    console.log('Token:', token ? `${token.substring(0, 10)}...` : 'NO TOKEN');
+    console.log('FormData entries:');
+    
+    // Log FormData contents
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
+    }
+    
     try {
+      console.log('Making request...');
       const response = await fetch(url, {
         method: 'PUT',
         headers: {
@@ -270,9 +286,27 @@ class ApiService {
         body: formData // FormData, don't set Content-Type
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          console.log('Error data:', errorData);
+          errorMessage = errorData.message || errorMessage;
+        } catch (parseError) {
+          console.warn('Failed to parse error response as JSON:', parseError);
+          // Try to get text content for better error reporting
+          try {
+            const errorText = await response.text();
+            console.log('Raw error response:', errorText);
+            errorMessage = errorText || errorMessage;
+          } catch (textError) {
+            console.warn('Failed to get error response as text:', textError);
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();

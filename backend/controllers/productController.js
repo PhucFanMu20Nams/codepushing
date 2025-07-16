@@ -246,16 +246,52 @@ exports.uploadProductWithImages = async (req, res) => {
 // Update product with images (enhanced version)
 exports.updateProductWithImages = async (req, res) => {
   try {
+    console.log('=== CONTROLLER: updateProductWithImages START ===');
+    console.log('Product ID:', req.params.id);
+    console.log('Request headers:', Object.keys(req.headers));
+    console.log('Authorization header:', req.headers.authorization ? 'Present' : 'Missing');
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Body keys:', Object.keys(req.body));
+    console.log('Body sample:', {
+      name: req.body.name,
+      price: req.body.price,
+      existingImages: req.body.existingImages ? `${req.body.existingImages.substring(0, 50)}...` : 'none'
+    });
+    console.log('Files count:', req.files ? req.files.length : 0);
+    
+    if (req.files && req.files.length > 0) {
+      console.log('File details:', req.files.map(f => ({
+        fieldname: f.fieldname,
+        originalname: f.originalname,
+        filename: f.filename,
+        size: f.size,
+        mimetype: f.mimetype
+      })));
+    }
+    
+    console.log('Calling updateProductWithImagesService...');
     const result = await updateProductWithImagesService(req.params.id, req.body, req.files);
     
     if (!result.success) {
+      console.log('Service returned error:', result);
       return res.status(result.statusCode || 500).json(result);
     }
 
+    console.log('Service returned success');
+    console.log('=== CONTROLLER: updateProductWithImages END ===');
     res.json(result);
   } catch (error) {
-    console.error('Error updating product with images:', error);
+    console.error('=== CONTROLLER ERROR ===');
+    console.error('Controller error updating product with images:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
     const errorResponse = handleValidationError(error);
+    console.log('Sending error response:', errorResponse);
+    console.log('=== CONTROLLER ERROR END ===');
     res.status(500).json(errorResponse);
   }
 };

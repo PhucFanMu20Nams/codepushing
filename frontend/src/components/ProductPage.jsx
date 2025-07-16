@@ -397,32 +397,11 @@ function ProductPage() {
           <div className="sidebar-content">
             <div className="category-breadcrumb">
               <span>Category / {currentCategory}</span>
-              <button 
-                onClick={() => {
-                  console.log('Manual refresh triggered');
-                  window.dispatchEvent(new CustomEvent('categoryUpdated', { detail: { manual: true } }));
-                }}
-                style={{ 
-                  marginLeft: '10px', 
-                  padding: '4px 8px', 
-                  fontSize: '12px', 
-                  background: '#007bff', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '3px',
-                  cursor: 'pointer'
-                }}
-              >
-                🔄 Refresh Filters
-              </button>
             </div>
 
             {/* Brand Filter */}
             <div className="filter-group">
               <h3 className="filter-heading">Brand</h3>
-              <div style={{ fontSize: '10px', color: '#666', marginBottom: '5px' }}>
-                Debug: {filterOptions.brands.length} brands loaded | Last updated: {lastUpdated?.toLocaleTimeString() || 'Never'}
-              </div>
               <div className="search-box">
                 <input type="text" placeholder="Search brands..." />
                 <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

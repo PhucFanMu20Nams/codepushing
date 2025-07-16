@@ -319,8 +319,8 @@ function Products() {
         return;
       }
 
-      // Get product ID - prioritize MongoDB _id over custom id
-      const productId = editingProduct._id || editingProduct.id;
+      // Get product ID - prioritize stable custom 'id' over MongoDB '_id'
+      const productId = editingProduct.id || editingProduct._id;
       
       if (!productId) {
         console.error('Product ID error:', editingProduct);
@@ -338,6 +338,17 @@ function Products() {
       
       // Create FormData for images if new images are provided
       if (formData.newImages && formData.newImages.length > 0) {
+        console.log('=== FRONTEND IMAGE UPLOAD DEBUG ===');
+        console.log('Product ID:', productId);
+        console.log('Token exists:', !!token);
+        console.log('Token length:', token ? token.length : 0);
+        console.log('New images count:', formData.newImages.length);
+        console.log('New images details:', formData.newImages.map(img => ({
+          name: img.name,
+          size: img.size,
+          type: img.type
+        })));
+        
         const updateFormData = new FormData();
         
         // Add text fields - ensure proper data types
@@ -345,29 +356,39 @@ function Products() {
         textFields.forEach(field => {
           if (formData[field] !== undefined && formData[field] !== '') {
             updateFormData.append(field, formData[field]);
+            console.log(`Added field ${field}:`, formData[field]);
           }
         });
         
         // Handle arrays properly
         if (formData.sizes && Array.isArray(formData.sizes)) {
-          updateFormData.append('sizes', JSON.stringify(formData.sizes.filter(size => size.trim())));
+          const sizesJson = JSON.stringify(formData.sizes.filter(size => size.trim()));
+          updateFormData.append('sizes', sizesJson);
+          console.log('Added sizes:', sizesJson);
         }
         
         if (formData.details && Array.isArray(formData.details)) {
-          updateFormData.append('details', JSON.stringify(formData.details.filter(detail => detail.label && detail.value)));
+          const detailsJson = JSON.stringify(formData.details.filter(detail => detail.label && detail.value));
+          updateFormData.append('details', detailsJson);
+          console.log('Added details:', detailsJson);
         }
         
         // Add existing images info
         if (formData.existingImages && Array.isArray(formData.existingImages)) {
-          updateFormData.append('existingImages', JSON.stringify(formData.existingImages));
+          const existingImagesJson = JSON.stringify(formData.existingImages);
+          updateFormData.append('existingImages', existingImagesJson);
+          console.log('Added existingImages:', existingImagesJson);
         }
         
         // Add new images
         formData.newImages.forEach((img, idx) => {
           updateFormData.append('images', img);
+          console.log(`Added image ${idx}:`, img.name, img.size, 'bytes');
         });
         
-        console.log('Updating with images...');
+        console.log('About to call updateProductWithImages API...');
+        console.log('=== END FRONTEND DEBUG ===');
+        
         await apiService.updateProductWithImages(productId, updateFormData, token);
       } else {
         // Update without images - clean the data
