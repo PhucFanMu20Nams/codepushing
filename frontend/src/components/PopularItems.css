@@ -24,6 +24,8 @@
   text-transform: uppercase;
   color: #000000;
   letter-spacing: 2px;
+  border-bottom: 2px solid #000000; /* Ensure the underline is black */
+  padding-bottom: 8px;
 }
 
 .section-subtitle {
@@ -31,7 +33,7 @@
   font-weight: 400;
   font-size: 16px;
   text-align: center;
-  color: #666666;
+  color: #000000;
   margin: 0 0 60px 0;
   line-height: 1.4;
 }

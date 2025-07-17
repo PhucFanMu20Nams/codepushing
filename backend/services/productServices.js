@@ -337,19 +337,26 @@ const getProductStatsService = async () => {
  * @returns {Object} Created product or error
  */
 const uploadProductWithImagesService = async (productData, files) => {
-  const {
+  let {
     id, name, brand, price, category, subcategory, type, color, style,
     description, sizes, details
   } = productData;
 
-  // Check if product with this ID already exists
-  const existingProduct = await Product.findOne({ id });
-  if (existingProduct) {
-    return {
-      success: false,
-      message: 'Product with this ID already exists',
-      statusCode: 400
-    };
+  // Auto-generate an ID if not provided (PID-<timestamp>)
+  if (!id) {
+    id = `PID-${Date.now()}`;
+  }
+ 
+  // If ID was provided (or generated), ensure uniqueness only when it exists on other product
+  if (id) {
+    const existingProduct = await Product.findOne({ id });
+    if (existingProduct) {
+      return {
+        success: false,
+        message: 'Product with this ID already exists',
+        statusCode: 400
+      };
+    }
   }
 
   // Process uploaded images using helper function

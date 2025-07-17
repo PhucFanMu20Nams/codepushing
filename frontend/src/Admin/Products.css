@@ -227,8 +227,10 @@
 .add-product-modal {
   max-width: 800px;
   width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
+  height: auto;          /* Override the 50vh height coming from .modal-content */
+  max-height: 90vh;      /* Ensure it never exceeds the viewport */
+  overflow-y: auto;      /* Scroll inside if content is longer */
+  margin: 40px auto;     /* Add some breathing room from the top */
 }
 
 .modal-header {

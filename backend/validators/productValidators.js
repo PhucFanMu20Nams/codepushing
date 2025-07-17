@@ -45,12 +45,12 @@ const validateProductCreation = (productData) => {
  * @returns {Object} Validation result
  */
 const validateProductUpload = (productData) => {
-  const { id, name, brand, price, category } = productData;
+  const { name, brand, price, category } = productData;
   
-  if (!id || !name || !brand || !price || !category) {
+  if (!name || !brand || !price || !category) {
     return {
       isValid: false,
-      message: 'Missing required fields: id, name, brand, price, category'
+      message: 'Missing required fields: name, brand, price, category'
     };
   }
   

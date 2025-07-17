@@ -53,7 +53,6 @@ function AddProductModal({ open, onClose, onSubmit }) {
     const newErrors = {};
     
     // Required field validation
-    if (!formData.id) newErrors.id = true;
     if (!formData.name) newErrors.name = true;
     if (!formData.price) newErrors.price = true;
     if (!formData.category) newErrors.category = true;
@@ -266,15 +265,17 @@ function Products() {
   const handleAddProduct = async (form) => {
     try {
       const formData = new FormData();
-      formData.append('id', form.id);
+      // Auto-generate a unique Product ID (e.g., PID-<timestamp>)
+      const generatedId = `PID-${Date.now()}`;
+      formData.append('id', generatedId);
       formData.append('name', form.name);
       formData.append('brand', form.brand);
       formData.append('price', form.price);
       formData.append('category', form.category);
       form.images.forEach((img, idx) => {
-        // Đổi tên file: id-1.jpg, id-2.jpg,...
+        // Rename file using the generated ID so files stay unique
         const ext = img.name.split('.').pop();
-        const file = new File([img], `${form.id}-${idx + 1}.${ext}`, { type: img.type });
+        const file = new File([img], `${generatedId}-${idx + 1}.${ext}`, { type: img.type });
         formData.append('images', file);
       });
 

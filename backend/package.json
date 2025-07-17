@@ -5,37 +5,21 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "check-db": "node scripts/check-mongodb.js",
-    "seed": "node scripts/seed-mongodb.js",
-    "create-admin": "node scripts/create-admin.js",
-    "init-categories": "node scripts/init-categories.js",
-    "migrate-categories": "node scripts/migrate-categories.js",
-    "seed-categories": "node scripts/seed-categories.js",
-    "verify-categories": "node scripts/verify-categories.js",
-    "migrate": "npm run seed",
-    "test-mongo": "node scripts/test-mongo-products.js",
-    "setup": "npm run seed && npm run init-categories",
-    "setup-dev": "npm run setup && npm run dev",
-    "full-setup": "npm install && npm run setup && npm run verify-categories"
+    "setup-and-run": "npm install && node scripts/init-categories-simple.js && node scripts/verify-categories.js && npm run dev",
+    "quick-start": "node scripts/init-categories-simple.js && npm run dev",
+    "verify": "node scripts/verify-categories.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.2",
-    "compression": "^1.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^5.1.0",
-    "express-rate-limit": "^7.5.1",
-    "express-validator": "^7.2.1",
-    "form-data": "^4.0.3",
-    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.2",
-    "multer": "^2.0.1",
-    "node-fetch": "^2.7.0",
-    "sharp": "^0.34.2"
+    "multer": "^2.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

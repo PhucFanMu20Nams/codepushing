@@ -215,20 +215,7 @@ const DynamicProductForm = ({
       <div className="form-section">
         <h4 className="section-title">Basic Information</h4>
         
-        {/* Product ID */}
-        <div className="form-field">
-          <label className="form-label">
-            Product ID <span className="required">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.id || ''}
-            onChange={(e) => handleInputChange('id', e.target.value)}
-            placeholder="Enter unique product ID"
-            className={`form-input ${errors.id ? 'error' : ''}`}
-          />
-          {errors.id && <div className="form-error">Product ID is required</div>}
-        </div>
+        {/* Product ID field removed – ID will be auto-generated on submit */}
 
         {/* Product Name */}
         <div className="form-field">
