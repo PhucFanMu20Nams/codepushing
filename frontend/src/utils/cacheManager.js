@@ -295,7 +295,7 @@ class CacheManager {
    */
   async preloadData(apiService, categories = []) {
     if (!Array.isArray(categories) || categories.length === 0) {
-      categories = ['Clothing', 'Footwear', 'Accessories', 'Service'];
+      categories = ['Clothes', 'Footwear', 'Accessories', 'Service'];
     }
     
     console.log('Starting preload for categories:', categories);

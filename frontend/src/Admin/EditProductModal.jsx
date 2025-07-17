@@ -122,7 +122,7 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
       // Set default fallback options
       setFieldOptions({
         brands: ['Nike', 'Adidas'],
-        categories: ['Footwear', 'Clothing', 'Accessories'],
+        categories: ['Footwear', 'Clothes', 'Accessories'],
         subcategories: ['Men', 'Women', 'Kids'],
         types: ['Sneaker', 'Shirt', 'T-Shirt', 'Pants', 'Jacket'],
         colors: ['White', 'Black', 'Red', 'Blue', 'Green', 'Gray'],

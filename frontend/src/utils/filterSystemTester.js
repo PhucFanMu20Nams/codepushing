@@ -52,8 +52,8 @@ class FilterSystemTester {
         method: 'GET'
       },
       {
-        name: 'Clothing Category Options',
-        url: `${this.baseURL}/products/category-options/Clothing`,
+        name: 'Clothes Category Options',
+        url: `${this.baseURL}/products/category-options/Clothes`,
         method: 'GET'
       },
       {
@@ -156,7 +156,7 @@ class FilterSystemTester {
       
       try {
         // Test category-specific options
-        const categories = ['Clothing', 'Footwear', 'Accessories', 'Service'];
+        const categories = ['Clothes', 'Footwear', 'Accessories', 'Service'];
         
         for (const category of categories) {
           const startTime = performance.now();
@@ -194,8 +194,8 @@ class FilterSystemTester {
         test: () => fetch(`${this.baseURL}/products/category-options`)
       },
       {
-        name: 'Single Category - Clothing',
-        test: () => fetch(`${this.baseURL}/products/category-options/Clothing`)
+        name: 'Single Category - Clothes',
+        test: () => fetch(`${this.baseURL}/products/category-options/Clothes`)
       },
       {
         name: 'Single Category - Footwear',
@@ -283,7 +283,7 @@ class FilterSystemTester {
     try {
       // Test cold cache
       const startCold = performance.now();
-      const coldResponse = await fetch(`${this.baseURL}/products/category-options/Clothing`);
+      const coldResponse = await fetch(`${this.baseURL}/products/category-options/Clothes`);
       const coldTime = performance.now() - startCold;
       
       if (coldResponse.ok) {
@@ -292,7 +292,7 @@ class FilterSystemTester {
         
         // Test subsequent requests (should be faster if cached)
         const startWarm = performance.now();
-        const warmResponse = await fetch(`${this.baseURL}/products/category-options/Clothing`);
+        const warmResponse = await fetch(`${this.baseURL}/products/category-options/Clothes`);
         const warmTime = performance.now() - startWarm;
         
         if (warmResponse.ok) {

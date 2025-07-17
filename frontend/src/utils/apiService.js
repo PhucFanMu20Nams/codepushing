@@ -572,7 +572,7 @@ class ApiService {
    */
   async preloadCategoryOptions(categories) {
     if (!Array.isArray(categories)) {
-      categories = ['Clothing', 'Footwear', 'Accessories', 'Service'];
+      categories = ['Clothes', 'Footwear', 'Accessories', 'Service'];
     }
     
     console.log('Preloading category options for:', categories);
