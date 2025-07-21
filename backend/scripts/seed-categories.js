@@ -84,10 +84,8 @@ const DEFAULT_CATEGORIES = {
 // Connect to MongoDB
 async function connectDB() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/codepushing', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    // Remove deprecated options - they're no longer needed in Mongoose 6+
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/textura_db');
     console.log('✅ Connected to MongoDB for category seeding');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);

@@ -190,23 +190,20 @@ function ProductPage() {
   // Map category names for compatibility
   const getCategoryMappedName = (category) => {
     switch (category) {
-      case 'Clothes':
-      case 'Clothing': // legacy fallback
-        return 'Clothes';
+      case 'Clothing': return 'Clothes';
       case 'Footwear': return 'Footwear';
       case 'Accessories': return 'Accessories';
-      case 'Service': return 'Service';
       default: return 'Clothes';
     }
   };
 
   const getCurrentCategory = () => {
     const path = location.pathname;
-    if (path.includes('/clothes')) return 'Clothes';
+    if (path.includes('/clothes')) return 'Clothing';
     if (path.includes('/footwear')) return 'Footwear';
     if (path.includes('/accessories')) return 'Accessories';
     if (path.includes('/service')) return 'Service';
-    return 'Clothes'; // Default
+    return 'Clothing'; // Default
   };
 
   const currentCategory = getCurrentCategory();
@@ -262,7 +259,7 @@ function ProductPage() {
 
   // Preload category options for better UX (run once on mount)
   useEffect(() => {
-    const preloadCategories = ['Clothes', 'Footwear', 'Accessories', 'Service'];
+    const preloadCategories = ['Clothing', 'Footwear', 'Accessories', 'Service'];
     const categoriesToPreload = preloadCategories.filter(cat => cat !== currentCategory);
     
     if (categoriesToPreload.length > 0) {

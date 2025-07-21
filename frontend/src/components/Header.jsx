@@ -43,7 +43,7 @@ function Header() {
   const fetchSearchResults = async (query) => {
     try {
       const data = await apiService.searchProducts(query, { limit: 5 });
-      setSearchResults(data.products || []);
+      setSearchResults(data.data || []);
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
@@ -135,9 +135,9 @@ function Header() {
                     <ul className="header-product-results">
                       {searchResults.map(product => (
                         <li 
-                          key={product.id} 
+                          key={product.id || product._id} 
                           className="header-product-result-item"
-                          onClick={() => handleProductClick(product.id)}
+                          onClick={() => handleProductClick(product.id || product._id)}
                         >
                           <div className="header-product-result-image">
                             <img src={getImageUrl(product.image)} alt={product.name} />

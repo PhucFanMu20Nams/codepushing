@@ -69,6 +69,11 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
       
       console.log('EditProductModal: Setting gallery images:', gallery);
       setExistingImages(gallery);
+      
+      // If product has a category, fetch its specific options immediately
+      if (product.category) {
+        fetchCategorySpecificOptions(product.category);
+      }
     } else if (!open) {
       // Reset form when modal closes
       setForm({
@@ -153,12 +158,19 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
       setLoadingCategoryOptions(true);
       const response = await apiService.getCategorySpecificOptions(category);
       console.log('Category-specific options response:', response);
-      if (response.success) {
+      if (response.success && response.data) {
         setCategoryOptions(prev => ({
           ...prev,
-          [category]: response.data
+          [category]: response.data // The data is the options object
         }));
         console.log('Category-specific options set for', category, ':', response.data);
+      } else {
+        console.error('Invalid response structure:', response);
+        // Set empty options to prevent errors
+        setCategoryOptions(prev => ({
+          ...prev,
+          [category]: { brands: [], types: [], colors: [], styles: [], subcategories: [] }
+        }));
       }
     } catch (error) {
       console.error('Failed to fetch category-specific options:', error);
@@ -169,10 +181,27 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
 
   // Helper function to get options for current category
   const getCurrentCategoryOptions = () => {
-    if (!form.category || !categoryOptions[form.category]) {
-      return fieldOptions; // Fallback to all options
+    console.log('getCurrentCategoryOptions called:', {
+      category: form.category,
+      hasCategoryOptions: !!categoryOptions[form.category],
+      categoryOptionsKeys: Object.keys(categoryOptions),
+      categoryData: categoryOptions[form.category]
+    });
+    
+    if (!form.category) {
+      return { brands: [], types: [], colors: [], styles: [], subcategories: [] };
     }
-    return categoryOptions[form.category];
+    
+    // Check if we have category-specific options
+    if (categoryOptions[form.category]) {
+      const options = categoryOptions[form.category];
+      console.log('Using category-specific options:', options);
+      return options;
+    }
+    
+    // Fallback to general field options if category-specific are not loaded
+    console.log('Using fallback field options:', fieldOptions);
+    return fieldOptions;
   };
 
   const handleChange = (e) => {
@@ -184,7 +213,7 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
       setErrors(prev => ({ ...prev, [name]: false }));
     }
 
-    // When category changes, reset category-dependent fields
+    // When category changes, reset category-dependent fields and fetch options
     if (name === 'category') {
       setForm(prev => ({
         ...prev,
@@ -195,6 +224,11 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
         style: '',
         subcategory: ''
       }));
+      
+      // Immediately fetch category-specific options
+      if (value) {
+        fetchCategorySpecificOptions(value);
+      }
     }
   };
 
@@ -314,11 +348,13 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
     }
 
     try {
-      await onSubmit({
+      const submitData = {
         ...form,
         price: parseFloat(form.price),
         existingImages: existingImages
-      });
+      };
+      console.log('EditProductModal: Submitting data:', submitData);
+      await onSubmit(submitData);
       setLoading(false);
     } catch (error) {
       console.error('Error updating product:', error);
@@ -373,14 +409,19 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   <option value="">
                     {!form.category ? 'Select Category First' : 'Select Brand'}
                   </option>
-                  {form.category && getCurrentCategoryOptions().brands?.map(brand => (
-                    <option key={brand} value={brand}>{brand}</option>
-                  ))}
+                  {form.category && getCurrentCategoryOptions().brands?.map(brand => {
+                    console.log('Rendering brand option:', brand);
+                    return <option key={brand} value={brand}>{brand}</option>;
+                  })}
                 </select>
                 {errors.brand && <span className="error-msg">Required</span>}
                 {!form.category && (
                   <span className="info-msg">Please select a category first to see available brands</span>
                 )}
+                <small style={{color: '#666', fontSize: '12px'}}>
+                  Debug: Category={form.category}, Loading={loadingCategoryOptions}, 
+                  Brands={getCurrentCategoryOptions().brands?.length || 0}
+                </small>
               </div>
 
               <div className="form-group">
@@ -430,10 +471,14 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   <option value="">
                     {!form.category ? 'Select Category First' : 'Select Subcategory'}
                   </option>
-                  {form.category && getCurrentCategoryOptions().subcategories?.map(subcategory => (
-                    <option key={subcategory} value={subcategory}>{subcategory}</option>
-                  ))}
+                  {form.category && getCurrentCategoryOptions().subcategories?.map(subcategory => {
+                    console.log('Rendering subcategory option:', subcategory);
+                    return <option key={subcategory} value={subcategory}>{subcategory}</option>;
+                  })}
                 </select>
+                <small style={{color: '#666', fontSize: '12px'}}>
+                  Debug: Subcategories={getCurrentCategoryOptions().subcategories?.length || 0}
+                </small>
               </div>
 
               <div className="form-group">
@@ -447,10 +492,14 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   <option value="">
                     {!form.category ? 'Select Category First' : 'Select Type'}
                   </option>
-                  {form.category && getCurrentCategoryOptions().types?.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
+                  {form.category && getCurrentCategoryOptions().types?.map(type => {
+                    console.log('Rendering type option:', type);
+                    return <option key={type} value={type}>{type}</option>;
+                  })}
                 </select>
+                <small style={{color: '#666', fontSize: '12px'}}>
+                  Debug: Types={getCurrentCategoryOptions().types?.length || 0}
+                </small>
               </div>
 
               <div className="form-group">
@@ -464,10 +513,14 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   <option value="">
                     {!form.category ? 'Select Category First' : 'Select Color'}
                   </option>
-                  {form.category && getCurrentCategoryOptions().colors?.map(color => (
-                    <option key={color} value={color}>{color}</option>
-                  ))}
+                  {form.category && getCurrentCategoryOptions().colors?.map(color => {
+                    console.log('Rendering color option:', color);
+                    return <option key={color} value={color}>{color}</option>;
+                  })}
                 </select>
+                <small style={{color: '#666', fontSize: '12px'}}>
+                  Debug: Colors={getCurrentCategoryOptions().colors?.length || 0}
+                </small>
               </div>
 
               <div className="form-group">
@@ -481,10 +534,14 @@ function EditProductModal({ open, onClose, onSubmit, product }) {
                   <option value="">
                     {!form.category ? 'Select Category First' : 'Select Style'}
                   </option>
-                  {form.category && getCurrentCategoryOptions().styles?.map(style => (
-                    <option key={style} value={style}>{style}</option>
-                  ))}
+                  {form.category && getCurrentCategoryOptions().styles?.map(style => {
+                    console.log('Rendering style option:', style);
+                    return <option key={style} value={style}>{style}</option>;
+                  })}
                 </select>
+                <small style={{color: '#666', fontSize: '12px'}}>
+                  Debug: Styles={getCurrentCategoryOptions().styles?.length || 0}
+                </small>
               </div>
 
               <div className="form-group">

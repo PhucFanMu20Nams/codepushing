@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ModalProvider } from './context/ModalContext';
 import { FilterProvider } from './context/FilterContext';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import './index.css';
 import './App.css';
 import Header from './components/Header';
@@ -13,6 +15,7 @@ import ProductDetail from './components/ProductDetail';
 import InboxModal from './components/InboxModal';
 import SearchResults from './components/SearchResults';
 import ProductPage from './components/ProductPage';
+import ServicePage from './components/ServicePage';
 import FilterUpdateNotification from './components/FilterUpdateNotification';
 import Login from './Admin/Login';
 import Dashboard from './Admin/Dashboard'; 
@@ -34,7 +37,7 @@ function AppContent() {
         await apiService.getProducts();
       } catch (error) {
         // Silent error handling for users
-        console.error('Failed to initialize app data:', error);
+        // console.error('Failed to initialize app data:', error);
       }
     };
 
@@ -46,13 +49,13 @@ function AppContent() {
       
       // Only log cache stats for admin users
       if (window.location.pathname.startsWith('/admin')) {
-        console.log('Cache stats:', stats);
+        // console.log('Cache stats:', stats);
       }
       
       // If cache is getting too large, clean up silently
       if (stats.totalSizeKB > 5000) { // 5MB threshold
         if (window.location.pathname.startsWith('/admin')) {
-          console.log('Cache size threshold reached, cleaning up...');
+          // console.log('Cache size threshold reached, cleaning up...');
         }
         // The cleanup is already handled automatically in the cache manager
       }
@@ -80,11 +83,25 @@ function AppContent() {
           <Route path="/clothes" element={<ProductPage />} />
           <Route path="/footwear" element={<ProductPage />} />
           <Route path="/accessories" element={<ProductPage />} />
-          <Route path="/service" element={<ProductPage />} />
+          <Route path="/service" element={<ServicePage />} />
           <Route path="/search" element={<SearchResults />} />
           <Route path="/admin/login" element={<Login />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/products" element={<Products />} />
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/products" element={
+            <ProtectedRoute>
+              <Products />
+            </ProtectedRoute>
+          } />
+          {/* Catch-all route for admin - redirect to login or dashboard */}
+          <Route path="/admin/*" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/PD*" element={<ProductDetail />} />
         </Routes>
@@ -92,20 +109,21 @@ function AppContent() {
       {!hideHeaderFooter && <Footer />}
       {showModal && <Modal onClose={() => setShowModal(false)} />}
       <InboxModal />
-      <FilterUpdateNotification />
     </div>
   );
 }
 
 function App() {
   return (
-    <ModalProvider>
-      <FilterProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </FilterProvider>
-    </ModalProvider>
+    <AuthProvider>
+      <ModalProvider>
+        <FilterProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </FilterProvider>
+      </ModalProvider>
+    </AuthProvider>
   );
 }
 

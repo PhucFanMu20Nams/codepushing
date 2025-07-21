@@ -15,21 +15,22 @@ class ApiService {
    * Generic fetch with caching
    */
   async fetchWithCache(url, options = {}, cacheType = null, cacheParams = {}) {
-    console.log('fetchWithCache called:', { url, cacheType, cacheParams });
+    // Development logging - commented out for production
+    // console.log('fetchWithCache called:', { url, cacheType, cacheParams });
     
     // Check cache first for GET requests
     if ((!options.method || options.method === 'GET') && cacheType) {
       const cached = cacheManager.get(cacheType, cacheParams);
       if (cached) {
-        console.log('Cache hit for:', { url, cacheType });
+        // console.log('Cache hit for:', { url, cacheType });
         return cached;
       } else {
-        console.log('Cache miss for:', { url, cacheType });
+        // console.log('Cache miss for:', { url, cacheType });
       }
     }
 
     try {
-      console.log('Making API request to:', url);
+      // console.log('Making API request to:', url);
       const response = await fetch(url, {
         ...options,
         headers: {
@@ -38,24 +39,26 @@ class ApiService {
         }
       });
 
-      console.log('Response status:', response.status, 'for', url);
+      // console.log('Response status:', response.status, 'for', url);
 
       if (!response.ok) {
+        // Keep error logs for debugging issues
         console.error('Response not ok:', response.status, 'for', url);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Response data for', url, ':', data);
+      // console.log('Response data for', url, ':', data);
 
       // Cache successful GET responses
       if ((!options.method || options.method === 'GET') && cacheType) {
         cacheManager.set(cacheType, data, cacheParams);
-        console.log('Cached response for:', { url, cacheType });
+        // console.log('Cached response for:', { url, cacheType });
       }
 
       return data;
     } catch (error) {
+      // Keep error logs for debugging issues
       console.error('API request failed for', url, ':', error);
       throw error;
     }
@@ -261,23 +264,24 @@ class ApiService {
   async updateProductWithImages(productId, formData, token) {
     const url = `${this.baseURL}/products/${productId}/images`;
     
-    console.log('=== API SERVICE DEBUG ===');
-    console.log('URL:', url);
-    console.log('ProductId:', productId);
-    console.log('Token:', token ? `${token.substring(0, 10)}...` : 'NO TOKEN');
-    console.log('FormData entries:');
+    // Debug logging disabled for production
+    // console.log('=== API SERVICE DEBUG ===');
+    // console.log('URL:', url);
+    // console.log('ProductId:', productId);
+    // console.log('Token:', token ? `${token.substring(0, 10)}...` : 'NO TOKEN');
+    // console.log('FormData entries:');
     
     // Log FormData contents
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
-      } else {
-        console.log(`  ${key}: ${value}`);
-      }
-    }
+    // for (let [key, value] of formData.entries()) {
+    //   if (value instanceof File) {
+    //     console.log(`  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
+    //   } else {
+    //     console.log(`  ${key}: ${value}`);
+    //   }
+    // }
     
     try {
-      console.log('Making request...');
+      // console.log('Making request...');
       const response = await fetch(url, {
         method: 'PUT',
         headers: {
@@ -286,24 +290,24 @@ class ApiService {
         body: formData // FormData, don't set Content-Type
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
+      // console.log('Response status:', response.status);
+      // console.log('Response ok:', response.ok);
 
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
           const errorData = await response.json();
-          console.log('Error data:', errorData);
+          // console.log('Error data:', errorData);
           errorMessage = errorData.message || errorMessage;
         } catch (parseError) {
-          console.warn('Failed to parse error response as JSON:', parseError);
+          // console.warn('Failed to parse error response as JSON:', parseError);
           // Try to get text content for better error reporting
           try {
             const errorText = await response.text();
-            console.log('Raw error response:', errorText);
+            // console.log('Raw error response:', errorText);
             errorMessage = errorText || errorMessage;
           } catch (textError) {
-            console.warn('Failed to get error response as text:', textError);
+            // console.warn('Failed to get error response as text:', textError);
           }
         }
         throw new Error(errorMessage);
@@ -346,7 +350,7 @@ class ApiService {
     
     // Only log for admin users - silent for regular users
     if (window.location.pathname.startsWith('/admin')) {
-      console.log('Product caches invalidated', productId ? `for product: ${productId}` : '(all)');
+      // console.log('Product caches invalidated', productId ? `for product: ${productId}` : '(all)');
     }
   }
 

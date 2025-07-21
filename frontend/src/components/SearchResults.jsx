@@ -23,9 +23,9 @@ const SearchResults = () => {
     setLoading(true);
     try {
       const data = await apiService.searchProducts(query, { page, limit: 12 });
-      setProducts(data.products || []);
-      setTotalPages(data.pages || 0);
-      setTotalResults(data.total || 0);
+      setProducts(data.data || []);
+      setTotalPages(data.pagination?.pages || 0);
+      setTotalResults(data.pagination?.total || 0);
     } catch (error) {
       console.error('Search results error:', error);
       setProducts([]);
@@ -65,7 +65,7 @@ const SearchResults = () => {
           <>
             <div className="product-grid">
               {products.map(product => (
-                <Link to={`/product/${product.id}`} key={product.id} className="product-card">
+                <Link to={`/product/${product.id || product._id}`} key={product.id || product._id} className="product-card">
                   <div className="product-image">
                     <img 
                       src={getImageUrl(product.image)} 

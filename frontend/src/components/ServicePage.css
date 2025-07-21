@@ -1,0 +1,58 @@
+/* ServicePage.css */
+.service-page {
+  min-height: calc(100vh - 200px); /* Adjust based on your header/footer height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 40px 20px;
+}
+
+.service-content {
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+}
+
+.service-message h1 {
+  font-size: 2.5rem;
+  color: #333;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Add some subtle animation */
+.service-message {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .service-message h1 {
+    font-size: 2rem;
+  }
+  
+  .service-page {
+    padding: 20px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-message h1 {
+    font-size: 1.8rem;
+  }
+}

@@ -223,3 +223,47 @@ exports.changePassword = async (req, res) => {
     });
   }
 };
+
+// Verify JWT token
+exports.verifyToken = async (req, res) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'No token provided'
+      });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, config.JWT_SECRET);
+    
+    // Get admin from database
+    const admin = await Admin.findById(decoded.id).select('-password');
+    
+    if (!admin || !admin.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token or admin not active'
+      });
+    }
+
+    res.json({
+      success: true,
+      admin: {
+        id: admin._id,
+        username: admin.username,
+        role: admin.role,
+        lastLogin: admin.lastLogin
+      }
+    });
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(401).json({
+      success: false,
+      message: 'Invalid token',
+      error: error.message
+    });
+  }
+};

@@ -355,9 +355,13 @@ function Products() {
         // Add text fields - ensure proper data types
         const textFields = ['name', 'brand', 'price', 'category', 'subcategory', 'type', 'color', 'style', 'description'];
         textFields.forEach(field => {
-          if (formData[field] !== undefined && formData[field] !== '') {
-            updateFormData.append(field, formData[field]);
-            console.log(`Added field ${field}:`, formData[field]);
+          if (formData[field] !== undefined && formData[field] !== null) {
+            // Convert to string and trim whitespace
+            const value = String(formData[field]).trim();
+            if (value !== '') {
+              updateFormData.append(field, value);
+              console.log(`Added field ${field}:`, value);
+            }
           }
         });
         
@@ -401,11 +405,16 @@ function Products() {
         };
         
         // Add optional fields only if they have values
-        if (formData.subcategory) updateData.subcategory = formData.subcategory;
-        if (formData.type) updateData.type = formData.type;
-        if (formData.color) updateData.color = formData.color;
-        if (formData.style) updateData.style = formData.style;
-        if (formData.description) updateData.description = formData.description;
+        if (formData.subcategory && formData.subcategory.trim()) updateData.subcategory = formData.subcategory;
+        if (formData.type && formData.type.trim()) updateData.type = formData.type;
+        if (formData.color && formData.color.trim()) updateData.color = formData.color;
+        if (formData.style && formData.style.trim()) updateData.style = formData.style;
+        if (formData.description && formData.description.trim()) updateData.description = formData.description;
+        
+        console.log('=== UPDATE DATA DEBUG ===');
+        console.log('Original formData:', formData);
+        console.log('Cleaned updateData:', updateData);
+        console.log('========================');
         
         // Handle arrays
         if (formData.sizes && Array.isArray(formData.sizes)) {

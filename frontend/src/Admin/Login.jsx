@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
 function Login() {
@@ -9,6 +10,17 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { login, isAuthenticated } = useAuth();
+
+  // Get the intended destination from location state
+  const from = location.state?.from?.pathname || '/admin/dashboard';
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   // Reset form mỗi khi vào lại trang login
   useEffect(() => {
@@ -16,7 +28,7 @@ function Login() {
     setPassword('');
     setError('');
     setIsLoading(false);
-    console.log('Reset login form');
+    // console.log('Reset login form');
   }, [location.pathname]);
 
   const handleSubmit = async (e) => {
@@ -25,29 +37,18 @@ function Login() {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password })
-      });
+      const result = await login(username, password);
       
-      const data = await response.json();
-      
-      if (data.success) {
-        // Save token to localStorage
-        localStorage.setItem('adminToken', data.data.token);
-        localStorage.setItem('adminUsername', data.data.admin.username);
+      if (result.success) {
         setError('');
-        navigate('/admin/dashboard');
+        navigate(from, { replace: true });
       } else {
-        setError(data.error?.message || 'Login failed');
+        setError(result.error);
         setPassword(''); // Clear password field after wrong attempt
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError('Connection error. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
       setPassword('');
     } finally {
       setIsLoading(false);
@@ -67,6 +68,7 @@ function Login() {
               value={username}
               onChange={e => setUsername(e.target.value)}
               autoComplete="off"
+              disabled={isLoading}
             />
           </div>
           <div className="login-field">
@@ -76,10 +78,13 @@ function Login() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               autoComplete="off"
+              disabled={isLoading}
             />
           </div>
           {error && <div className="login-error">{error}</div>}
-          <button type="submit" className="login-btn">Login</button>
+          <button type="submit" className="login-btn" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Login'}
+          </button>
         </form>
       </div>
     </div>
