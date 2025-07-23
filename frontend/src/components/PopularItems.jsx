@@ -15,7 +15,7 @@ function PopularItems() {
         setLoading(true);
         // Use limit=6 to get just enough products for the popular items section
         const response = await apiService.getProducts({ limit: 6 });
-        console.log('Products data from API:', response);
+        // console.log('Products data from API:', response);
         
         // Check the structure of the response and extract products accordingly
         if (response.data && Array.isArray(response.data)) {
@@ -23,12 +23,12 @@ function PopularItems() {
         } else if (response.products && Array.isArray(response.products)) {
           setProducts(response.products);
         } else {
-          console.warn('Unexpected API response structure:', response);
+          // console.warn('Unexpected API response structure:', response);
           setError('Unexpected API response structure');
           // Don't fall back to sample products immediately
         }
       } catch (error) {
-        console.error('Error fetching products:', error);
+        // console.error('Error fetching products:', error);
         setError('Failed to load products from server');
       } finally {
         setLoading(false);

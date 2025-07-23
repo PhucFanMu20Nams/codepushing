@@ -33,7 +33,7 @@ export const FilterProvider = ({ children }) => {
       
       const response = await apiService.getCategories();
       
-      console.log('FilterContext: Loading category filters...', response);
+      // console.log('FilterContext: Loading category filters...', response);
       
       if (response.success && response.data) {
         const newFilters = {};
@@ -46,7 +46,7 @@ export const FilterProvider = ({ children }) => {
           };
         });
         
-        console.log('FilterContext: New filters loaded:', newFilters);
+        // console.log('FilterContext: New filters loaded:', newFilters);
         setCategoryFilters(newFilters);
         setLastUpdated(new Date());
       }

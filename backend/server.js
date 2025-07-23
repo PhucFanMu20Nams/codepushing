@@ -8,14 +8,15 @@ require('dotenv').config();
 
 // Add request logging middleware for debugging
 const logRequests = (req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  if (req.method === 'PUT' && req.url.includes('/images')) {
-    console.log('PUT /images request details:', {
-      headers: Object.keys(req.headers),
-      contentType: req.headers['content-type'],
-      contentLength: req.headers['content-length']
-    });
-  }
+  // For production, comment out console logs
+  // console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  // if (req.method === 'PUT' && req.url.includes('/images')) {
+  //   console.log('PUT /images request details:', {
+  //     headers: Object.keys(req.headers),
+  //     contentType: req.headers['content-type'],
+  //     contentLength: req.headers['content-length']
+  //   });
+  // }
   next();
 };
 
@@ -47,7 +48,7 @@ const corsOptions = {
     if (CORS_ORIGINS.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
+      // console.log('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -84,16 +85,16 @@ app.get('/api/health', (req, res) => {
 app.get('/api/debug/category-options', async (req, res) => {
   try {
     const { getAllCategoryOptionsService } = require('./services/productServices');
-    console.log('Debug: Testing getAllCategoryOptionsService...');
+    // console.log('Debug: Testing getAllCategoryOptionsService...');
     const result = await getAllCategoryOptionsService();
-    console.log('Debug: Result:', result);
+    // console.log('Debug: Result:', result);
     res.json({
       success: true,
       debug: true,
       result: result
     });
   } catch (error) {
-    console.error('Debug: Error in getAllCategoryOptionsService:', error);
+    // console.error('Debug: Error in getAllCategoryOptionsService:', error);
     res.status(500).json({
       success: false,
       debug: true,
@@ -106,9 +107,9 @@ app.get('/api/debug/category-options', async (req, res) => {
 // Debug endpoint for testing authentication
 app.post('/api/debug/test-auth', async (req, res) => {
   try {
-    console.log('=== TEST AUTH DEBUG ===');
-    console.log('Headers:', req.headers);
-    console.log('Authorization header:', req.headers.authorization);
+    // console.log('=== TEST AUTH DEBUG ===');
+    // console.log('Headers:', req.headers);
+    // console.log('Authorization header:', req.headers.authorization);
     
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -120,14 +121,14 @@ app.post('/api/debug/test-auth', async (req, res) => {
     }
 
     const token = authHeader.substring(7);
-    console.log('Token length:', token.length);
+    // console.log('Token length:', token.length);
     
     const config = require('./config/db.config');
     const jwt = require('jsonwebtoken');
     
     try {
       const decoded = jwt.verify(token, config.JWT_SECRET);
-      console.log('Token decoded successfully:', decoded);
+      // console.log('Token decoded successfully:', decoded);
       
       res.json({
         success: true,
@@ -135,7 +136,7 @@ app.post('/api/debug/test-auth', async (req, res) => {
         decoded: decoded
       });
     } catch (jwtError) {
-      console.error('JWT verification failed:', jwtError.message);
+      // console.error('JWT verification failed:', jwtError.message);
       res.status(401).json({
         success: false,
         message: 'Token verification failed',
@@ -143,7 +144,7 @@ app.post('/api/debug/test-auth', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Auth test error:', error);
+    // console.error('Auth test error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -153,7 +154,7 @@ app.post('/api/debug/test-auth', async (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  // console.error(err.stack);
   res.status(500).json({ 
     success: false,
     message: 'Something went wrong!',
@@ -165,13 +166,13 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   try {
     await db.connectDB();
-    console.log('MongoDB connection established');
+    // console.log('MongoDB connection established');
     
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      // console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error('Unable to connect to MongoDB:', error);
+    // console.error('Unable to connect to MongoDB:', error);
     process.exit(1);
   }
 };

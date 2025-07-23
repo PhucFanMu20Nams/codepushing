@@ -54,7 +54,7 @@ exports.loginAdmin = async (req, res) => {
       message: 'Login successful'
     });
   } catch (error) {
-    console.error('Login error:', error);
+    // console.error('Login error:', error);
     res.status(500).json({
       success: false,
       message: 'Login failed',
@@ -98,7 +98,7 @@ exports.registerAdmin = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    // console.error('Registration error:', error);
     res.status(400).json({
       success: false,
       message: 'Registration failed',
@@ -136,7 +136,7 @@ exports.verifyToken = async (req, res, next) => {
     req.admin = admin;
     next();
   } catch (error) {
-    console.error('Token verification error:', error);
+    // console.error('Token verification error:', error);
     res.status(401).json({
       success: false,
       message: 'Invalid token'
@@ -154,7 +154,7 @@ exports.getProfile = async (req, res) => {
       data: admin
     });
   } catch (error) {
-    console.error('Error fetching profile:', error);
+    // console.error('Error fetching profile:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching profile',
@@ -180,7 +180,7 @@ exports.updateProfile = async (req, res) => {
       message: 'Profile updated successfully'
     });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    // console.error('Error updating profile:', error);
     res.status(400).json({
       success: false,
       message: 'Error updating profile',
@@ -215,7 +215,7 @@ exports.changePassword = async (req, res) => {
       message: 'Password changed successfully'
     });
   } catch (error) {
-    console.error('Error changing password:', error);
+    // console.error('Error changing password:', error);
     res.status(400).json({
       success: false,
       message: 'Error changing password',
@@ -259,7 +259,7 @@ exports.verifyToken = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Token verification error:', error);
+    // console.error('Token verification error:', error);
     res.status(401).json({
       success: false,
       message: 'Invalid token',
