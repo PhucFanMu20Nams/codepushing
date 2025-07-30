@@ -32,8 +32,11 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
+      // Get API URL from environment
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      
       // Verify token with backend
-      const response = await fetch('http://localhost:5000/api/auth/verify', {
+      const response = await fetch(`${apiUrl}/api/auth/verify`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -67,7 +70,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      // Get API URL from environment
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

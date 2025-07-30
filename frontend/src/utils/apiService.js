@@ -7,7 +7,9 @@ import cacheManager from './cacheManager.js';
 
 class ApiService {
   constructor() {
-    this.baseURL = 'http://localhost:5000/api';
+    // Use environment variable with fallback for development
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    this.baseURL = `${apiUrl}/api`;
     this.cacheManager = cacheManager; // Expose cache manager for debugging
   }
 

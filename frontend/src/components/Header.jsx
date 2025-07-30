@@ -70,7 +70,10 @@ function Header() {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/placeholder-image.jpg';
     if (imagePath.startsWith('http')) return imagePath;
-    return `http://localhost:5000${imagePath.startsWith('/') ? imagePath : `/${imagePath}`}`;
+    
+    // Get API URL from environment
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    return `${apiUrl}${imagePath.startsWith('/') ? imagePath : `/${imagePath}`}`;
   };
 
   return (

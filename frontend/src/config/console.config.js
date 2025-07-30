@@ -1,18 +1,18 @@
 // Production configuration for console logging
 const isProduction = import.meta.env.PROD || process.env.NODE_ENV === 'production';
 
-// Override console methods for cleaner production output
+// Override console methods in production
 if (isProduction) {
-  // Keep original methods for critical logging
+  // Keep error and warn for important issues
   const originalError = console.error;
   const originalWarn = console.warn;
   
-  // Completely disable development logs in production
+  // Disable info and debug logs in production
   console.log = () => {};
   console.debug = () => {};
   console.info = () => {};
   
-  // Filter errors to only show critical ones
+  // Keep errors but filter out development-only errors
   console.error = (...args) => {
     const message = args.join(' ');
     // Only log critical errors, not development debugging
@@ -20,42 +20,17 @@ if (isProduction) {
         !message.includes('Cache miss') && 
         !message.includes('Response status:') &&
         !message.includes('Making API request') &&
-        !message.includes('Response data for') &&
-        !message.includes('Products data from API') &&
-        !message.includes('FilterContext:') &&
-        !message.includes('Category options') &&
-        !message.includes('Preloading') &&
-        !message.includes('First visit detected') &&
-        !message.includes('cached in')) {
+        !message.includes('Response data for')) {
       originalError.apply(console, args);
     }
   };
   
   console.warn = (...args) => {
     const message = args.join(' ');
-    // Only log important warnings, not development info
+    // Only log important warnings
     if (!message.includes('Failed to preload') && 
-        !message.includes('Cache') &&
-        !message.includes('FilterContext') &&
-        !message.includes('Category options')) {
+        !message.includes('Cache')) {
       originalWarn.apply(console, args);
-    }
-  };
-} else {
-  // In development, also reduce some verbose logs
-  const originalLog = console.log;
-  console.log = (...args) => {
-    const message = args.join(' ');
-    // Reduce verbose development logs
-    if (!message.includes('Products data from API') &&
-        !message.includes('FilterContext:') &&
-        !message.includes('Category options preloaded') &&
-        !message.includes('All category options loaded') &&
-        !message.includes('cached in') &&
-        !message.includes('Preloading category options') &&
-        !message.includes('Category options preloading completed') &&
-        !message.includes('First visit detected')) {
-      originalLog.apply(console, args);
     }
   };
 }

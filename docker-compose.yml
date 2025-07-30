@@ -60,6 +60,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - ./frontend/.env:/app/.env
     depends_on:
       - backend
     networks:

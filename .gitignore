@@ -3,15 +3,11 @@
 /frontend/node_modules
 /backend/node_modules
 
-# Environment files
-.env
+# Environment files (keep .env for Docker deployment)
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-
-# But track the example file
-!.env.example
 
 # Logs
 logs
